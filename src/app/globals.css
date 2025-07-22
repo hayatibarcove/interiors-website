@@ -317,3 +317,233 @@ button:focus,
     transform: translateY(0);
   }
 }
+
+/* Responsive Typography Scale for Book Pages */
+.book-typography {
+  /* Base scale that adapts to book dimensions */
+  --text-xs: calc(0.75rem * var(--book-scale, 1));
+  --text-sm: calc(0.875rem * var(--book-scale, 1));
+  --text-base: calc(1rem * var(--book-scale, 1));
+  --text-lg: calc(1.125rem * var(--book-scale, 1));
+  --text-xl: calc(1.25rem * var(--book-scale, 1));
+  --text-2xl: calc(1.5rem * var(--book-scale, 1));
+  --text-3xl: calc(1.875rem * var(--book-scale, 1));
+  
+  /* Responsive line heights */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  
+  /* Optimized spacing */
+  --space-xs: calc(0.25rem * var(--book-scale, 1));
+  --space-sm: calc(0.5rem * var(--book-scale, 1));
+  --space-md: calc(1rem * var(--book-scale, 1));
+  --space-lg: calc(1.5rem * var(--book-scale, 1));
+  --space-xl: calc(2rem * var(--book-scale, 1));
+}
+
+/* Scene Typography Classes */
+.scene-title {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-md);
+  color: theme('colors.gray.800');
+}
+
+.scene-subtitle {
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  font-weight: 300;
+  color: theme('colors.gray.600');
+  margin-bottom: var(--space-sm);
+}
+
+.scene-text {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  font-weight: 300;
+  color: theme('colors.gray.700');
+  margin-bottom: var(--space-md);
+}
+
+.scene-caption {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  font-weight: 400;
+  color: theme('colors.gray.500');
+  text-align: center;
+  margin-top: var(--space-sm);
+}
+
+/* Responsive Image Utilities */
+.responsive-image {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 4px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.responsive-image--cover {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.responsive-image--contain {
+  object-fit: contain;
+  max-height: 100%;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: theme('colors.gray.50');
+  border-radius: 8px;
+}
+
+.image-container--square {
+  aspect-ratio: 1 / 1;
+}
+
+.image-container--landscape {
+  aspect-ratio: 4 / 3;
+}
+
+.image-container--portrait {
+  aspect-ratio: 3 / 4;
+}
+
+.image-container--wide {
+  aspect-ratio: 16 / 9;
+}
+
+/* Scene Container Responsive Layout */
+.scene-container {
+  width: 100%;
+  height: calc(20rem * var(--book-scale, 1)); /* Responsive height */
+  min-height: 200px;
+  max-height: 400px;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.scene-content {
+  width: 100%;
+  max-width: calc(24rem * var(--book-scale, 1));
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-md);
+}
+
+/* Interactive Elements */
+.scene-element {
+  transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  cursor: pointer;
+}
+
+.scene-element:hover {
+  transform: scale(1.02);
+  filter: brightness(1.05);
+}
+
+.scene-grid {
+  display: grid;
+  gap: var(--space-sm);
+  width: 100%;
+  max-width: calc(16rem * var(--book-scale, 1));
+}
+
+.scene-grid--2col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.scene-grid--3col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.scene-grid--4col {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* Visual Elements */
+.scene-shape {
+  background: theme('colors.gray.600');
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.scene-shape--circle {
+  border-radius: 50%;
+}
+
+.scene-shape--square {
+  aspect-ratio: 1 / 1;
+}
+
+.scene-shape--rectangle {
+  aspect-ratio: 3 / 2;
+}
+
+/* Color Utilities for Scenes */
+.scene-color--primary {
+  background: theme('colors.blue.600');
+}
+
+.scene-color--secondary {
+  background: theme('colors.red.500');
+}
+
+.scene-color--accent {
+  background: theme('colors.yellow.400');
+}
+
+.scene-color--neutral {
+  background: theme('colors.gray.400');
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+  .scene-container {
+    padding: var(--space-sm);
+    min-height: 160px;
+  }
+  
+  .scene-content {
+    gap: var(--space-sm);
+  }
+  
+  .scene-title {
+    font-size: var(--text-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .scene-container {
+    padding: calc(var(--space-sm) * 0.75);
+    min-height: 140px;
+  }
+  
+  .scene-title {
+    font-size: var(--text-lg);
+  }
+  
+  .scene-text {
+    font-size: var(--text-sm);
+  }
+}

@@ -67,7 +67,7 @@ const BookPage: React.FC<BookPageProps> = ({
         type="spinner"
         size="medium"
       />
-
+      
       {/* Main Page Content */}
       <div 
         className={`h-full flex flex-col transition-opacity duration-300 ${

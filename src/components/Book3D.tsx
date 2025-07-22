@@ -128,10 +128,10 @@ const Book3D: React.FC = () => {
   const coverRef = useRef<HTMLDivElement>(null);
   const pagesContainerRef = useRef<HTMLDivElement>(null);
   const [isClientSide, setIsClientSide] = useState(false);
-  
-  // Loading state management for pages
-  const [pageLoadingStates, setPageLoadingStates] = useState<Record<number, boolean>>({});
-  const [activeFlipTargets, setActiveFlipTargets] = useState<Set<number>>(new Set());
+
+   // Loading state management for pages
+   const [pageLoadingStates, setPageLoadingStates] = useState<Record<number, boolean>>({});
+   const [activeFlipTargets, setActiveFlipTargets] = useState<Set<number>>(new Set());
   
   // Use responsive book sizing
   const bookDimensions = useResponsiveBookSize();
@@ -293,14 +293,14 @@ const Book3D: React.FC = () => {
       zIndex: artTopics.length + 1
     });
 
-    // Enhanced page flip handler with loader coordination
+    // Enhanced page flip handler with proper direction-aware logic
     const handlePageFlips = (progress: number, direction: number) => {
       const totalElements = artTopics.length + 1; // +1 for cover
       
       // Calculate which page should be active based on scroll progress
       const activePageIndex = Math.floor(progress * totalElements);
       
-      // Handle cover flip with loader coordination
+      // Handle cover flip with natural direction
       if (progress > 0.05) {
         if (cover.getAttribute('data-flipped') !== 'true') {
           // Show loader for cover flip
@@ -314,7 +314,6 @@ const Book3D: React.FC = () => {
               return newSet;
             });
           });
-          
           cover.setAttribute('data-flipped', 'true');
           // Show all pages when cover opens
           gsap.to(pages, { opacity: 1, duration: 0.3, stagger: 0.02 });
@@ -330,14 +329,13 @@ const Book3D: React.FC = () => {
               return newSet;
             });
           });
-          
           cover.setAttribute('data-flipped', 'false');
           // Hide all pages when cover closes
           gsap.to(pages, { opacity: 0, duration: 0.3 });
         }
       }
 
-      // Handle individual page flips with loader coordination
+      // Handle individual page flips with proper direction awareness
       pages.forEach((page, index) => {
         const pageThreshold = (index + 1) / totalElements;
         const shouldBeFlipped = progress > pageThreshold;
@@ -368,18 +366,17 @@ const Book3D: React.FC = () => {
       });
     };
 
-    // Enhanced direction-aware flip function with callback support
-    const flipElementToDirection = (
-      element: HTMLElement, 
+    // Direction-aware flip function for natural book behavior
+    const flipElementToDirection = (element: HTMLElement, 
       shouldFlip: boolean, 
       scrollDirection: number,
       onComplete?: () => void
     ) => {
       // Set proper transform origin for natural page flipping
       gsap.set(element, { 
-        transformOrigin: "left center",
-        transformStyle: "preserve-3d"
-      });
+      transformOrigin: "left center",
+      transformStyle: "preserve-3d"
+    });
 
       let targetRotation: number;
       
@@ -453,32 +450,32 @@ const Book3D: React.FC = () => {
 
     // Main scroll timeline with enhanced direction-aware control
     const mainScrollTrigger = ScrollTrigger.create({
-      trigger: container,
-      start: "top top",
-      end: "bottom bottom",
+        trigger: container,
+        start: "top top",
+        end: "bottom bottom",
       pin: ".book-display",
-      pinSpacing: false,
+        pinSpacing: false,
       scrub: 0.3, // Slightly more responsive for better flip feel
-      onUpdate: (self) => {
-        const progress = self.progress;
+        onUpdate: (self) => {
+          const progress = self.progress;
         const direction = self.direction; // 1 = forward/down, -1 = backward/up
-        
-        // Update progress indicators
-        const progressBars = document.querySelectorAll('.page-progress');
-        progressBars.forEach((bar, index) => {
+          
+          // Update progress indicators
+          const progressBars = document.querySelectorAll('.page-progress');
+          progressBars.forEach((bar, index) => {
           const pageProgress = Math.max(0, Math.min(1, (progress * (artTopics.length + 1)) - index));
-          (bar as HTMLElement).style.height = `${pageProgress * 100}%`;
-        });
+            (bar as HTMLElement).style.height = `${pageProgress * 100}%`;
+          });
 
         // Hide scroll instruction
         if (progress > 0.02) {
-          const scrollInstruction = document.querySelector('.scroll-instruction');
-          if (scrollInstruction) {
+            const scrollInstruction = document.querySelector('.scroll-instruction');
+            if (scrollInstruction) {
             gsap.to(scrollInstruction, { opacity: 0, duration: 0.3 });
+            }
           }
-        }
 
-        // Handle direction-aware page flipping with loader coordination
+        // Handle direction-aware page flipping
         handlePageFlips(progress, direction);
       }
     });
@@ -497,7 +494,7 @@ const Book3D: React.FC = () => {
     return () => {
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
-  }, [isClientSide, artTopics.length, bookDimensions.scale, setPageLoading]);
+  }, [isClientSide, artTopics.length, bookDimensions.scale]);
 
   // Render nothing on server side to prevent hydration issues
   if (!isClientSide) {
@@ -544,11 +541,11 @@ const Book3D: React.FC = () => {
                   <div className="text-center mb-8">
                     <h1 className="font-display text-4xl md:text-5xl font-light mb-3 tracking-wider">
                       ARTISTRY
-                    </h1>
+                  </h1>
                     <div className="w-24 h-px bg-zinc-400 mx-auto mb-4"></div>
                     <p className="font-body text-sm md:text-base text-zinc-600 tracking-wide uppercase">
                       Art • Design • Photography
-                    </p>
+                  </p>
                   </div>
                   
                   {/* Geometric Logo Mark */}

@@ -13,52 +13,59 @@ const StoryScene: React.FC<ArtSceneProps> = ({ scene }) => {
   useEffect(() => {
     if (!sceneRef.current) return;
 
-    const animatedElements = sceneRef.current.querySelectorAll('.minimal-animate');
+    const animatedElements = sceneRef.current.querySelectorAll('.scene-element');
     
-    // Subtle, refined animations
+    // Enhanced, context-aware animations
+    gsap.fromTo(animatedElements, 
+      {
+        y: 8,
+        opacity: 0.8,
+        scale: 0.95
+      },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        stagger: 0.15,
+        ease: "power2.out"
+      }
+    );
+
+    // Subtle floating animation for interactive elements
     gsap.to(animatedElements, {
-      y: -4,
-      duration: 4,
+      y: -2,
+      duration: 3,
       repeat: -1,
       yoyo: true,
-      stagger: 0.5,
+      stagger: 0.3,
       ease: "power1.inOut"
-    });
-
-    // Gentle hover interactions
-    const interactiveElements = sceneRef.current.querySelectorAll('.minimal-hover');
-    interactiveElements.forEach(element => {
-      element.addEventListener('mouseenter', () => {
-        gsap.to(element, { scale: 1.02, duration: 0.3, ease: "power2.out" });
-      });
-      
-      element.addEventListener('mouseleave', () => {
-        gsap.to(element, { scale: 1, duration: 0.3, ease: "power2.out" });
-      });
     });
 
   }, [scene]);
 
-  const renderMinimalScene = () => {
+  const renderResponsiveScene = () => {
     switch (scene) {
       case 'bauhaus':
         return (
-          <div className="w-full h-80 bg-gray-50 flex items-center justify-center">
-            {/* Clean Bauhaus Elements */}
-            <div className="space-y-8">
-              <div className="text-center">
-                <h3 className="text-2xl font-light text-gray-800 tracking-widest">BAUHAUS</h3>
+          <div className="scene-container book-typography bg-gray-50">
+            <div className="scene-content">
+              <h3 className="scene-title">BAUHAUS</h3>
+              <p className="scene-caption">Form Follows Function</p>
+              
+              <div className="scene-grid scene-grid--3col" style={{ maxWidth: '12rem' }}>
+                <div className="scene-element scene-shape scene-shape--square scene-color--secondary transform rotate-45" 
+                     style={{ height: 'calc(2rem * var(--book-scale, 1))' }}></div>
+                <div className="scene-element scene-shape scene-shape--circle scene-color--primary" 
+                     style={{ height: 'calc(2rem * var(--book-scale, 1))' }}></div>
+                <div className="scene-element scene-shape scene-shape--rectangle scene-color--accent" 
+                     style={{ height: 'calc(3rem * var(--book-scale, 1))' }}></div>
               </div>
               
-              <div className="flex items-center justify-center space-x-6">
-                <div className="minimal-hover w-8 h-8 bg-red-500 transform rotate-45"></div>
-                <div className="minimal-hover w-8 h-8 bg-blue-600 rounded-full"></div>
-                <div className="minimal-hover w-8 h-16 bg-yellow-400"></div>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-2 w-24 mx-auto">
+              <div className="scene-grid scene-grid--4col" style={{ maxWidth: '8rem' }}>
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="minimal-animate w-4 h-4 bg-gray-800"></div>
+                  <div key={i} className="scene-element scene-shape scene-shape--square scene-color--neutral" 
+                       style={{ height: 'calc(1rem * var(--book-scale, 1))' }}></div>
                 ))}
               </div>
             </div>
@@ -67,159 +74,226 @@ const StoryScene: React.FC<ArtSceneProps> = ({ scene }) => {
 
       case 'minimalist':
         return (
-          <div className="w-full h-80 bg-white flex items-center justify-center">
-            {/* Ultra-clean Poster Design */}
-            <div className="w-48 h-64 bg-gray-900 flex flex-col">
-              <div className="flex-1 flex items-center justify-center">
-                <span className="text-white text-xl font-light tracking-wider minimal-animate">
-                  BASS
-                </span>
+          <div className="scene-container book-typography bg-white">
+            <div className="scene-content">
+              <div className="image-container image-container--portrait" style={{ maxWidth: '12rem', maxHeight: '16rem' }}>
+                <div className="w-full h-full bg-gray-900 flex flex-col">
+                  <div className="flex-1 flex items-center justify-center">
+                    <h3 className="scene-title text-white">BASS</h3>
+                  </div>
+                  <div className="scene-element scene-color--accent" style={{ height: 'calc(3rem * var(--book-scale, 1))' }}></div>
+                </div>
               </div>
-              <div className="h-12 bg-orange-500 minimal-hover"></div>
+              <p className="scene-caption">Saul Bass Poster Design</p>
             </div>
           </div>
         );
 
       case 'golden-ratio':
         return (
-          <div className="w-full h-80 bg-gray-50 flex items-center justify-center">
-            {/* Simplified Golden Ratio */}
-            <div className="relative w-32 h-32">
-              <div className="absolute top-0 right-0 w-20 h-20 border-2 border-gray-400 minimal-hover"></div>
-              <div className="absolute bottom-0 right-0 w-12 h-12 border-2 border-gray-500 minimal-hover"></div>
-              <div className="absolute bottom-0 left-8 w-8 h-8 border-2 border-gray-600 minimal-hover"></div>
+          <div className="scene-container book-typography bg-gray-50">
+            <div className="scene-content">
+              <h3 className="scene-title">GOLDEN RATIO</h3>
+              <p className="scene-caption">φ = 1.618...</p>
               
-              {/* Clean spiral line */}
-              <svg className="absolute inset-0 w-full h-full minimal-animate" viewBox="0 0 100 100">
-                <path
-                  d="M 75 25 Q 75 75 25 75"
-                  fill="none"
-                  stroke="#9CA3AF"
-                  strokeWidth="1"
-                />
-              </svg>
+              <div className="relative" style={{ width: 'calc(8rem * var(--book-scale, 1))', height: 'calc(8rem * var(--book-scale, 1))' }}>
+                <div className="absolute top-0 right-0 scene-element border-2 border-gray-400" 
+                     style={{ width: 'calc(5rem * var(--book-scale, 1))', height: 'calc(5rem * var(--book-scale, 1))' }}></div>
+                <div className="absolute bottom-0 right-0 scene-element border-2 border-gray-500" 
+                     style={{ width: 'calc(3rem * var(--book-scale, 1))', height: 'calc(3rem * var(--book-scale, 1))' }}></div>
+                <div className="absolute bottom-0 left-8 scene-element border-2 border-gray-600" 
+                     style={{ width: 'calc(2rem * var(--book-scale, 1))', height: 'calc(2rem * var(--book-scale, 1))' }}></div>
+                
+                <svg className="absolute inset-0 w-full h-full scene-element" viewBox="0 0 100 100">
+                  <path
+                    d="M 75 25 Q 75 75 25 75"
+                    fill="none"
+                    stroke="#9CA3AF"
+                    strokeWidth="1.5"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         );
 
       case 'photography':
         return (
-          <div className="w-full h-80 bg-gray-100 flex items-center justify-center">
-            {/* Clean Camera Frame */}
-            <div className="w-48 h-32 border-4 border-gray-800 bg-white minimal-hover">
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                {/* Simple viewfinder grid */}
-                <div className="relative w-24 h-16">
-                  <div className="absolute inset-0 border border-dashed border-gray-400 opacity-50"></div>
-                  <div className="absolute top-1/3 left-0 right-0 border-t border-dashed border-gray-400 opacity-30"></div>
-                  <div className="absolute left-1/3 top-0 bottom-0 border-l border-dashed border-gray-400 opacity-30"></div>
+          <div className="scene-container book-typography bg-gray-100">
+            <div className="scene-content">
+              <h3 className="scene-title">DECISIVE MOMENT</h3>
+              
+              <div className="image-container image-container--landscape scene-element border-4 border-gray-800 bg-white" 
+                   style={{ maxWidth: '16rem' }}>
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center relative">
+                  {/* Viewfinder grid */}
+                  <div className="absolute inset-4">
+                    <div className="w-full h-full border border-dashed border-gray-400 opacity-40"></div>
+                    <div className="absolute top-1/3 left-0 right-0 border-t border-dashed border-gray-400 opacity-30"></div>
+                    <div className="absolute top-2/3 left-0 right-0 border-t border-dashed border-gray-400 opacity-30"></div>
+                    <div className="absolute left-1/3 top-0 bottom-0 border-l border-dashed border-gray-400 opacity-30"></div>
+                    <div className="absolute left-2/3 top-0 bottom-0 border-l border-dashed border-gray-400 opacity-30"></div>
+                  </div>
+                  
+                  {/* Camera focus point */}
+                  <div className="w-2 h-2 bg-red-500 rounded-full scene-element"></div>
                 </div>
               </div>
+              
+              <p className="scene-caption">Henri Cartier-Bresson</p>
             </div>
           </div>
         );
 
       case 'color-theory':
         return (
-          <div className="w-full h-80 bg-white flex items-center justify-center">
-            {/* Minimal Color Wheel */}
-            <div className="relative w-32 h-32">
-              <div className="absolute inset-0 rounded-full border-8 border-gray-200 minimal-hover"></div>
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 w-6 h-6 bg-red-500 rounded-full minimal-animate"></div>
-              <div className="absolute right-0 top-1/2 transform translate-x-2 -translate-y-1/2 w-6 h-6 bg-blue-500 rounded-full minimal-animate"></div>
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-2 w-6 h-6 bg-yellow-500 rounded-full minimal-animate"></div>
+          <div className="scene-container book-typography bg-white">
+            <div className="scene-content">
+              <h3 className="scene-title">COLOR THEORY</h3>
+              <p className="scene-caption">Primary Relationships</p>
+              
+              <div className="relative" style={{ width: 'calc(8rem * var(--book-scale, 1))', height: 'calc(8rem * var(--book-scale, 1))' }}>
+                <div className="absolute inset-0 rounded-full border-4 border-gray-200 scene-element"></div>
+                
+                {/* Primary colors positioned around circle */}
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 scene-element scene-shape scene-shape--circle scene-color--secondary" 
+                     style={{ width: 'calc(1.5rem * var(--book-scale, 1))', height: 'calc(1.5rem * var(--book-scale, 1))' }}></div>
+                <div className="absolute right-0 top-1/2 transform translate-x-2 -translate-y-1/2 scene-element scene-shape scene-shape--circle scene-color--primary" 
+                     style={{ width: 'calc(1.5rem * var(--book-scale, 1))', height: 'calc(1.5rem * var(--book-scale, 1))' }}></div>
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-2 scene-element scene-shape scene-shape--circle scene-color--accent" 
+                     style={{ width: 'calc(1.5rem * var(--book-scale, 1))', height: 'calc(1.5rem * var(--book-scale, 1))' }}></div>
+              </div>
             </div>
           </div>
         );
 
       case 'abstract':
         return (
-          <div className="w-full h-80 bg-gray-50 flex items-center justify-center">
-            {/* Clean Color Fields */}
-            <div className="space-y-4 w-48">
-              <div className="h-16 bg-red-400 minimal-hover opacity-80"></div>
-              <div className="h-20 bg-blue-600 minimal-hover opacity-70"></div>
-              <div className="h-12 bg-yellow-400 minimal-hover opacity-60"></div>
+          <div className="scene-container book-typography bg-gray-50">
+            <div className="scene-content">
+              <h3 className="scene-title">ABSTRACT EXPRESSIONISM</h3>
+              <p className="scene-caption">Color Field Painting</p>
+              
+              <div className="space-y-3 w-full" style={{ maxWidth: '12rem' }}>
+                <div className="scene-element scene-color--secondary opacity-80" style={{ height: 'calc(4rem * var(--book-scale, 1))' }}></div>
+                <div className="scene-element scene-color--primary opacity-70" style={{ height: 'calc(5rem * var(--book-scale, 1))' }}></div>
+                <div className="scene-element scene-color--accent opacity-60" style={{ height: 'calc(3rem * var(--book-scale, 1))' }}></div>
+              </div>
             </div>
           </div>
         );
 
       case 'grid-system':
         return (
-          <div className="w-full h-80 bg-white flex items-center justify-center">
-            {/* Clean Grid Layout */}
-            <div className="grid grid-cols-3 grid-rows-3 gap-4 w-48 h-48">
-              <div className="bg-red-500 minimal-hover"></div>
-              <div className="bg-gray-200 minimal-hover"></div>
-              <div className="bg-gray-800 minimal-hover"></div>
-              <div className="bg-gray-300 minimal-hover"></div>
-              <div className="bg-yellow-400 minimal-hover"></div>
-              <div className="bg-gray-400 minimal-hover"></div>
-              <div className="bg-blue-600 minimal-hover"></div>
-              <div className="bg-gray-200 minimal-hover"></div>
-              <div className="bg-green-500 minimal-hover"></div>
+          <div className="scene-container book-typography bg-white">
+            <div className="scene-content">
+              <h3 className="scene-title">SWISS GRID</h3>
+              <p className="scene-caption">Systematic Layout</p>
+              
+              <div className="scene-grid scene-grid--3col" style={{ maxWidth: '12rem' }}>
+                {[...Array(9)].map((_, i) => (
+                  <div key={i} className="scene-element aspect-square border border-gray-300 bg-gray-50 flex items-center justify-center">
+                    <div className="w-4 h-4 bg-gray-400 scene-element"></div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="w-full h-px bg-gray-300 scene-element" style={{ maxWidth: '12rem' }}></div>
+              <div className="scene-grid scene-grid--2col" style={{ maxWidth: '12rem' }}>
+                <div className="scene-element aspect-[3/2] bg-gray-200"></div>
+                <div className="scene-element aspect-[3/2] bg-gray-100"></div>
+              </div>
             </div>
           </div>
         );
 
       case 'surrealism':
         return (
-          <div className="w-full h-80 bg-gray-100 flex items-center justify-center">
-            {/* Simplified Floating Elements */}
-            <div className="relative w-48 h-32">
-              <div className="absolute top-4 left-8 w-6 h-6 bg-gray-800 rounded-full minimal-animate"></div>
-              <div className="absolute top-12 right-12 w-8 h-4 bg-gray-600 minimal-animate"></div>
-              <div className="absolute bottom-8 left-16 w-4 h-8 bg-gray-500 minimal-animate"></div>
+          <div className="scene-container book-typography bg-gradient-to-b from-blue-50 to-yellow-50">
+            <div className="scene-content">
+              <h3 className="scene-title">SURREALISM</h3>
+              <p className="scene-caption">Dreams in Photography</p>
               
-              {/* Simple ground plane */}
-              <div className="absolute bottom-0 left-0 right-0 h-4 bg-gray-300"></div>
+              <div className="relative" style={{ width: 'calc(12rem * var(--book-scale, 1))', height: 'calc(8rem * var(--book-scale, 1))' }}>
+                {/* Floating elements */}
+                <div className="absolute top-2 left-4 scene-element scene-shape scene-shape--circle scene-color--primary" 
+                     style={{ width: 'calc(2rem * var(--book-scale, 1))', height: 'calc(2rem * var(--book-scale, 1))' }}></div>
+                <div className="absolute top-8 right-6 scene-element scene-shape scene-shape--square scene-color--secondary transform rotate-12" 
+                     style={{ width: 'calc(1.5rem * var(--book-scale, 1))', height: 'calc(1.5rem * var(--book-scale, 1))' }}></div>
+                <div className="absolute bottom-4 left-8 scene-element scene-shape scene-shape--rectangle scene-color--accent" 
+                     style={{ width: 'calc(3rem * var(--book-scale, 1))', height: 'calc(1rem * var(--book-scale, 1))' }}></div>
+                
+                {/* Impossible architecture */}
+                <div className="absolute bottom-0 right-4 scene-element">
+                  <div className="w-6 h-12 bg-gray-600 relative">
+                    <div className="absolute -top-2 -right-2 w-8 h-2 bg-gray-400 transform -rotate-12"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
 
       case 'lighting':
         return (
-          <div className="w-full h-80 bg-gray-900 flex items-center justify-center">
-            {/* Clean Lighting Setup */}
-            <div className="relative w-48 h-32">
-              {/* Subject silhouette */}
-              <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-16 bg-gray-300 minimal-hover"></div>
+          <div className="scene-container book-typography bg-black">
+            <div className="scene-content">
+              <h3 className="scene-title text-white">STUDIO LIGHTING</h3>
+              <p className="scene-caption text-gray-300">Sculpting with Light</p>
               
-              {/* Key light */}
-              <div className="absolute top-4 left-4 w-2 h-2 bg-yellow-400 rounded-full minimal-animate"></div>
-              <div className="absolute top-6 left-6 w-12 h-12 bg-yellow-200 rounded-full opacity-20"></div>
-              
-              {/* Fill light */}
-              <div className="absolute top-8 right-8 w-1 h-1 bg-blue-200 rounded-full minimal-animate"></div>
-              <div className="absolute top-10 right-10 w-8 h-8 bg-blue-100 rounded-full opacity-10"></div>
+              <div className="relative" style={{ width: 'calc(10rem * var(--book-scale, 1))', height: 'calc(6rem * var(--book-scale, 1))' }}>
+                {/* Portrait silhouette */}
+                <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 w-8 h-12 bg-gray-700 scene-element"
+                     style={{ clipPath: 'ellipse(50% 70% at 50% 100%)' }}></div>
+                
+                {/* Light sources */}
+                <div className="absolute top-2 left-2 scene-element">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                  <div className="absolute inset-0 w-8 h-8 bg-yellow-200 rounded-full opacity-20 -translate-x-3 -translate-y-3"></div>
+                </div>
+                
+                <div className="absolute top-4 right-4 scene-element">
+                  <div className="w-1.5 h-1.5 bg-blue-200 rounded-full"></div>
+                  <div className="absolute inset-0 w-6 h-6 bg-blue-100 rounded-full opacity-15 -translate-x-2 -translate-y-2"></div>
+                </div>
+              </div>
             </div>
           </div>
         );
 
       case 'digital':
         return (
-          <div className="w-full h-80 bg-gray-900 flex items-center justify-center">
-            {/* Simple Digital Pattern */}
-            <div className="grid grid-cols-6 grid-rows-4 gap-1 w-48 h-32">
-              {[...Array(24)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className="minimal-animate bg-gray-600"
-                  style={{
-                    animationDelay: `${i * 0.1}s`,
-                    backgroundColor: i % 3 === 0 ? '#60A5FA' : '#6B7280'
-                  }}
-                ></div>
-              ))}
+          <div className="scene-container book-typography bg-gradient-to-br from-purple-50 to-blue-50">
+            <div className="scene-content">
+              <h3 className="scene-title">DIGITAL ART</h3>
+              <p className="scene-caption">Generative Design</p>
+              
+              <div className="scene-grid scene-grid--4col" style={{ maxWidth: '8rem' }}>
+                {[...Array(16)].map((_, i) => {
+                  const colors = ['bg-purple-400', 'bg-blue-400', 'bg-pink-400', 'bg-indigo-400'];
+                  const sizes = ['w-full h-2', 'w-full h-3', 'w-full h-1', 'w-full h-4'];
+                  return (
+                    <div key={i} className={`scene-element ${colors[i % 4]} ${sizes[i % 4]} opacity-70`}></div>
+                  );
+                })}
+              </div>
+              
+              <div className="flex justify-center space-x-1 mt-4">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="scene-element w-1 bg-gradient-to-t from-purple-400 to-blue-400 opacity-60"
+                       style={{ height: `${Math.random() * 2 + 1}rem` }}></div>
+                ))}
+              </div>
             </div>
           </div>
         );
 
       default:
         return (
-          <div className="w-full h-80 bg-gray-50 flex items-center justify-center">
-            <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="text-2xl">🎨</span>
+          <div className="scene-container book-typography bg-gray-50">
+            <div className="scene-content">
+              <h3 className="scene-title">ART SCENE</h3>
+              <p className="scene-caption">Visual Exploration</p>
             </div>
           </div>
         );
@@ -227,11 +301,8 @@ const StoryScene: React.FC<ArtSceneProps> = ({ scene }) => {
   };
 
   return (
-    <div 
-      ref={sceneRef}
-      className="minimal-scene w-full"
-    >
-      {renderMinimalScene()}
+    <div ref={sceneRef} className="w-full">
+      {renderResponsiveScene()}
     </div>
   );
 };
