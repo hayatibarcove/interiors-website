@@ -1,0 +1,193 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@200;300;400;500;600&display=swap');
+
+:root {
+  --background: #fafafa;
+  --foreground: #1a1a1a;
+  --gallery-white: #ffffff;
+  --gallery-warm: #f8f6f3;
+  --gallery-accent: #2a2a2a;
+  --gallery-muted: #6b6b6b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1a1a1a;
+    --foreground: #f0f0f0;
+    --gallery-white: #2a2a2a;
+    --gallery-warm: #252525;
+    --gallery-accent: #f0f0f0;
+    --gallery-muted: #a0a0a0;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Premium Typography */
+.font-display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.font-body {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+/* Fullscreen Layout */
+#__next {
+  min-height: 100vh;
+}
+
+/* Book Animation Enhancements */
+.book-container {
+  will-change: transform;
+  filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.15));
+}
+
+.book-cover,
+.book-page {
+  backface-visibility: hidden;
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+/* Custom scrollbar - Gallery Style */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gallery-warm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gallery-muted);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gallery-accent);
+}
+
+/* Art Book Typography */
+.book-page .font-serif {
+  font-family: var(--font-serif);
+  line-height: 1.8;
+  font-weight: 400;
+}
+
+/* Smooth performance */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .book-container {
+    transform: scale(0.85);
+  }
+}
+
+@media (max-width: 480px) {
+  .book-container {
+    transform: scale(0.7);
+  }
+}
+
+/* Premium paper texture */
+.book-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* Gallery lighting effect */
+.art-scene {
+  position: relative;
+}
+
+.art-scene::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  right: -10%;
+  bottom: -20%;
+  background: radial-gradient(ellipse at center top, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Animation states for art elements */
+.art-element {
+  transform-origin: center center;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.art-element:hover {
+  transform: scale(1.02);
+  filter: brightness(1.05);
+}
+
+/* Sophisticated hover states */
+.interactive-art {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.interactive-art:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Gallery frame effects */
+.gallery-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 49%, rgba(255, 255, 255, 0.1) 50%, transparent 51%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.gallery-frame:hover::before {
+  opacity: 1;
+}

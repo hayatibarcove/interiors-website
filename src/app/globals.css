@@ -1,26 +1,319 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #1a1a1a;
+  --gallery-white: #ffffff;
+  --gallery-warm: #f8f6f3;
+  --gallery-accent: #2a2a2a;
+  --gallery-muted: #6b6b6b;
+  
+  /* Dynamic Layout Properties */
+  --header-height: 88px;
+  --footer-height: 52px;
+  --book-width: 640px;
+  --book-height: 420px;
+  --book-scale: 1;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1a1a1a;
+    --foreground: #f0f0f0;
+    --gallery-white: #2a2a2a;
+    --gallery-warm: #252525;
+    --gallery-accent: #f0f0f0;
+    --gallery-muted: #a0a0a0;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Minimal Typography System */
+.font-display {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.font-body {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.6;
+  letter-spacing: 0.002em;
+}
+
+/* Clean Layout System */
+.minimal-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.minimal-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.minimal-section {
+  padding: 4rem 0;
+}
+
+/* Book Animation Enhancements */
+.book-container {
+  will-change: transform;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.08));
+}
+
+.book-cover,
+.book-page {
+  backface-visibility: hidden;
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+/* Responsive Book Layout */
+.book-display {
+  contain: layout style paint;
+}
+
+.book-base {
+  transition: width 0.3s ease-out, height 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+/* Minimal Scene Animations */
+.minimal-animate {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.minimal-hover {
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+}
+
+.minimal-hover:hover {
+  transform: scale(1.02);
+  filter: brightness(1.05);
+}
+
+.minimal-scene {
+  transition: opacity 0.3s ease;
+}
+
+.minimal-scene:hover {
+  opacity: 0.9;
+}
+
+/* Clean Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}
+
+/* Refined Typography */
+.book-page .font-serif {
+  font-family: var(--font-serif);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* Smooth Performance */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .book-container {
+    transform: scale(0.9);
+  }
+  
+  .minimal-container {
+    padding: 0 1rem;
+  }
+  
+  .minimal-section {
+    padding: 2rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-container {
+    transform: scale(0.75);
+  }
+  
+  .minimal-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Responsive Design Utilities */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 76px;
+    --footer-height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --header-height: 68px;
+    --footer-height: 44px;
+  }
+}
+
+/* Enhanced Performance */
+.book-container * {
+  backface-visibility: hidden;
+}
+
+.book-display {
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
+/* Clean Focus States */
+button:focus,
+.minimal-hover:focus {
+  outline: 2px solid #6b7280;
+  outline-offset: 2px;
+}
+
+/* Minimal Badge Styles */
+.minimal-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.minimal-badge:hover {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+/* Clean Dividers */
+.minimal-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+  margin: 2rem 0;
+}
+
+.minimal-divider-short {
+  width: 3rem;
+  height: 1px;
+  background: #d1d5db;
+}
+
+/* Sophisticated Page Transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.page-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Clean Loading States */
+.minimal-skeleton {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Elegant Shadow System */
+.shadow-minimal {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.shadow-minimal-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Clean Animation Utilities */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
