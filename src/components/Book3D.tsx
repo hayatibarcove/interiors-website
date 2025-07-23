@@ -2,15 +2,15 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import BookPage from './BookPage';
 
-// Register GSAP plugins with SSR safety
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
+// Book3D component props interface
+interface Book3DProps {
+  scrollProgress: number;
+  scrollDirection: number;
 }
 
-// Custom hook for dynamic book sizing
+// Custom hook for dynamic book sizing for constrained fullscreen
 const useResponsiveBookSize = () => {
   const [bookDimensions, setBookDimensions] = useState({
     width: 640,
@@ -21,88 +21,96 @@ const useResponsiveBookSize = () => {
   const calculateBookSize = useCallback(() => {
     if (typeof window === 'undefined') return;
 
-    // Get CSS custom property values or fallbacks
+    // Get CSS custom property values for layout constraints
     const headerHeight = parseInt(getComputedStyle(document.documentElement)
       .getPropertyValue('--header-height') || '88');
     const footerHeight = parseInt(getComputedStyle(document.documentElement)
       .getPropertyValue('--footer-height') || '52');
+    const bookPadding = parseInt(getComputedStyle(document.documentElement)
+      .getPropertyValue('--book-padding') || '24');
 
-    // Calculate available viewport space
+    // Calculate available space between header and footer
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
-    // Subtract header, footer, and comfortable margins
-    const marginTop = 40; // Top breathing space
-    const marginBottom = 40; // Bottom breathing space  
-    const marginHorizontal = 80; // Side margins
+    // Available space calculation
+    const availableHeight = viewportHeight - headerHeight - footerHeight - (bookPadding * 2);
+    const availableWidth = viewportWidth - (bookPadding * 2);
+
+    // Ensure minimum available space
+    const minAvailableHeight = 200;
+    const minAvailableWidth = 320;
     
-    const availableWidth = viewportWidth - (marginHorizontal * 2);
-    const availableHeight = viewportHeight - headerHeight - footerHeight - marginTop - marginBottom;
+    if (availableHeight < minAvailableHeight || availableWidth < minAvailableWidth) {
+      console.warn('Insufficient space for book layout');
+      return;
+    }
 
     // Book aspect ratio (width:height = 1.52:1 for standard book)
     const bookAspectRatio = 1.52;
     
     // Calculate maximum possible dimensions while maintaining aspect ratio
-    let maxWidth = availableWidth;
-    let maxHeight = availableHeight;
-    
-    // Constrain by aspect ratio
-    const widthFromHeight = maxHeight * bookAspectRatio;
-    const heightFromWidth = maxWidth / bookAspectRatio;
+    const widthFromHeight = availableHeight * bookAspectRatio;
+    const heightFromWidth = availableWidth / bookAspectRatio;
     
     let finalWidth, finalHeight;
     
-    if (widthFromHeight <= maxWidth) {
+    if (widthFromHeight <= availableWidth) {
       // Height is the limiting factor
       finalWidth = widthFromHeight;
-      finalHeight = maxHeight;
+      finalHeight = availableHeight;
     } else {
       // Width is the limiting factor
-      finalWidth = maxWidth;
+      finalWidth = availableWidth;
       finalHeight = heightFromWidth;
     }
 
-    // Apply size constraints (min/max limits)
-    const minWidth = 320;
-    const maxWidthLimit = 1200;
-    const minHeight = 210;
-    const maxHeightLimit = 800;
+    // Apply reasonable size constraints while respecting available space
+    const minWidth = Math.min(320, availableWidth * 0.8);
+    const maxWidth = Math.min(1000, availableWidth * 0.95);
+    const minHeight = Math.min(210, availableHeight * 0.8);
+    const maxHeight = Math.min(650, availableHeight * 0.95);
 
-    finalWidth = Math.max(minWidth, Math.min(maxWidthLimit, finalWidth));
-    finalHeight = Math.max(minHeight, Math.min(maxHeightLimit, finalHeight));
+    finalWidth = Math.max(minWidth, Math.min(maxWidth, finalWidth));
+    finalHeight = Math.max(minHeight, Math.min(maxHeight, finalHeight));
 
-    // Ensure we maintain aspect ratio after constraints
+    // Ensure aspect ratio is maintained after constraints
     if (finalWidth / finalHeight > bookAspectRatio) {
       finalWidth = finalHeight * bookAspectRatio;
     } else {
       finalHeight = finalWidth / bookAspectRatio;
     }
 
+    // Final safety check to ensure we don't exceed available space
+    if (finalHeight > availableHeight) {
+      finalHeight = availableHeight;
+      finalWidth = finalHeight * bookAspectRatio;
+    }
+    if (finalWidth > availableWidth) {
+      finalWidth = availableWidth;
+      finalHeight = finalWidth / bookAspectRatio;
+    }
+
     // Calculate scale for perspective and other effects
-    const baseWidth = 640; // Reference width for scaling other elements
+    const baseWidth = 640;
     const scale = finalWidth / baseWidth;
 
     setBookDimensions({
       width: Math.round(finalWidth),
       height: Math.round(finalHeight),
-      scale: Math.max(0.5, Math.min(2, scale)) // Clamp scale between 0.5x and 2x
+      scale: Math.max(0.3, Math.min(2, scale))
     });
 
-    // Update CSS custom properties for other components to use
+    // Update CSS custom properties
     document.documentElement.style.setProperty('--book-width', `${finalWidth}px`);
     document.documentElement.style.setProperty('--book-height', `${finalHeight}px`);
     document.documentElement.style.setProperty('--book-scale', scale.toString());
+
   }, []);
 
   useEffect(() => {
-    // Set CSS custom properties
-    document.documentElement.style.setProperty('--header-height', '88px');
-    document.documentElement.style.setProperty('--footer-height', '52px');
-
-    // Calculate initial size
     calculateBookSize();
 
-    // Recalculate on resize with debouncing
     let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
@@ -122,16 +130,16 @@ const useResponsiveBookSize = () => {
   return bookDimensions;
 };
 
-const Book3D: React.FC = () => {
+const Book3D: React.FC<Book3DProps> = ({ scrollProgress, scrollDirection }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const bookRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLDivElement>(null);
   const pagesContainerRef = useRef<HTMLDivElement>(null);
   const [isClientSide, setIsClientSide] = useState(false);
 
-   // Loading state management for pages
-   const [pageLoadingStates, setPageLoadingStates] = useState<Record<number, boolean>>({});
-   const [activeFlipTargets, setActiveFlipTargets] = useState<Set<number>>(new Set());
+  // Loading state management for pages
+  const [pageLoadingStates, setPageLoadingStates] = useState<Record<number, boolean>>({});
+  const [activeFlipTargets, setActiveFlipTargets] = useState<Set<number>>(new Set());
   
   // Use responsive book sizing
   const bookDimensions = useResponsiveBookSize();
@@ -147,15 +155,6 @@ const Book3D: React.FC = () => {
       year: "1919-1933",
       artist: "Herbert Bayer, László Moholy-Nagy"
     },
-    // {
-    //   title: "Minimalist Poster Art",
-    //   subtitle: "The Power of Less",
-    //   content: "Discover how masters like Saul Bass revolutionized graphic design through bold simplicity, strategic color use, and powerful visual storytelling.",
-    //   scene: "minimalist",
-    //   image: "/photos/bauhaus.png",
-    //   year: "1950s-1970s", 
-    //   artist: "Saul Bass, Josef Müller-Brockmann"
-    // },
     {
       title: "Golden Ratio in Design",
       subtitle: "Mathematics of Beauty",
@@ -251,10 +250,10 @@ const Book3D: React.FC = () => {
     setIsClientSide(true);
   }, []);
 
+  // Initialize book 3D setup
   useEffect(() => {
     if (!isClientSide || !containerRef.current || !bookRef.current || !coverRef.current || !pagesContainerRef.current) return;
 
-    const container = containerRef.current;
     const book = bookRef.current;
     const cover = coverRef.current;
     const pagesContainer = pagesContainerRef.current;
@@ -278,7 +277,6 @@ const Book3D: React.FC = () => {
 
     // Set initial page states
     pages.forEach((page, index) => {
-      // Initial closed state
       gsap.set(page, { 
         rotationY: 0,
         opacity: 0,
@@ -293,21 +291,54 @@ const Book3D: React.FC = () => {
       zIndex: artTopics.length + 1
     });
 
-    // Enhanced page flip handler with proper direction-aware logic
+    // Enhanced book breathing animation
+    gsap.to(book, {
+      scale: 1.003,
+      rotationY: -7,
+      duration: 8,
+      ease: "power1.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+
+  }, [isClientSide, artTopics.length, bookDimensions.scale]);
+
+  // Handle scroll-based page flipping
+  useEffect(() => {
+    if (!isClientSide || !coverRef.current || !pagesContainerRef.current) return;
+
+    const cover = coverRef.current;
+    const pagesContainer = pagesContainerRef.current;
+    const pages = Array.from(pagesContainer.querySelectorAll('.book-page')) as HTMLElement[];
+
     const handlePageFlips = (progress: number, direction: number) => {
       const totalElements = artTopics.length + 1; // +1 for cover
       
-      // Calculate which page should be active based on scroll progress
-      const activePageIndex = Math.floor(progress * totalElements);
+      // Update progress indicators
+      const progressBars = document.querySelectorAll('.page-progress');
+      progressBars.forEach((bar, index) => {
+        const pageProgress = Math.max(0, Math.min(1, (progress * totalElements) - index));
+        (bar as HTMLElement).style.height = `${pageProgress * 100}%`;
+      });
+
+      // Hide scroll instruction
+      if (progress > 0.02) {
+        const scrollInstruction = document.querySelector('.fullscreen-scroll-instruction');
+        if (scrollInstruction) {
+          gsap.to(scrollInstruction, { opacity: 0, duration: 0.3 });
+        }
+      } else {
+        const scrollInstruction = document.querySelector('.fullscreen-scroll-instruction');
+        if (scrollInstruction) {
+          gsap.to(scrollInstruction, { opacity: 1, duration: 0.3 });
+        }
+      }
       
-      // Handle cover flip with natural direction
+      // Handle cover flip
       if (progress > 0.05) {
         if (cover.getAttribute('data-flipped') !== 'true') {
-          // Show loader for cover flip
-          setActiveFlipTargets(prev => new Set(prev).add(-1)); // -1 for cover
-          
+          setActiveFlipTargets(prev => new Set(prev).add(-1));
           flipElementToDirection(cover, true, direction, () => {
-            // Hide loader when cover flip completes
             setActiveFlipTargets(prev => {
               const newSet = new Set(prev);
               newSet.delete(-1);
@@ -315,13 +346,11 @@ const Book3D: React.FC = () => {
             });
           });
           cover.setAttribute('data-flipped', 'true');
-          // Show all pages when cover opens
           gsap.to(pages, { opacity: 1, duration: 0.3, stagger: 0.02 });
         }
       } else {
         if (cover.getAttribute('data-flipped') === 'true') {
           setActiveFlipTargets(prev => new Set(prev).add(-1));
-          
           flipElementToDirection(cover, false, direction, () => {
             setActiveFlipTargets(prev => {
               const newSet = new Set(prev);
@@ -330,32 +359,27 @@ const Book3D: React.FC = () => {
             });
           });
           cover.setAttribute('data-flipped', 'false');
-          // Hide all pages when cover closes
           gsap.to(pages, { opacity: 0, duration: 0.3 });
         }
       }
 
-      // Handle individual page flips with proper direction awareness
+      // Handle individual page flips
       pages.forEach((page, index) => {
         const pageThreshold = (index + 1) / totalElements;
         const shouldBeFlipped = progress > pageThreshold;
         const isCurrentlyFlipped = page.getAttribute('data-flipped') === 'true';
         
-        // Only animate if state needs to change
         if (shouldBeFlipped !== isCurrentlyFlipped) {
-          // Show loader when starting flip
           setPageLoading(index, true);
           setActiveFlipTargets(prev => new Set(prev).add(index));
           
           flipElementToDirection(page, shouldBeFlipped, direction, () => {
-            // Hide flip indicator when animation completes
             setActiveFlipTargets(prev => {
               const newSet = new Set(prev);
               newSet.delete(index);
               return newSet;
             });
             
-            // Page content loading will be handled by BookPage component
             if (shouldBeFlipped) {
               animatePageContent(page);
             }
@@ -366,44 +390,21 @@ const Book3D: React.FC = () => {
       });
     };
 
-    // Direction-aware flip function for natural book behavior
+    // Direction-aware flip function
     const flipElementToDirection = (element: HTMLElement, 
       shouldFlip: boolean, 
       scrollDirection: number,
       onComplete?: () => void
     ) => {
-      // Set proper transform origin for natural page flipping
       gsap.set(element, { 
-      transformOrigin: "left center",
-      transformStyle: "preserve-3d"
-    });
+        transformOrigin: "left center",
+        transformStyle: "preserve-3d"
+      });
 
-      let targetRotation: number;
-      
-      if (shouldFlip) {
-        // Flipping to "open" state
-        if (scrollDirection >= 0) {
-          // Scrolling down (forward) - flip left (negative rotation)
-          targetRotation = -180;
-        } else {
-          // Scrolling up (backward) but opening - still flip left
-          targetRotation = -180;
-        }
-      } else {
-        // Flipping to "closed" state  
-        if (scrollDirection >= 0) {
-          // Scrolling down but closing - flip right back to closed
-          targetRotation = 0;
-        } else {
-          // Scrolling up (backward) - flip right (positive rotation) back to closed
-          targetRotation = 0;
-        }
-      }
+      const targetRotation = shouldFlip ? -180 : 0;
 
-      // Create GSAP timeline for coordinated animation
       const flipTimeline = gsap.timeline({
         onComplete: () => {
-          // Ensure clean final state
           gsap.set(element, { 
             rotationY: targetRotation,
             rotationX: 0
@@ -412,13 +413,11 @@ const Book3D: React.FC = () => {
         }
       });
 
-      // Main flip animation
       flipTimeline.to(element, {
         rotationY: targetRotation,
         duration: 0.8,
         ease: "power2.inOut",
         onStart: () => {
-          // Add subtle page curl effect during flip
           gsap.to(element, {
             rotationX: shouldFlip ? 3 : 0,
             duration: 0.4,
@@ -448,140 +447,94 @@ const Book3D: React.FC = () => {
       }
     };
 
-    // Main scroll timeline with enhanced direction-aware control
-    const mainScrollTrigger = ScrollTrigger.create({
-        trigger: container,
-        start: "top top",
-        end: "bottom bottom",
-      pin: ".book-display",
-        pinSpacing: false,
-      scrub: 0.3, // Slightly more responsive for better flip feel
-        onUpdate: (self) => {
-          const progress = self.progress;
-        const direction = self.direction; // 1 = forward/down, -1 = backward/up
-          
-          // Update progress indicators
-          const progressBars = document.querySelectorAll('.page-progress');
-          progressBars.forEach((bar, index) => {
-          const pageProgress = Math.max(0, Math.min(1, (progress * (artTopics.length + 1)) - index));
-            (bar as HTMLElement).style.height = `${pageProgress * 100}%`;
-          });
+    // Apply page flips based on scroll progress
+    handlePageFlips(scrollProgress, scrollDirection);
 
-        // Hide scroll instruction
-        if (progress > 0.02) {
-            const scrollInstruction = document.querySelector('.scroll-instruction');
-            if (scrollInstruction) {
-            gsap.to(scrollInstruction, { opacity: 0, duration: 0.3 });
-            }
-          }
+  }, [scrollProgress, scrollDirection, isClientSide, artTopics.length]);
 
-        // Handle direction-aware page flipping
-        handlePageFlips(progress, direction);
-      }
-    });
-
-    // Enhanced book breathing animation with proper relative scaling
-    gsap.to(book, {
-      scale: 1.003,
-      rotationY: -7,
-      duration: 8,
-      ease: "power1.inOut",
-      yoyo: true,
-      repeat: -1
-    });
-
-    // Cleanup function
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, [isClientSide, artTopics.length, bookDimensions.scale]);
-
-  // Render nothing on server side to prevent hydration issues
+  // Render nothing on server side
   if (!isClientSide) {
-    return <div className="min-h-screen bg-stone-50"></div>;
+    return <div className="w-full h-full bg-gradient-to-b from-zinc-50 to-stone-100"></div>;
   }
 
   return (
     <div 
       ref={containerRef}
-      className="relative min-h-[1000vh]"
+      className="relative w-full h-full flex items-center justify-center"
     >
-      {/* Book Display Container */}
-      <div className="book-display sticky top-0 h-screen flex items-center justify-center px-4">
+      <div 
+        ref={bookRef}
+        className="book-container relative"
+        style={{ 
+          perspective: `${1600 * bookDimensions.scale}px`,
+          perspectiveOrigin: 'center center'
+        }}
+      >
+        {/* Book Base with enhanced shadows */}
         <div 
-          ref={bookRef}
-          className="book-container relative"
+          className="book-base relative bg-stone-50 rounded-r-lg shadow-2xl transition-all duration-300 ease-out"
           style={{ 
-            perspective: `${1600 * bookDimensions.scale}px`,
-            perspectiveOrigin: 'center center'
+            width: `${bookDimensions.width}px`,
+            height: `${bookDimensions.height}px`,
+            transformStyle: 'preserve-3d',
+            boxShadow: `0 ${25 * bookDimensions.scale}px ${50 * bookDimensions.scale}px rgba(0,0,0,0.2), 0 ${10 * bookDimensions.scale}px ${20 * bookDimensions.scale}px rgba(0,0,0,0.1)`
           }}
         >
-          {/* Book Base with enhanced shadows */}
+          {/* Premium Art Book Cover */}
           <div 
-            className="book-base relative bg-stone-50 rounded-r-lg shadow-2xl transition-all duration-300 ease-out"
+            ref={coverRef}
+            className="book-cover absolute inset-0 bg-gradient-to-br from-stone-100 to-stone-200 rounded-lg shadow-lg border border-stone-300 z-10"
             style={{ 
-              width: `${bookDimensions.width}px`,
-              height: `${bookDimensions.height}px`,
               transformStyle: 'preserve-3d',
-              boxShadow: `0 ${25 * bookDimensions.scale}px ${50 * bookDimensions.scale}px rgba(0,0,0,0.2), 0 ${10 * bookDimensions.scale}px ${20 * bookDimensions.scale}px rgba(0,0,0,0.1)`
+              backfaceVisibility: 'hidden'
             }}
           >
-            {/* Premium Art Book Cover */}
-            <div 
-              ref={coverRef}
-              className="book-cover absolute inset-0 bg-gradient-to-br from-stone-100 to-stone-200 rounded-lg shadow-lg border border-stone-300 z-10"
-              style={{ 
-                transformStyle: 'preserve-3d',
-                backfaceVisibility: 'hidden'
-              }}
-            >
-              <div className="absolute inset-8 border border-zinc-200 rounded-sm">
-                <div className="flex flex-col items-center justify-center h-full text-zinc-800">
-                  {/* Minimalist Title */}
-                  <div className="text-center mb-8">
-                    <h1 className="font-display text-4xl md:text-5xl font-light mb-3 tracking-wider">
-                      ARTISTRY
+            <div className="absolute inset-8 border border-zinc-200 rounded-sm">
+              <div className="flex flex-col items-center justify-center h-full text-zinc-800">
+                {/* Minimalist Title */}
+                <div className="text-center mb-8">
+                  <h1 className="font-display text-4xl md:text-5xl font-light mb-3 tracking-wider">
+                    ARTISTRY
                   </h1>
-                    <div className="w-24 h-px bg-zinc-400 mx-auto mb-4"></div>
-                    <p className="font-body text-sm md:text-base text-zinc-600 tracking-wide uppercase">
-                      Art • Design • Photography
+                  <div className="w-24 h-px bg-zinc-400 mx-auto mb-4"></div>
+                  <p className="font-body text-sm md:text-base text-zinc-600 tracking-wide uppercase">
+                    Art • Design • Photography
                   </p>
-                  </div>
-                  
-                  {/* Geometric Logo Mark */}
-                  <div className="relative w-20 h-20 md:w-24 md:h-24">
-                    <div className="absolute inset-0 border-2 border-zinc-400 transform rotate-45"></div>
-                    <div className="absolute inset-3 border border-zinc-500 transform -rotate-45"></div>
-                    <div className="absolute inset-6 bg-zinc-600 rounded-full"></div>
-                  </div>
-                  
-                  {/* Subtitle */}
-                  <div className="mt-8 text-center">
-                    <p className="font-body text-xs text-zinc-500 tracking-widest uppercase">
-                      A Curated Journey
-                    </p>
-                  </div>
+                </div>
+                
+                {/* Geometric Logo Mark */}
+                <div className="relative w-20 h-20 md:w-24 md:h-24">
+                  <div className="absolute inset-0 border-2 border-zinc-400 transform rotate-45"></div>
+                  <div className="absolute inset-3 border border-zinc-500 transform -rotate-45"></div>
+                  <div className="absolute inset-6 bg-zinc-600 rounded-full"></div>
+                </div>
+                
+                {/* Subtitle */}
+                <div className="mt-8 text-center">
+                  <p className="font-body text-xs text-zinc-500 tracking-widest uppercase">
+                    A Curated Journey
+                  </p>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Pages Container */}
-            <div 
-              ref={pagesContainerRef}
-              className="pages-container absolute inset-0"
-              style={{ transformStyle: 'preserve-3d' }}
-            >
-              {artTopics.map((topic, index) => (
-                <BookPage 
-                  key={index}
-                  story={topic}
-                  pageIndex={index}
-                  totalPages={artTopics.length}
-                  isLoading={pageLoadingStates[index] || activeFlipTargets.has(index)}
-                  onContentReady={() => handlePageContentReady(index)}
-                />
-              ))}
-            </div>
+          {/* Pages Container */}
+          <div 
+            ref={pagesContainerRef}
+            className="pages-container absolute inset-0"
+            style={{ transformStyle: 'preserve-3d' }}
+          >
+            {artTopics.map((topic, index) => (
+              <BookPage 
+                key={index}
+                story={topic}
+                pageIndex={index}
+                totalPages={artTopics.length}
+                isLoading={pageLoadingStates[index] || activeFlipTargets.has(index)}
+                onContentReady={() => handlePageContentReady(index)}
+              />
+            ))}
           </div>
         </div>
       </div>

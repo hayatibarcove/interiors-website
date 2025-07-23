@@ -95,7 +95,7 @@ const BookPage: React.FC<BookPageProps> = ({
             </p>
             
             {/* Minimal Divider */}
-            <div className="w-12 h-px bg-gray-300 mt-4"></div>
+            {/* <div className="w-12 h-px bg-gray-300 mt-4"></div> */}
           </div>
         </header>
 
