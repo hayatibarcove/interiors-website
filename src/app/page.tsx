@@ -4,7 +4,7 @@ import BookAnimation from '../components/BookAnimation';
 
 export default function Home() {
   return (
-    <div className="fullscreen-container">
+    <div className="relative w-full">
       {/* Overlay Header - Constrained positioning */}
       <header className="fullscreen-header" role="banner">
         <div className="container mx-auto max-w-6xl h-full flex flex-col justify-center px-4">
@@ -17,8 +17,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Constrained Book Container */}
-      <main className="fullscreen-main" role="main" aria-label="Interactive art book">
+      {/* Book Container */}
+      <main className="relative" role="main" aria-label="Interactive art book">
         <BookAnimation />
       </main>
 

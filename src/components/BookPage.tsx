@@ -54,11 +54,16 @@ const BookPage: React.FC<BookPageProps> = ({
       className={`book-page absolute inset-0 bg-white ${
         isLeftPage ? 'origin-right' : 'origin-left'
       }`}
+      data-page={pageIndex}
       data-page-index={pageIndex}
       style={{ 
         transformStyle: 'preserve-3d',
         backfaceVisibility: 'hidden',
         zIndex: totalPages - pageIndex,
+        opacity: 1,
+        visibility: 'visible',
+        overflow: 'visible',
+        clipPath: 'none'
       }}
     >
       {/* Page Loader - shows during flip or content loading */}
@@ -68,29 +73,34 @@ const BookPage: React.FC<BookPageProps> = ({
         size="medium"
       />
       
-      {/* Main Page Content */}
+      {/* Main Page Content - Front Side */}
       <div 
         className={`h-full flex flex-col transition-opacity duration-300 ${
           isPageReady ? 'opacity-100' : 'opacity-30'
         }`} 
-        style={{ transformStyle: 'preserve-3d' }}
+        style={{ 
+          transformStyle: 'preserve-3d',
+          backfaceVisibility: 'hidden',
+          overflow: 'visible',
+          clipPath: 'none'
+        }}
       >
         
         {/* Top Section: Header with Proper Spacing */}
-        <header className="px-16 pt-8">
-          <div className="max-w-full">
+        <header className="px-16 pt-8" style={{ overflow: 'visible', clipPath: 'none' }}>
+          <div className="max-w-full" style={{ overflow: 'visible', clipPath: 'none' }}>
             {/* Year Badge */}
-            <div className="inline-block px-3 py-1 bg-gray-100 rounded-full mb-4">
+            <div className="year-badge inline-block px-3 py-1 bg-gray-100 rounded-full mb-4" style={{ overflow: 'visible', clipPath: 'none' }}>
               <span className="text-xs font-medium text-gray-600 tracking-wide">
                 {story.year}
               </span>
             </div>
             
             {/* Clean Typography Hierarchy */}
-            <h1 className="font-display text-3xl font-light text-gray-900 mb-2 leading-tight">
+            <h1 className="page-title font-display text-3xl font-light text-gray-900 mb-2 leading-tight" style={{ overflow: 'visible', clipPath: 'none' }}>
               {story.title}
             </h1>
-            <p className="text-base text-gray-500 font-light leading-relaxed">
+            <p className="page-subtitle text-base text-gray-500 font-light leading-relaxed" style={{ overflow: 'visible', clipPath: 'none' }}>
               {story.subtitle}
             </p>
             
@@ -100,19 +110,21 @@ const BookPage: React.FC<BookPageProps> = ({
         </header>
 
         {/* Main Section: Two-Column Grid Layout */}
-        <main className="flex-1 px-16 pb-16">
+        <main className="flex-1 px-16 pb-16" style={{ overflow: 'visible', clipPath: 'none' }}>
           <div 
             className="h-full grid gap-8 items-center"
             style={{ 
               gridTemplateColumns: '1fr 1fr', // Equal columns
+              overflow: 'visible',
+              clipPath: 'none'
             }}
           >
             {/* Left Column: Art Scene */}
-            <div className="flex items-center justify-center">
-              <div className="w-full max-w-md aspect-square relative">
+            <div className="flex items-center justify-center" style={{ overflow: 'visible', clipPath: 'none' }}>
+              <div className="w-full max-w-md aspect-square relative" style={{ overflow: 'visible', clipPath: 'none' }}>
                 {/* Image loading state */}
                 {!imageLoaded && (
-                  <div className="absolute inset-0 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center" style={{ overflow: 'visible', clipPath: 'none' }}>
                     <div className="text-gray-400 text-sm">Loading image...</div>
                   </div>
                 )}
@@ -125,6 +137,7 @@ const BookPage: React.FC<BookPageProps> = ({
                   className={`w-full h-full object-cover rounded-lg shadow-sm transition-opacity duration-300 ${
                     imageLoaded ? 'opacity-100' : 'opacity-0'
                   }`}
+                  style={{ overflow: 'visible', clipPath: 'none' }}
                   onLoad={handleImageLoad}
                   priority={pageIndex < 3} // Prioritize first few pages
                 />
@@ -132,30 +145,30 @@ const BookPage: React.FC<BookPageProps> = ({
             </div>
 
             {/* Right Column: Content */}
-            <div className="flex flex-col justify-center space-y-6">
+            <div className="flex flex-col justify-center space-y-6" style={{ overflow: 'visible', clipPath: 'none' }}>
               {/* Content Text */}
-              <div className="space-y-4">
-                <p className="text-base text-gray-700 leading-relaxed font-light">
+              <div className="page-content space-y-4" style={{ overflow: 'visible', clipPath: 'none' }}>
+                <p className="text-base text-gray-700 leading-relaxed font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
                   {story.content}
                 </p>
               </div>
               
               {/* Attribution Section */}
-              <div className="pt-6 border-t border-gray-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 font-light">
+              <div className="pt-6 border-t border-gray-100" style={{ overflow: 'visible', clipPath: 'none' }}>
+                <div className="flex items-center justify-between" style={{ overflow: 'visible', clipPath: 'none' }}>
+                  <div style={{ overflow: 'visible', clipPath: 'none' }}>
+                    <p className="artist-name text-sm text-gray-500 font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
                       {story.artist}
                     </p>
                   </div>
                   
                   {/* Minimal Page Number with ready indicator */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                  <div className={`page-number w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
                     isPageReady ? 'bg-gray-50' : 'bg-yellow-50'
-                  }`}>
+                  }`} style={{ overflow: 'visible', clipPath: 'none' }}>
                     <span className={`text-sm font-medium transition-colors duration-300 ${
                       isPageReady ? 'text-gray-600' : 'text-yellow-600'
-                    }`}>
+                    }`} style={{ overflow: 'visible', clipPath: 'none' }}>
                       {pageIndex + 1}
                     </span>
                   </div>
@@ -173,21 +186,28 @@ const BookPage: React.FC<BookPageProps> = ({
           background: `linear-gradient(${isLeftPage ? '270deg' : '90deg'}, 
             rgba(0,0,0,0.02) 0%, 
             transparent 5%)`,
+          overflow: 'visible',
+          clipPath: 'none'
         }}
       ></div>
 
-      {/* Enhanced Page Back for 3D Realism */}
+      {/* Enhanced Page Back for 3D Realism - Only Visible When Flipped */}
       <div 
         className="absolute inset-0 bg-stone-100 rounded-lg"
         style={{
           transformStyle: 'preserve-3d',
           transform: 'rotateY(180deg)',
-          backfaceVisibility: 'hidden',
-          zIndex: -1
+          backfaceVisibility: 'hidden', // Keep hidden until flipped
+          zIndex: -1,
+          opacity: 0, // Start hidden
+          visibility: 'hidden', // Start hidden
+          overflow: 'visible',
+          clipPath: 'none',
+          pointerEvents: 'none' // Prevent interaction when hidden
         }}
       >
-        <div className="h-full flex items-center justify-center opacity-20">
-          <div className="text-stone-400 text-6xl font-light">
+        <div className="h-full flex items-center justify-center opacity-20" style={{ overflow: 'visible', clipPath: 'none' }}>
+          <div className="text-stone-400 text-6xl font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
             {pageIndex + 1}
           </div>
         </div>

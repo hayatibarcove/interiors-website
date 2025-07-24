@@ -1,142 +1,329 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Book3D from './Book3D';
+
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+// Animation configuration constants for consistency
+const ANIMATION_CONFIG = {
+  // Timing constants
+  COVER_DURATION: 0.08,
+  CONTENT_PHASE_RATIO: 0.7, // 70% of page time for content (longer content phase)
+  FLIP_PHASE_RATIO: 0.3,    // 30% of page time for flip (shorter flip phase)
+  
+  // Easing functions for smooth animations
+  EASING: {
+    CONTENT: "power2.out",
+    FLIP: "power2.inOut",
+    COVER: "power2.inOut",
+    BREATHING: "power1.inOut"
+  },
+  
+  // Stagger timing for content elements
+  STAGGER: {
+    YEAR_BADGE: 0,
+    TITLE: 0.1,
+    SUBTITLE: 0.2,
+    IMAGE: 0.3,
+    CONTENT: 0.4,
+    ARTIST: 0.5,
+    PAGE_NUMBER: 0.6
+  },
+  
+  // Animation properties
+  CONTENT: {
+    INITIAL: { opacity: 0, y: 20, scale: 0.95 },
+    FINAL: { opacity: 1, y: 0, scale: 1 }
+  },
+  
+  // Performance settings
+  SCRUB: 1,
+  PIN_SPACING: true
+};
 
 const BookAnimation: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [scrollDirection, setScrollDirection] = useState(0);
-  const accumulatedScrollRef = useRef(0);
-  const lastScrollTimeRef = useRef(0);
-  const isScrollingRef = useRef(false);
+  const bookContainerRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Smooth scroll progress calculation
-  const handleScroll = useCallback((deltaY: number) => {
-    const now = Date.now();
-    const timeDelta = now - lastScrollTimeRef.current;
-    lastScrollTimeRef.current = now;
-
-    // Determine scroll direction
-    const direction = deltaY > 0 ? 1 : -1;
-    setScrollDirection(direction);
-
-    // Accumulate scroll with velocity-based sensitivity
-    const scrollSensitivity = 0.001; // Adjust for desired sensitivity
-    const maxScrollPerFrame = 0.02; // Prevent too fast scrolling
-    
-    const scrollAmount = Math.min(
-      Math.abs(deltaY) * scrollSensitivity,
-      maxScrollPerFrame
-    ) * direction;
-
-    accumulatedScrollRef.current += scrollAmount;
-    
-    // Clamp between 0 and 1
-    accumulatedScrollRef.current = Math.max(0, Math.min(1, accumulatedScrollRef.current));
-    
-    setScrollProgress(accumulatedScrollRef.current);
-
-    // Reset scrolling flag after a delay
-    clearTimeout(isScrollingRef.current as any);
-    isScrollingRef.current = setTimeout(() => {
-      setScrollDirection(0);
-    }, 150) as any;
-  }, []);
-
-  // Set up scroll event listeners
   useEffect(() => {
+    if (!containerRef.current || !bookContainerRef.current) return;
+
     const container = containerRef.current;
-    if (!container) return;
+    const bookContainer = bookContainerRef.current;
 
-    // Wheel events (mouse scroll)
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      handleScroll(e.deltaY);
-    };
+    console.log('Setting up unified ScrollTrigger animation system...');
 
-    // Touch events (mobile scroll)
-    let touchStartY = 0;
-    let lastTouchY = 0;
-    
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-      lastTouchY = touchStartY;
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const currentTouchY = e.touches[0].clientY;
-      const deltaY = lastTouchY - currentTouchY;
-      lastTouchY = currentTouchY;
+    // Wait for book elements to be rendered
+    const setupScrollTrigger = () => {
+      const cover = document.querySelector('.book-cover');
+      const pages = document.querySelectorAll('.book-page[data-page]');
+      const bookBase = document.querySelector('.book-base');
       
-      if (Math.abs(deltaY) > 1) { // Minimum threshold
-        handleScroll(deltaY * 2); // Amplify touch sensitivity
+      if (!cover || pages.length === 0 || !bookBase) {
+        console.log('Book elements not ready, retrying...');
+        setTimeout(setupScrollTrigger, 100);
+        return;
       }
-    };
 
-    const handleTouchEnd = () => {
-      // Optionally handle touch end
-    };
+      console.log(`Found ${pages.length} pages and cover, creating unified timeline...`);
 
-    // Keyboard events for accessibility
-    const handleKeyDown = (e: KeyboardEvent) => {
-      switch (e.key) {
-        case 'ArrowDown':
-        case 'PageDown':
-        case ' ':
-          e.preventDefault();
-          handleScroll(100);
-          break;
-        case 'ArrowUp':
-        case 'PageUp':
-          e.preventDefault();
-          handleScroll(-100);
-          break;
-        case 'Home':
-          e.preventDefault();
-          accumulatedScrollRef.current = 0;
-          setScrollProgress(0);
-          break;
-        case 'End':
-          e.preventDefault();
-          accumulatedScrollRef.current = 1;
-          setScrollProgress(1);
-          break;
+      // Clean up any existing timelines
+      if (timelineRef.current) {
+        timelineRef.current.kill();
       }
+
+      // Set initial states for all content elements with performance optimizations
+      pages.forEach((page, index) => {
+        const contentElements = page.querySelectorAll('.year-badge, .page-title, .page-subtitle, .page-content, .artist-name, .page-number, img');
+        console.log(`Setting initial state for page ${index}, found ${contentElements.length} content elements`);
+        
+        // Use gsap.set for better performance
+        gsap.set(contentElements, { 
+          ...ANIMATION_CONFIG.CONTENT.INITIAL,
+          clearProps: "transform" // Clear any existing transforms
+        });
+      });
+
+      // Ensure book base remains visible throughout animations
+      gsap.set(bookBase, {
+        opacity: 1,
+        visibility: 'visible',
+        zIndex: 1
+      });
+
+      // Create unified master timeline with optimized ScrollTrigger
+      const masterTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: container,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: ANIMATION_CONFIG.SCRUB,
+          pin: true,
+          pinSpacing: ANIMATION_CONFIG.PIN_SPACING,
+          anticipatePin: 1, // Prevent pinning glitches
+          fastScrollEnd: true, // Optimize for fast scrolling
+          preventOverlaps: true, // Prevent overlapping animations
+          onUpdate: (self) => {
+            const progress = self.progress;
+            
+            // Update progress indicators smoothly
+            const progressBars = document.querySelectorAll('.page-progress');
+            progressBars.forEach((bar, index) => {
+              const pageProgress = Math.max(0, Math.min(1, progress * 10 - index));
+              gsap.set(bar as HTMLElement, { height: `${pageProgress * 100}%` });
+            });
+
+            // Smooth scroll instruction visibility
+            const scrollInstruction = document.querySelector('.fullscreen-scroll-instruction');
+            if (scrollInstruction) {
+              gsap.set(scrollInstruction, { 
+                opacity: progress > 0.02 ? 0 : 1 
+              });
+            }
+          },
+          onEnter: () => {
+            console.log('ScrollTrigger entered - animations active');
+          },
+          onLeave: () => {
+            console.log('ScrollTrigger left - animations paused');
+          },
+          onRefresh: () => {
+            console.log('ScrollTrigger refreshed - timeline updated');
+          }
+        }
+      });
+
+      // Store timeline reference for cleanup
+      timelineRef.current = masterTimeline;
+
+      // Phase 1: Cover opens (0% to 8%)
+      masterTimeline.to('.book-cover', {
+        rotationY: -180,
+        duration: ANIMATION_CONFIG.COVER_DURATION,
+        ease: ANIMATION_CONFIG.EASING.COVER
+      }, 0);
+
+      // Phase 2: Pages with unified content animations (8% to 100%)
+      const totalPages = pages.length;
+      const pagesProgress = 0.92; // Remaining 92% for pages
+      const progressPerPage = pagesProgress / totalPages;
+
+      // Create unified page animation function
+      const createPageAnimations = (pageIndex: number, startProgress: number, progressPerPage: number) => {
+        const contentDuration = progressPerPage * ANIMATION_CONFIG.CONTENT_PHASE_RATIO;
+        const flipDuration = progressPerPage * ANIMATION_CONFIG.FLIP_PHASE_RATIO;
+        const flipStartProgress = startProgress + contentDuration;
+        
+        console.log(`Page ${pageIndex + 1}: ${(startProgress * 100).toFixed(1)}% to ${((startProgress + progressPerPage) * 100).toFixed(1)}%`);
+
+        // Content reveal animations with unified timing
+        const contentAnimations = [
+          { selector: '.year-badge', stagger: ANIMATION_CONFIG.STAGGER.YEAR_BADGE },
+          { selector: '.page-title', stagger: ANIMATION_CONFIG.STAGGER.TITLE },
+          { selector: '.page-subtitle', stagger: ANIMATION_CONFIG.STAGGER.SUBTITLE },
+          { selector: 'img', stagger: ANIMATION_CONFIG.STAGGER.IMAGE },
+          { selector: '.page-content', stagger: ANIMATION_CONFIG.STAGGER.CONTENT },
+          { selector: '.artist-name', stagger: ANIMATION_CONFIG.STAGGER.ARTIST },
+          { selector: '.page-number', stagger: ANIMATION_CONFIG.STAGGER.PAGE_NUMBER }
+        ];
+
+        // Add content animations with consistent timing
+        contentAnimations.forEach(({ selector, stagger }) => {
+          masterTimeline.fromTo(
+            `.book-page[data-page="${pageIndex}"] ${selector}`,
+            ANIMATION_CONFIG.CONTENT.INITIAL,
+            {
+              ...ANIMATION_CONFIG.CONTENT.FINAL,
+              duration: contentDuration * 0.3,
+              ease: ANIMATION_CONFIG.EASING.CONTENT
+            },
+            startProgress + (contentDuration * stagger)
+          );
+        });
+
+        // REALISTIC BOOK PAGE FLIP ANIMATION
+        // Phase 1: Prepare page for flip (0-10% of flip duration)
+        masterTimeline.set(`.book-page[data-page="${pageIndex}"]`, {
+          opacity: 1,
+          visibility: 'visible',
+          transformOrigin: 'left center'
+        }, flipStartProgress);
+
+        // Phase 2: Initial curl effect (10-30% of flip duration)
+        masterTimeline.to(`.book-page[data-page="${pageIndex}"]`, {
+          rotationX: 5, // Subtle upward curl
+          rotationY: -15, // Start turning the page
+          duration: flipDuration * 0.2,
+          ease: "power2.out"
+        }, flipStartProgress + flipDuration * 0.1);
+
+        // Phase 3: Main flip animation (30-80% of flip duration)
+        masterTimeline.to(`.book-page[data-page="${pageIndex}"]`, {
+          rotationY: -180, // Complete flip
+          rotationX: 0, // Flatten the curl
+          duration: flipDuration * 0.5,
+          ease: "power2.inOut"
+        }, flipStartProgress + flipDuration * 0.3);
+
+        // Phase 4: Show page back ONLY when page is fully flipped (80% of flip duration)
+        masterTimeline.set(`.book-page[data-page="${pageIndex}"] > div:last-child`, {
+          opacity: 1,
+          visibility: 'visible',
+          backfaceVisibility: 'visible'
+        }, flipStartProgress + flipDuration * 0.8);
+
+        // Phase 5: Final settling (80-100% of flip duration)
+        masterTimeline.to(`.book-page[data-page="${pageIndex}"]`, {
+          rotationX: 0,
+          rotationY: -180, // Ensure it stays flipped
+          duration: flipDuration * 0.2,
+          ease: "power2.out"
+        }, flipStartProgress + flipDuration * 0.8);
+
+        // REVERSE ANIMATION: When scrolling back up
+        // Hide page back immediately when starting reverse
+        masterTimeline.set(`.book-page[data-page="${pageIndex}"] > div:last-child`, {
+          opacity: 0,
+          visibility: 'hidden',
+          backfaceVisibility: 'hidden'
+        }, flipStartProgress + flipDuration * 0.3 - 0.001); // Just before main flip starts
+
+        // Add subtle book movement for realism
+        masterTimeline.to('.book-base', {
+          rotationY: -1, // Slight book tilt during flip
+          duration: flipDuration * 0.4,
+          ease: "power2.inOut",
+          yoyo: true,
+          repeat: 1
+        }, flipStartProgress + flipDuration * 0.3);
+      };
+
+      // Apply unified animations to all pages
+      for (let i = 0; i < totalPages; i++) {
+        const startProgress = 0.08 + (i * progressPerPage);
+        createPageAnimations(i, startProgress, progressPerPage);
+      }
+
+      // Add subtle book breathing animation with performance optimization
+      gsap.to('.book-container', {
+        scale: 1.002,
+        duration: 6,
+        ease: ANIMATION_CONFIG.EASING.BREATHING,
+        yoyo: true,
+        repeat: -1,
+        overwrite: "auto" // Prevent overlapping breathing animations
+      });
+
+      console.log('Unified ScrollTrigger timeline created with glitch-free animations');
+      
+      // Performance monitoring
+      let frameCount = 0;
+      let lastTime = performance.now();
+      
+      const monitorPerformance = () => {
+        frameCount++;
+        const currentTime = performance.now();
+        
+        if (currentTime - lastTime >= 1000) {
+          const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+          if (fps < 30) {
+            console.warn(`Low FPS detected: ${fps}. Consider reducing animation complexity.`);
+          }
+          frameCount = 0;
+          lastTime = currentTime;
+        }
+        
+        requestAnimationFrame(monitorPerformance);
+      };
+      
+      requestAnimationFrame(monitorPerformance);
     };
 
-    // Add event listeners
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    container.addEventListener('touchstart', handleTouchStart, { passive: false });
-    container.addEventListener('touchmove', handleTouchMove, { passive: false });
-    container.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('keydown', handleKeyDown);
-
-    // Focus container to receive keyboard events
-    container.focus();
+    // Start the setup process with proper timing
+    setTimeout(setupScrollTrigger, 200);
 
     return () => {
-      container.removeEventListener('wheel', handleWheel);
-      container.removeEventListener('touchstart', handleTouchStart);
-      container.removeEventListener('touchmove', handleTouchMove);
-      container.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('keydown', handleKeyDown);
+      // Clean up timelines and ScrollTrigger
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+      }
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
-  }, [handleScroll]);
+  }, []);
 
   return (
     <div 
       ref={containerRef}
-      className="fullscreen-book-container scroll-capture"
-      tabIndex={0} // Make focusable for keyboard events
-      style={{ outline: 'none' }} // Hide focus outline
+      className="scroll-container"
+      style={{ 
+        height: '600vh',
+        background: 'linear-gradient(135deg, #f8f4e6 0%, #f0e6d2 100%)',
+        position: 'relative',
+        willChange: 'transform' // Optimize for animations
+      }}
     >
-      <Book3D 
-        scrollProgress={scrollProgress}
-        scrollDirection={scrollDirection}
-      />
+      {/* Atmospheric background elements */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-100 via-transparent to-amber-200 opacity-30"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-200 rounded-full blur-3xl opacity-10 animate-pulse"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-orange-200 rounded-full blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-100 rounded-full blur-3xl opacity-5 animate-pulse" style={{ animationDelay: '4s' }}></div>
+      </div>
+
+      <div 
+        ref={bookContainerRef}
+        className="sticky top-0 h-screen flex items-center justify-center pt-20 relative z-10"
+        style={{ willChange: 'transform' }}
+      >
+        <Book3D />
+      </div>
     </div>
   );
 };

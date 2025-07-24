@@ -2,12 +2,12 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import BookPage from './BookPage';
 
-// Book3D component props interface
-interface Book3DProps {
-  scrollProgress: number;
-  scrollDirection: number;
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
 }
 
 // Custom hook for dynamic book sizing for constrained fullscreen
@@ -130,7 +130,7 @@ const useResponsiveBookSize = () => {
   return bookDimensions;
 };
 
-const Book3D: React.FC<Book3DProps> = ({ scrollProgress, scrollDirection }) => {
+const Book3D: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const bookRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLDivElement>(null);
@@ -268,189 +268,34 @@ const Book3D: React.FC<Book3DProps> = ({ scrollProgress, scrollDirection }) => {
       perspective: `${1400 * bookDimensions.scale}px`
     });
 
-    // Initialize all pages and cover with proper 3D setup
+    // Initialize all pages and cover with proper 3D setup for realistic book behavior
     gsap.set([cover, ...pages], { 
       transformOrigin: "left center",
       transformStyle: "preserve-3d",
       backfaceVisibility: "hidden"
     });
 
-    // Set initial page states
+    // Set initial page states for ScrollTrigger - keep pages visible
     pages.forEach((page, index) => {
       gsap.set(page, { 
         rotationY: 0,
-        opacity: 0,
-        zIndex: artTopics.length - index
+        opacity: 1, // Keep pages visible for ScrollTrigger
+        zIndex: artTopics.length - index,
+        visibility: 'visible' // Ensure pages are always visible
       });
     });
 
-    // Cover initial state
+    // Cover initial state - ensure it's visible
     gsap.set(cover, { 
       rotationY: 0,
       opacity: 1,
-      zIndex: artTopics.length + 1
+      zIndex: artTopics.length + 1,
+      visibility: 'visible'
     });
 
-    // Enhanced book breathing animation
-    gsap.to(book, {
-      scale: 1.003,
-      rotationY: -7,
-      duration: 8,
-      ease: "power1.inOut",
-      yoyo: true,
-      repeat: -1
-    });
+    console.log('Book 3D setup initialized for ScrollTrigger animations');
 
   }, [isClientSide, artTopics.length, bookDimensions.scale]);
-
-  // Handle scroll-based page flipping
-  useEffect(() => {
-    if (!isClientSide || !coverRef.current || !pagesContainerRef.current) return;
-
-    const cover = coverRef.current;
-    const pagesContainer = pagesContainerRef.current;
-    const pages = Array.from(pagesContainer.querySelectorAll('.book-page')) as HTMLElement[];
-
-    const handlePageFlips = (progress: number, direction: number) => {
-      const totalElements = artTopics.length + 1; // +1 for cover
-      
-      // Update progress indicators
-      const progressBars = document.querySelectorAll('.page-progress');
-      progressBars.forEach((bar, index) => {
-        const pageProgress = Math.max(0, Math.min(1, (progress * totalElements) - index));
-        (bar as HTMLElement).style.height = `${pageProgress * 100}%`;
-      });
-
-      // Hide scroll instruction
-      if (progress > 0.02) {
-        const scrollInstruction = document.querySelector('.fullscreen-scroll-instruction');
-        if (scrollInstruction) {
-          gsap.to(scrollInstruction, { opacity: 0, duration: 0.3 });
-        }
-      } else {
-        const scrollInstruction = document.querySelector('.fullscreen-scroll-instruction');
-        if (scrollInstruction) {
-          gsap.to(scrollInstruction, { opacity: 1, duration: 0.3 });
-        }
-      }
-      
-      // Handle cover flip
-      if (progress > 0.05) {
-        if (cover.getAttribute('data-flipped') !== 'true') {
-          setActiveFlipTargets(prev => new Set(prev).add(-1));
-          flipElementToDirection(cover, true, direction, () => {
-            setActiveFlipTargets(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(-1);
-              return newSet;
-            });
-          });
-          cover.setAttribute('data-flipped', 'true');
-          gsap.to(pages, { opacity: 1, duration: 0.3, stagger: 0.02 });
-        }
-      } else {
-        if (cover.getAttribute('data-flipped') === 'true') {
-          setActiveFlipTargets(prev => new Set(prev).add(-1));
-          flipElementToDirection(cover, false, direction, () => {
-            setActiveFlipTargets(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(-1);
-              return newSet;
-            });
-          });
-          cover.setAttribute('data-flipped', 'false');
-          gsap.to(pages, { opacity: 0, duration: 0.3 });
-        }
-      }
-
-      // Handle individual page flips
-      pages.forEach((page, index) => {
-        const pageThreshold = (index + 1) / totalElements;
-        const shouldBeFlipped = progress > pageThreshold;
-        const isCurrentlyFlipped = page.getAttribute('data-flipped') === 'true';
-        
-        if (shouldBeFlipped !== isCurrentlyFlipped) {
-          setPageLoading(index, true);
-          setActiveFlipTargets(prev => new Set(prev).add(index));
-          
-          flipElementToDirection(page, shouldBeFlipped, direction, () => {
-            setActiveFlipTargets(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(index);
-              return newSet;
-            });
-            
-            if (shouldBeFlipped) {
-              animatePageContent(page);
-            }
-          });
-          
-          page.setAttribute('data-flipped', shouldBeFlipped.toString());
-        }
-      });
-    };
-
-    // Direction-aware flip function
-    const flipElementToDirection = (element: HTMLElement, 
-      shouldFlip: boolean, 
-      scrollDirection: number,
-      onComplete?: () => void
-    ) => {
-      gsap.set(element, { 
-        transformOrigin: "left center",
-        transformStyle: "preserve-3d"
-      });
-
-      const targetRotation = shouldFlip ? -180 : 0;
-
-      const flipTimeline = gsap.timeline({
-        onComplete: () => {
-          gsap.set(element, { 
-            rotationY: targetRotation,
-            rotationX: 0
-          });
-          onComplete?.();
-        }
-      });
-
-      flipTimeline.to(element, {
-        rotationY: targetRotation,
-        duration: 0.8,
-        ease: "power2.inOut",
-        onStart: () => {
-          gsap.to(element, {
-            rotationX: shouldFlip ? 3 : 0,
-            duration: 0.4,
-            ease: "power1.inOut",
-            yoyo: true,
-            repeat: 1
-          });
-        }
-      });
-    };
-
-    // Animate page content reveal
-    const animatePageContent = (page: HTMLElement) => {
-      const artScene = page.querySelector('.art-scene, .minimal-scene');
-      if (artScene) {
-        gsap.fromTo(artScene.children, 
-          { y: 15, opacity: 0 },
-          { 
-            y: 0, 
-            opacity: 1, 
-            duration: 0.6,
-            stagger: 0.05,
-            ease: "back.out(1.2)",
-            delay: 0.2
-          }
-        );
-      }
-    };
-
-    // Apply page flips based on scroll progress
-    handlePageFlips(scrollProgress, scrollDirection);
-
-  }, [scrollProgress, scrollDirection, isClientSide, artTopics.length]);
 
   // Render nothing on server side
   if (!isClientSide) {
@@ -461,23 +306,31 @@ const Book3D: React.FC<Book3DProps> = ({ scrollProgress, scrollDirection }) => {
     <div 
       ref={containerRef}
       className="relative w-full h-full flex items-center justify-center"
+      style={{ overflow: 'visible', clipPath: 'none' }}
     >
       <div 
         ref={bookRef}
         className="book-container relative"
         style={{ 
           perspective: `${1600 * bookDimensions.scale}px`,
-          perspectiveOrigin: 'center center'
+          perspectiveOrigin: 'center center',
+          overflow: 'visible',
+          clipPath: 'none'
         }}
       >
-        {/* Book Base with enhanced shadows */}
+        {/* Book Base with enhanced shadows - always visible */}
         <div 
           className="book-base relative bg-stone-50 rounded-r-lg shadow-2xl transition-all duration-300 ease-out"
           style={{ 
             width: `${bookDimensions.width}px`,
             height: `${bookDimensions.height}px`,
             transformStyle: 'preserve-3d',
-            boxShadow: `0 ${25 * bookDimensions.scale}px ${50 * bookDimensions.scale}px rgba(0,0,0,0.2), 0 ${10 * bookDimensions.scale}px ${20 * bookDimensions.scale}px rgba(0,0,0,0.1)`
+            boxShadow: `0 ${25 * bookDimensions.scale}px ${50 * bookDimensions.scale}px rgba(0,0,0,0.2), 0 ${10 * bookDimensions.scale}px ${20 * bookDimensions.scale}px rgba(0,0,0,0.1)`,
+            opacity: 1,
+            visibility: 'visible',
+            zIndex: 1,
+            overflow: 'visible',
+            clipPath: 'none'
           }}
         >
           {/* Premium Art Book Cover */}
@@ -486,13 +339,17 @@ const Book3D: React.FC<Book3DProps> = ({ scrollProgress, scrollDirection }) => {
             className="book-cover absolute inset-0 bg-gradient-to-br from-stone-100 to-stone-200 rounded-lg shadow-lg border border-stone-300 z-10"
             style={{ 
               transformStyle: 'preserve-3d',
-              backfaceVisibility: 'hidden'
+              backfaceVisibility: 'hidden',
+              opacity: 1,
+              visibility: 'visible',
+              overflow: 'visible',
+              clipPath: 'none'
             }}
           >
-            <div className="absolute inset-8 border border-zinc-200 rounded-sm">
-              <div className="flex flex-col items-center justify-center h-full text-zinc-800">
+            <div className="absolute inset-8 border border-zinc-200 rounded-sm" style={{ overflow: 'visible', clipPath: 'none' }}>
+              <div className="flex flex-col items-center justify-center h-full text-zinc-800" style={{ overflow: 'visible', clipPath: 'none' }}>
                 {/* Minimalist Title */}
-                <div className="text-center mb-8">
+                <div className="text-center mb-8" style={{ overflow: 'visible', clipPath: 'none' }}>
                   <h1 className="font-display text-4xl md:text-5xl font-light mb-3 tracking-wider">
                     ARTISTRY
                   </h1>
@@ -503,14 +360,14 @@ const Book3D: React.FC<Book3DProps> = ({ scrollProgress, scrollDirection }) => {
                 </div>
                 
                 {/* Geometric Logo Mark */}
-                <div className="relative w-20 h-20 md:w-24 md:h-24">
+                <div className="relative w-20 h-20 md:w-24 md:h-24" style={{ overflow: 'visible', clipPath: 'none' }}>
                   <div className="absolute inset-0 border-2 border-zinc-400 transform rotate-45"></div>
                   <div className="absolute inset-3 border border-zinc-500 transform -rotate-45"></div>
                   <div className="absolute inset-6 bg-zinc-600 rounded-full"></div>
                 </div>
                 
                 {/* Subtitle */}
-                <div className="mt-8 text-center">
+                <div className="mt-8 text-center" style={{ overflow: 'visible', clipPath: 'none' }}>
                   <p className="font-body text-xs text-zinc-500 tracking-widest uppercase">
                     A Curated Journey
                   </p>
@@ -519,11 +376,18 @@ const Book3D: React.FC<Book3DProps> = ({ scrollProgress, scrollDirection }) => {
             </div>
           </div>
 
-          {/* Pages Container */}
+          {/* Pages Container - ensure it's always visible */}
           <div 
             ref={pagesContainerRef}
             className="pages-container absolute inset-0"
-            style={{ transformStyle: 'preserve-3d' }}
+            style={{ 
+              transformStyle: 'preserve-3d',
+              opacity: 1,
+              visibility: 'visible',
+              zIndex: 2,
+              overflow: 'visible',
+              clipPath: 'none'
+            }}
           >
             {artTopics.map((topic, index) => (
               <BookPage 

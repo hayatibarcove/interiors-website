@@ -37,16 +37,13 @@
 
 /* FULLSCREEN LAYOUT SYSTEM */
 .fullscreen-container {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100vw;
   height: 100vh;
-  overflow: hidden; /* Prevent native scrolling */
   background: linear-gradient(to bottom, theme('colors.zinc.50'), theme('colors.stone.100'));
-  touch-action: pan-y; /* Allow vertical touch for scroll detection */
   display: flex;
   flex-direction: column;
+  overflow-x: hidden; /* Allow vertical scrolling for ScrollTrigger */
 }
 
 .fullscreen-main {
@@ -55,9 +52,6 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  /* Account for header and footer heights plus padding */
-  /* margin-top: calc(var(--header-height) + var(--book-padding));
-  margin-bottom: calc(var(--footer-height) + var(--book-padding)); */
   padding: 0 var(--book-padding);
   box-sizing: border-box;
 }
@@ -115,11 +109,10 @@
   transition: opacity 0.3s ease;
 }
 
-/* Scroll Prevention and Control */
+/* ScrollTrigger-friendly scrolling */
 html {
-  overflow: hidden; /* Prevent page scrolling */
-  height: 100vh;
-  scroll-behavior: auto; /* Override smooth scrolling for precise control */
+  scroll-behavior: smooth; /* Enable smooth scrolling for ScrollTrigger */
+  height: 100%;
 }
 
 body {
@@ -130,24 +123,33 @@ body {
   padding: 0;
   font-weight: 300;
   letter-spacing: 0.01em;
-  overflow: hidden; /* Prevent page scrolling */
-  height: 100vh;
-  touch-action: none; /* Prevent default touch behaviors */
-}
-
-/* Scroll Event Capture */
-.scroll-capture {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
   height: 100%;
-  z-index: 10;
-  pointer-events: auto;
-  touch-action: pan-y; /* Allow vertical touch for custom scroll handling */
+  overflow-x: hidden; /* Allow vertical scrolling */
 }
 
-/* Enhanced Book Container for Constrained Fullscreen */
+/* Scroll Container for ScrollTrigger */
+.scroll-container {
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Book Display Container for ScrollTrigger */
+.book-display {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  /* Maximum constraints to ensure no overlap */
+  max-height: calc(100vh - var(--header-height) - var(--footer-height) - (var(--book-padding) * 2));
+  box-sizing: border-box;
+  /* Smooth transitions for dynamic resizing */
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+/* Enhanced Book Container for ScrollTrigger */
 .fullscreen-book-container {
   position: relative;
   display: flex;
@@ -226,11 +228,12 @@ body {
   transform: translateZ(0); /* Force hardware acceleration */
 }
 
-/* Hide scrollbars completely */
+/* Hide horizontal scrollbars */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 .fullscreen-container::-webkit-scrollbar {
-  display: none;
+  width: 0;
+  background: transparent;
 }
 
 html,
@@ -277,6 +280,8 @@ body,
   will-change: transform;
   filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.08));
   transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .book-cover,
@@ -284,15 +289,261 @@ body,
   backface-visibility: hidden;
   will-change: transform;
   transform-style: preserve-3d;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Book base - always visible */
+.book-base {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 1;
+  transform-style: preserve-3d;
+  backface-visibility: visible; /* Allow book base to be visible from all angles */
+}
+
+/* Pages container - always visible */
+.pages-container {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 2;
+  transform-style: preserve-3d;
 }
 
 /* Responsive Book Layout */
 .book-display {
   contain: layout style paint;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .book-base {
   transition: width 0.3s ease-out, height 0.3s ease-out, box-shadow 0.3s ease-out;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Content Animation Classes for ScrollTrigger */
+.year-badge,
+.page-title,
+.page-subtitle,
+.page-content,
+.artist-name,
+.page-number {
+  will-change: transform, opacity;
+  transform: translateZ(0); /* Force hardware acceleration */
+  backface-visibility: hidden; /* Prevent flickering */
+  perspective: 1000px; /* Improve 3D performance */
+}
+
+/* Animation performance optimizations */
+.book-page * {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+/* Prevent layout shifts during animations */
+.book-page {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important; /* Prevent cropping */
+  clip-path: none !important; /* Remove any clipping */
+}
+
+/* Optimize book container for smooth animations */
+.book-container {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Prevent glitches during page flips */
+.book-cover,
+.book-page {
+  backface-visibility: hidden;
+  will-change: transform;
+  transform-style: preserve-3d;
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Smooth scroll container */
+.scroll-container {
+  will-change: transform;
+  transform: translateZ(0);
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Optimize sticky positioning */
+.sticky {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Prevent text rendering issues during animations */
+.book-page * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Optimize image rendering during animations */
+.book-page img {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Prevent content jumping during animations */
+.page-content,
+.page-title,
+.page-subtitle,
+.artist-name,
+.year-badge,
+.page-number {
+  transform: translateZ(0);
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Smooth transitions for all animated elements */
+.year-badge,
+.page-title,
+.page-subtitle,
+.page-content,
+.artist-name,
+.page-number,
+img {
+  transition: none; /* Disable CSS transitions to prevent conflicts with GSAP */
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Optimize for high refresh rate displays */
+@media (prefers-reduced-motion: no-preference) {
+  .book-page * {
+    will-change: transform, opacity;
+    overflow: visible !important; /* Prevent cropping */
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .book-page * {
+    will-change: auto;
+    transition: none;
+    overflow: visible !important; /* Prevent cropping */
+  }
+}
+
+/* Ensure book structure visibility during animations */
+.book-container,
+.book-base,
+.book-cover,
+.pages-container,
+.book-page {
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Realistic page flip behavior */
+.book-page {
+  transform-origin: left center !important;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important; /* Prevent cropping */
+  clip-path: none !important; /* Remove any clipping */
+}
+
+/* Ensure page content is visible during flips */
+.book-page > div {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Page back - only visible when page is flipped */
+.book-page > div:last-child {
+  backface-visibility: hidden !important; /* Keep hidden until flipped */
+  opacity: 0 !important; /* Start hidden */
+  visibility: hidden !important; /* Start hidden */
+  overflow: visible !important; /* Prevent cropping */
+  pointer-events: none !important; /* Prevent interaction when hidden */
+}
+
+/* Ensure page back is hidden by default */
+.book-page > div:last-child {
+  display: block !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  backface-visibility: hidden !important;
+  transform: rotateY(180deg) !important; /* Keep rotated but hidden */
+}
+
+/* Only show page back when explicitly set to visible during flip */
+.book-page > div:last-child[style*="opacity: 1"],
+.book-page > div:last-child[style*="visibility: visible"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  backface-visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Enhanced page flip visibility - ensure proper 3D behavior */
+.book-page[style*="rotateY"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important; /* Prevent cropping */
+  transform-style: preserve-3d !important;
+}
+
+/* Ensure page content remains visible during rotation */
+.book-page[style*="rotateY"] > div {
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important; /* Prevent cropping */
+}
+
+/* Book spine and binding effect */
+.book-base::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  background: linear-gradient(to right, #8b7355, #a0522d, #8b7355);
+  border-radius: 4px 0 0 4px;
+  z-index: 3;
+}
+
+/* Page curl shadow effect */
+.book-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.1));
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Minimal Scene Animations */
