@@ -336,7 +336,7 @@ const Book3D: React.FC = () => {
           {/* Premium Art Book Cover */}
           <div 
             ref={coverRef}
-            className="book-cover absolute inset-0 bg-gradient-to-br from-stone-100 to-stone-200 rounded-lg shadow-lg border border-stone-300 z-10"
+            className="book-cover absolute inset-0 z-10"
             style={{ 
               transformStyle: 'preserve-3d',
               backfaceVisibility: 'hidden',
@@ -346,32 +346,40 @@ const Book3D: React.FC = () => {
               clipPath: 'none'
             }}
           >
-            <div className="absolute inset-8 border border-zinc-200 rounded-sm" style={{ overflow: 'visible', clipPath: 'none' }}>
-              <div className="flex flex-col items-center justify-center h-full text-zinc-800" style={{ overflow: 'visible', clipPath: 'none' }}>
-                {/* Minimalist Title */}
-                <div className="text-center mb-8" style={{ overflow: 'visible', clipPath: 'none' }}>
-                  <h1 className="font-display text-4xl md:text-5xl font-light mb-3 tracking-wider">
-                    ARTISTRY
-                  </h1>
-                  <div className="w-24 h-px bg-zinc-400 mx-auto mb-4"></div>
-                  <p className="font-body text-sm md:text-base text-zinc-600 tracking-wide uppercase">
-                    Art • Design • Photography
-                  </p>
+            {/* Front Face */}
+            <div className="cover-front absolute inset-0 bg-gradient-to-br from-stone-100 to-stone-200 rounded-lg shadow-lg border border-stone-300" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)', width: '100%', height: '100%' }}>
+              <div className="absolute inset-8 border border-zinc-200 rounded-sm" style={{ overflow: 'visible', clipPath: 'none' }}>
+                <div className="flex flex-col items-center justify-center h-full text-zinc-800" style={{ overflow: 'visible', clipPath: 'none' }}>
+                  {/* Minimalist Title */}
+                  <div className="text-center mb-8" style={{ overflow: 'visible', clipPath: 'none' }}>
+                    <h1 className="font-display text-4xl md:text-5xl font-light mb-3 tracking-wider">
+                      ARTISTRY
+                    </h1>
+                    <div className="w-24 h-px bg-zinc-400 mx-auto mb-4"></div>
+                    <p className="font-body text-sm md:text-base text-zinc-600 tracking-wide uppercase">
+                      Art • Design • Photography
+                    </p>
+                  </div>
+                  {/* Geometric Logo Mark */}
+                  <div className="relative w-20 h-20 md:w-24 md:h-24" style={{ overflow: 'visible', clipPath: 'none' }}>
+                    <div className="absolute inset-0 border-2 border-zinc-400 transform rotate-45"></div>
+                    <div className="absolute inset-3 border border-zinc-500 transform -rotate-45"></div>
+                    <div className="absolute inset-6 bg-zinc-600 rounded-full"></div>
+                  </div>
+                  {/* Subtitle */}
+                  <div className="mt-8 text-center" style={{ overflow: 'visible', clipPath: 'none' }}>
+                    <p className="font-body text-xs text-zinc-500 tracking-widest uppercase">
+                      A Curated Journey
+                    </p>
+                  </div>
                 </div>
-                
-                {/* Geometric Logo Mark */}
-                <div className="relative w-20 h-20 md:w-24 md:h-24" style={{ overflow: 'visible', clipPath: 'none' }}>
-                  <div className="absolute inset-0 border-2 border-zinc-400 transform rotate-45"></div>
-                  <div className="absolute inset-3 border border-zinc-500 transform -rotate-45"></div>
-                  <div className="absolute inset-6 bg-zinc-600 rounded-full"></div>
-                </div>
-                
-                {/* Subtitle */}
-                <div className="mt-8 text-center" style={{ overflow: 'visible', clipPath: 'none' }}>
-                  <p className="font-body text-xs text-zinc-500 tracking-widest uppercase">
-                    A Curated Journey
-                  </p>
-                </div>
+              </div>
+            </div>
+            {/* Inside Face */}
+            <div className="cover-inside absolute inset-0 bg-stone-100 rounded-lg border border-stone-200 flex flex-col items-center justify-center" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', width: '100%', height: '100%' }}>
+              <div className="text-center px-8">
+                <h2 className="font-display text-2xl text-stone-400 font-light mb-2 tracking-wider">Inside Cover</h2>
+                <p className="font-body text-sm text-stone-400">Welcome to the curated journey of Art, Design, and Photography.</p>
               </div>
             </div>
           </div>

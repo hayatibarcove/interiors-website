@@ -146,9 +146,26 @@ const BookAnimation: React.FC = () => {
       // Phase 1: Cover opens (0% to 8%)
       masterTimeline.to('.book-cover', {
         rotationY: -180,
+        transformOrigin: 'left center', // Ensure pivot from left
         duration: ANIMATION_CONFIG.COVER_DURATION,
         ease: ANIMATION_CONFIG.EASING.COVER
       }, 0);
+      // Fade in the inside cover as the cover flips (optional, for realism)
+      masterTimeline.fromTo('.cover-inside', {
+        opacity: 0.7
+      }, {
+        opacity: 1,
+        duration: ANIMATION_CONFIG.COVER_DURATION * 0.7,
+        ease: 'power1.out'
+      }, 0.04);
+      // Fade in the first page as the cover finishes flipping
+      masterTimeline.fromTo('.book-page[data-page="0"]', {
+        opacity: 0
+      }, {
+        opacity: 1,
+        duration: ANIMATION_CONFIG.COVER_DURATION * 0.7,
+        ease: 'power1.out'
+      }, ANIMATION_CONFIG.COVER_DURATION - 0.02);
 
       // Phase 2: Pages with unified content animations (8% to 100%)
       const totalPages = pages.length;
@@ -198,8 +215,8 @@ const BookAnimation: React.FC = () => {
 
         // Phase 2: Initial curl effect (10-30% of flip duration)
         masterTimeline.to(`.book-page[data-page="${pageIndex}"]`, {
-          rotationX: 5, // Subtle upward curl
-          rotationY: -15, // Start turning the page
+          rotationX: 0, // Subtle upward curl
+          rotationY: -25, // Start turning the page
           duration: flipDuration * 0.2,
           ease: "power2.out"
         }, flipStartProgress + flipDuration * 0.1);
