@@ -33,13 +33,20 @@ const useResponsiveBookSize = () => {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
-    // Available space calculation
-    const availableHeight = viewportHeight - headerHeight - footerHeight - (bookPadding * 2);
-    const availableWidth = viewportWidth - (bookPadding * 2);
+    // Mobile-specific adjustments
+    const isMobile = viewportWidth <= 768;
+    const isPortrait = viewportHeight > viewportWidth;
+    
+    // Adjust padding for mobile
+    const mobilePadding = isMobile ? bookPadding * 0.75 : bookPadding;
+    
+    // Available space calculation with mobile considerations
+    const availableHeight = viewportHeight - headerHeight - footerHeight - (mobilePadding * 2);
+    const availableWidth = viewportWidth - (mobilePadding * 2);
 
     // Ensure minimum available space
-    const minAvailableHeight = 200;
-    const minAvailableWidth = 320;
+    const minAvailableHeight = isMobile ? 150 : 200;
+    const minAvailableWidth = isMobile ? 280 : 320;
     
     if (availableHeight < minAvailableHeight || availableWidth < minAvailableWidth) {
       console.warn('Insufficient space for book layout');
@@ -49,9 +56,13 @@ const useResponsiveBookSize = () => {
     // Book aspect ratio (width:height = 1.52:1 for standard book)
     const bookAspectRatio = 1.52;
     
+    // Mobile-specific aspect ratio adjustments
+    const mobileAspectRatio = isMobile && isPortrait ? 1.3 : bookAspectRatio;
+    const finalAspectRatio = isMobile ? mobileAspectRatio : bookAspectRatio;
+    
     // Calculate maximum possible dimensions while maintaining aspect ratio
-    const widthFromHeight = availableHeight * bookAspectRatio;
-    const heightFromWidth = availableWidth / bookAspectRatio;
+    const widthFromHeight = availableHeight * finalAspectRatio;
+    const heightFromWidth = availableWidth / finalAspectRatio;
     
     let finalWidth, finalHeight;
     
@@ -65,30 +76,30 @@ const useResponsiveBookSize = () => {
       finalHeight = heightFromWidth;
     }
 
-    // Apply reasonable size constraints while respecting available space
-    const minWidth = Math.min(320, availableWidth * 0.8);
-    const maxWidth = Math.min(1000, availableWidth * 0.95);
-    const minHeight = Math.min(210, availableHeight * 0.8);
-    const maxHeight = Math.min(650, availableHeight * 0.95);
+    // Mobile-specific size constraints
+    const minWidth = isMobile ? Math.min(280, availableWidth * 0.85) : Math.min(320, availableWidth * 0.8);
+    const maxWidth = isMobile ? Math.min(600, availableWidth * 0.98) : Math.min(1000, availableWidth * 0.95);
+    const minHeight = isMobile ? Math.min(180, availableHeight * 0.85) : Math.min(210, availableHeight * 0.8);
+    const maxHeight = isMobile ? Math.min(450, availableHeight * 0.98) : Math.min(650, availableHeight * 0.95);
 
     finalWidth = Math.max(minWidth, Math.min(maxWidth, finalWidth));
     finalHeight = Math.max(minHeight, Math.min(maxHeight, finalHeight));
 
     // Ensure aspect ratio is maintained after constraints
-    if (finalWidth / finalHeight > bookAspectRatio) {
-      finalWidth = finalHeight * bookAspectRatio;
+    if (finalWidth / finalHeight > finalAspectRatio) {
+      finalWidth = finalHeight * finalAspectRatio;
     } else {
-      finalHeight = finalWidth / bookAspectRatio;
+      finalHeight = finalWidth / finalAspectRatio;
     }
 
     // Final safety check to ensure we don't exceed available space
     if (finalHeight > availableHeight) {
       finalHeight = availableHeight;
-      finalWidth = finalHeight * bookAspectRatio;
+      finalWidth = finalHeight * finalAspectRatio;
     }
     if (finalWidth > availableWidth) {
       finalWidth = availableWidth;
-      finalHeight = finalWidth / bookAspectRatio;
+      finalHeight = finalWidth / finalAspectRatio;
     }
 
     // Calculate scale for perspective and other effects
@@ -98,7 +109,7 @@ const useResponsiveBookSize = () => {
     setBookDimensions({
       width: Math.round(finalWidth),
       height: Math.round(finalHeight),
-      scale: Math.max(0.3, Math.min(2, scale))
+      scale: Math.max(0.25, Math.min(1.5, scale))
     });
 
     // Update CSS custom properties
@@ -296,6 +307,93 @@ const Book3D: React.FC = () => {
     console.log('Book 3D setup initialized for ScrollTrigger animations');
 
   }, [isClientSide, artTopics.length, bookDimensions.scale]);
+
+  // Mobile-optimized ScrollTrigger setup
+  const setupMobileScrollTrigger = useCallback(() => {
+    if (!containerRef.current || !bookRef.current) return;
+
+    // Detect mobile device
+    const isMobile = window.innerWidth <= 768;
+    const isTouchDevice = 'ontouchstart' in window;
+
+    // Mobile-specific ScrollTrigger settings
+    const mobileSettings = {
+      // Reduce sensitivity on mobile to prevent jitter
+      scrub: isMobile ? 1.5 : 1,
+      // Increase snap distance for better mobile experience
+      snap: 1 / (artTopics.length - 1),
+      // Optimize for touch scrolling
+      anticipatePin: isMobile ? 1 : 0,
+      // Prevent conflicts with mobile browser UI
+      preventOverlaps: true,
+      // Optimize performance on mobile
+      fastScrollEnd: isMobile,
+    };
+
+    // Create ScrollTrigger for book opening animation
+    const bookOpenTrigger = ScrollTrigger.create({
+      trigger: containerRef.current,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: mobileSettings.scrub,
+      snap: mobileSettings.snap,
+      anticipatePin: mobileSettings.anticipatePin,
+      preventOverlaps: mobileSettings.preventOverlaps,
+      fastScrollEnd: mobileSettings.fastScrollEnd,
+      onUpdate: (self) => {
+        const progress = self.progress;
+        
+        // Book opening animation
+        if (coverRef.current) {
+          gsap.to(coverRef.current, {
+            rotationY: progress * 180,
+            duration: 0.1,
+            ease: "none"
+          });
+        }
+
+        // Calculate which page should be active
+        const totalPages = artTopics.length;
+        const activePageIndex = Math.floor(progress * totalPages);
+        
+        // Update active page state
+        setActiveFlipTargets(new Set([activePageIndex]));
+      },
+      onRefresh: () => {
+        // Recalculate on orientation change or resize
+        if (isMobile) {
+          setTimeout(() => {
+            ScrollTrigger.refresh();
+          }, 100);
+        }
+      }
+    });
+
+    // Mobile-specific optimizations
+    if (isTouchDevice && containerRef.current) {
+      // Enable smooth scrolling for touch devices
+      (containerRef.current.style as any).webkitOverflowScrolling = 'touch';
+    }
+
+    return () => {
+      bookOpenTrigger.kill();
+    };
+  }, [artTopics.length]);
+
+  // Initialize ScrollTrigger when component mounts
+  useEffect(() => {
+    if (!isClientSide || !containerRef.current || !bookRef.current) return;
+
+    // Clear any existing ScrollTriggers
+    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+
+    // Use mobile-optimized ScrollTrigger setup
+    const cleanup = setupMobileScrollTrigger();
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [isClientSide, setupMobileScrollTrigger]);
 
   // Render nothing on server side
   if (!isClientSide) {

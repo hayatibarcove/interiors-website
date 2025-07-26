@@ -43,7 +43,7 @@ const GestureHandler: React.FC<GestureHandlerProps> = ({
       onPress: (self) => {
         // Add visual feedback on press
         gsap.to(container, {
-          scale: 0.98,
+          opacity: 0.9,
           duration: 0.1,
           ease: "power2.out"
         });
@@ -52,7 +52,7 @@ const GestureHandler: React.FC<GestureHandlerProps> = ({
       onRelease: (self) => {
         // Reset visual feedback
         gsap.to(container, {
-          scale: 1,
+          opacity: 1,
           duration: 0.3,
           ease: "back.out(1.2)"
         });

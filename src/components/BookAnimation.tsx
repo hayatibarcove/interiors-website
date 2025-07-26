@@ -38,8 +38,8 @@ const ANIMATION_CONFIG = {
   
   // Animation properties
   CONTENT: {
-    INITIAL: { opacity: 0, y: 20, scale: 0.95 },
-    FINAL: { opacity: 1, y: 0, scale: 1 }
+    INITIAL: { opacity: 0, y: 20 },
+    FINAL: { opacity: 1, y: 0 }
   },
   
   // Performance settings
@@ -270,7 +270,7 @@ const BookAnimation: React.FC = () => {
 
       // Add subtle book breathing animation with performance optimization
       gsap.to('.book-container', {
-        scale: 1.002,
+        y: -2,
         duration: 6,
         ease: ANIMATION_CONFIG.EASING.BREATHING,
         yoyo: true,

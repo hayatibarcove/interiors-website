@@ -557,7 +557,7 @@ img {
 }
 
 .minimal-hover:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
   filter: brightness(1.05);
 }
 
@@ -600,10 +600,25 @@ img {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Prevent browser zoom on mobile */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .book-container {
-    transform: scale(0.9);
+    /* Removed scale transform to prevent zoom effects */
   }
   
   .minimal-container {
@@ -617,7 +632,7 @@ img {
 
 @media (max-width: 480px) {
   .book-container {
-    transform: scale(0.75);
+    /* Removed scale transform to prevent zoom effects */
   }
   
   .minimal-grid {
@@ -902,7 +917,7 @@ button:focus,
 }
 
 .scene-element:hover {
-  transform: scale(1.02);
+  transform: translateY(-1px);
   filter: brightness(1.05);
 }
 
@@ -1019,5 +1034,653 @@ button:focus,
     --header-height: 60px;
     --footer-height: 40px;
     --book-padding: 8px;
+  }
+}
+
+/* Mobile Responsive Enhancements */
+@media (max-width: 768px) {
+  .fullscreen-header {
+    height: 60px;
+    padding: 0 16px;
+  }
+  
+  .fullscreen-footer {
+    height: 40px;
+    padding: 0 16px;
+  }
+  
+  .fullscreen-book-container {
+    padding: 0 16px;
+  }
+  
+  .fullscreen-progress {
+    right: 1rem;
+    transform: translateY(-50%) scale(0.8);
+  }
+  
+  .fullscreen-scroll-instruction {
+    font-size: 0.875rem;
+  }
+  
+  :root {
+    --header-height: 60px;
+    --footer-height: 40px;
+    --book-padding: 16px;
+  }
+  
+  /* Mobile Typography Adjustments */
+  .page-title {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .page-content {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+  
+  .year-badge {
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+  
+  /* Mobile Grid Layout Adjustments */
+  .scene-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+  }
+  
+  .scene-content {
+    padding: 0.75rem !important;
+  }
+  
+  /* Mobile Animation Optimizations */
+  .book-page * {
+    will-change: transform, opacity;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  .fullscreen-container {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile-specific grid adjustments - maintain 2-column layout */
+  .book-page .grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+  }
+  
+  /* Adjust column widths for better mobile layout */
+  .book-page .grid > div:first-child {
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  
+  .book-page .grid > div:last-child {
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  
+  /* Mobile image sizing */
+  .book-page img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Ensure content fits in mobile columns */
+  .book-page .page-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  .book-page .page-content p {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .fullscreen-header {
+    height: 50px;
+    padding: 0 12px;
+  }
+  
+  .fullscreen-footer {
+    height: 32px;
+    padding: 0 12px;
+  }
+  
+  .fullscreen-book-container {
+    padding: 0 12px;
+  }
+  
+  .fullscreen-progress {
+    right: 0.75rem;
+    transform: translateY(-50%) scale(0.7);
+  }
+  
+  :root {
+    --header-height: 50px;
+    --footer-height: 32px;
+    --book-padding: 12px;
+  }
+  
+  /* Small Mobile Typography */
+  .page-title {
+    font-size: 1.25rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  .page-subtitle {
+    font-size: 0.875rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .page-content {
+    font-size: 0.8rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .year-badge {
+    font-size: 0.7rem !important;
+    padding: 0.2rem 0.4rem !important;
+  }
+  
+  /* Small Mobile Grid Layout */
+  .scene-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  .scene-content {
+    padding: 0.5rem !important;
+  }
+  
+  /* Small mobile grid adjustments - maintain 2-column layout */
+  .book-page .grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Further adjust column widths for small mobile */
+  .book-page .grid > div:first-child {
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  
+  .book-page .grid > div:last-child {
+    min-width: 0;
+    flex-shrink: 1;
+  }
+}
+
+/* Extra Small Mobile Breakpoint */
+@media (max-width: 360px) {
+  .fullscreen-header {
+    height: 45px;
+    padding: 0 8px;
+  }
+  
+  .fullscreen-footer {
+    height: 28px;
+    padding: 0 8px;
+  }
+  
+  .fullscreen-book-container {
+    padding: 0 8px;
+  }
+  
+  :root {
+    --header-height: 45px;
+    --footer-height: 28px;
+    --book-padding: 8px;
+  }
+  
+  /* Extra small mobile typography */
+  .page-title {
+    font-size: 1.125rem !important;
+    line-height: 1.1 !important;
+  }
+  
+  .page-subtitle {
+    font-size: 0.8rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  .page-content {
+    font-size: 0.75rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  .year-badge {
+    font-size: 0.65rem !important;
+    padding: 0.15rem 0.35rem !important;
+  }
+  
+  /* Extra small mobile grid adjustments - maintain 2-column layout */
+  .book-page .grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.25rem !important;
+  }
+  
+  /* Ensure content fits in small columns */
+  .book-page .grid > div {
+    min-width: 0;
+    overflow: hidden;
+  }
+  
+  .book-page .grid > div > div {
+    min-width: 0;
+    overflow: hidden;
+  }
+  
+  /* Very small screen content adjustments */
+  .book-page .page-content p {
+    font-size: 0.7rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 0.25rem;
+  }
+  
+  .book-page .artist-name {
+    font-size: 0.6rem !important;
+  }
+  
+  .book-page .page-number {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+  
+  .book-page .page-number span {
+    font-size: 0.6rem !important;
+  }
+}
+
+/* Landscape Mobile Optimizations */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --header-height: 40px;
+    --footer-height: 28px;
+    --book-padding: 8px;
+  }
+  
+  .fullscreen-header {
+    height: 40px;
+  }
+  
+  .fullscreen-footer {
+    height: 28px;
+  }
+  
+  .fullscreen-book-container {
+    padding: 0 8px;
+  }
+  
+  /* Landscape Typography */
+  .page-title {
+    font-size: 1.125rem !important;
+  }
+  
+  .page-subtitle {
+    font-size: 0.8rem !important;
+  }
+  
+  .page-content {
+    font-size: 0.75rem !important;
+  }
+  
+  /* Landscape grid adjustments */
+  .book-page .grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* High DPI Mobile Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2) and (max-width: 768px) {
+  .book-page img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets */
+  .book-page {
+    min-height: 44px;
+  }
+  
+  /* Optimize scroll performance */
+  .fullscreen-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Disable hover effects on touch devices */
+  .scene-element:hover {
+    transform: none !important;
+  }
+  
+  /* Improve touch targets */
+  .page-number {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .book-page * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+  
+  .book-page {
+    transition: none !important;
+  }
+}
+
+/* Mobile Responsive Typography for BookPage */
+.book-page {
+  /* Ensure text doesn't overflow */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Responsive Typography Scale */
+.book-page .page-title {
+  /* Base mobile size */
+  font-size: clamp(1rem, 4vw, 1.875rem);
+  line-height: 1.2;
+  /* Prevent overflow */
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.book-page .page-subtitle {
+  font-size: clamp(0.875rem, 3.5vw, 1.125rem);
+  line-height: 1.4;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.book-page .page-content p {
+  font-size: clamp(0.75rem, 3vw, 1rem);
+  line-height: 1.5;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+  margin-bottom: 0.5rem;
+}
+
+.book-page .artist-name {
+  font-size: clamp(0.625rem, 2.5vw, 0.875rem);
+  line-height: 1.3;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.book-page .year-badge {
+  font-size: clamp(0.625rem, 2.5vw, 0.75rem);
+  line-height: 1.2;
+  padding: clamp(0.25rem, 1vw, 0.375rem) clamp(0.5rem, 2vw, 0.75rem);
+}
+
+.book-page .page-number {
+  width: clamp(1.5rem, 6vw, 2rem);
+  height: clamp(1.5rem, 6vw, 2rem);
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+}
+
+.book-page .page-number span {
+  font-size: clamp(0.625rem, 2.5vw, 0.75rem);
+  line-height: 1;
+}
+
+/* Ensure content fits in mobile columns */
+.book-page .page-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
+}
+
+.book-page .page-content p {
+  margin-bottom: 0.5rem;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+/* Mobile-specific grid adjustments */
+@media (max-width: 768px) {
+  .book-page .grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem !important;
+  }
+  
+  .book-page .page-title {
+    font-size: clamp(0.875rem, 5vw, 1.25rem);
+    line-height: 1.1;
+  }
+  
+  .book-page .page-subtitle {
+    font-size: clamp(0.75rem, 4vw, 1rem);
+    line-height: 1.3;
+  }
+  
+  .book-page .page-content p {
+    font-size: clamp(0.625rem, 3.5vw, 0.875rem);
+    line-height: 1.4;
+  }
+  
+  .book-page .artist-name {
+    font-size: clamp(0.5rem, 3vw, 0.75rem);
+    line-height: 1.2;
+  }
+  
+  .book-page .year-badge {
+    font-size: clamp(0.5rem, 3vw, 0.625rem);
+    padding: clamp(0.125rem, 1vw, 0.25rem) clamp(0.25rem, 2vw, 0.5rem);
+  }
+  
+  .book-page .page-number {
+    width: clamp(1.25rem, 5vw, 1.5rem);
+    height: clamp(1.25rem, 5vw, 1.5rem);
+  }
+  
+  .book-page .page-number span {
+    font-size: clamp(0.5rem, 3vw, 0.625rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .book-page .grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+  }
+  
+  .book-page .page-title {
+    font-size: clamp(0.75rem, 6vw, 1rem);
+    line-height: 1.1;
+  }
+  
+  .book-page .page-subtitle {
+    font-size: clamp(0.625rem, 5vw, 0.875rem);
+    line-height: 1.2;
+  }
+  
+  .book-page .page-content p {
+    font-size: clamp(0.5rem, 4vw, 0.75rem);
+    line-height: 1.3;
+  }
+  
+  .book-page .artist-name {
+    font-size: clamp(0.375rem, 3.5vw, 0.625rem);
+    line-height: 1.1;
+  }
+  
+  .book-page .year-badge {
+    font-size: clamp(0.375rem, 3.5vw, 0.5rem);
+    padding: clamp(0.125rem, 1vw, 0.125rem) clamp(0.25rem, 2vw, 0.375rem);
+  }
+  
+  .book-page .page-number {
+    width: clamp(1rem, 4vw, 1.25rem);
+    height: clamp(1rem, 4vw, 1.25rem);
+  }
+  
+  .book-page .page-number span {
+    font-size: clamp(0.375rem, 3.5vw, 0.5rem);
+  }
+}
+
+@media (max-width: 360px) {
+  .book-page .page-title {
+    font-size: clamp(0.625rem, 7vw, 0.875rem);
+    line-height: 1.1;
+  }
+  
+  .book-page .page-subtitle {
+    font-size: clamp(0.5rem, 6vw, 0.75rem);
+    line-height: 1.2;
+  }
+  
+  .book-page .page-content p {
+    font-size: clamp(0.375rem, 5vw, 0.625rem);
+    line-height: 1.3;
+  }
+  
+  .book-page .artist-name {
+    font-size: clamp(0.25rem, 4vw, 0.5rem);
+    line-height: 1.1;
+  }
+  
+  .book-page .year-badge {
+    font-size: clamp(0.25rem, 4vw, 0.375rem);
+    padding: clamp(0.125rem, 1vw, 0.125rem) clamp(0.125rem, 1.5vw, 0.25rem);
+  }
+  
+  .book-page .page-number {
+    width: clamp(0.875rem, 3.5vw, 1rem);
+    height: clamp(0.875rem, 3.5vw, 1rem);
+  }
+  
+  .book-page .page-number span {
+    font-size: clamp(0.25rem, 4vw, 0.375rem);
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (orientation: landscape) and (max-height: 500px) {
+  .book-page .page-title {
+    font-size: clamp(0.75rem, 4vw, 1rem);
+    line-height: 1.1;
+  }
+  
+  .book-page .page-subtitle {
+    font-size: clamp(0.625rem, 3.5vw, 0.875rem);
+    line-height: 1.2;
+  }
+  
+  .book-page .page-content p {
+    font-size: clamp(0.5rem, 3vw, 0.75rem);
+    line-height: 1.3;
+  }
+  
+  .book-page .artist-name {
+    font-size: clamp(0.375rem, 2.5vw, 0.625rem);
+    line-height: 1.1;
+  }
+  
+  .book-page .year-badge {
+    font-size: clamp(0.375rem, 2.5vw, 0.5rem);
+    padding: clamp(0.125rem, 0.75vw, 0.125rem) clamp(0.25rem, 1.5vw, 0.375rem);
+  }
+  
+  .book-page .page-number {
+    width: clamp(1rem, 3.5vw, 1.25rem);
+    height: clamp(1rem, 3.5vw, 1.25rem);
+  }
+  
+  .book-page .page-number span {
+    font-size: clamp(0.375rem, 2.5vw, 0.5rem);
+  }
+}
+
+/* Ensure content doesn't overflow on very small screens */
+@media (max-width: 320px) {
+  .book-page .page-content p {
+    font-size: 0.5rem;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+  }
+  
+  .book-page .artist-name {
+    font-size: 0.375rem;
+    line-height: 1.1;
+  }
+  
+  .book-page .year-badge {
+    font-size: 0.375rem;
+    padding: 0.125rem 0.25rem;
+  }
+  
+  .book-page .page-number {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  
+  .book-page .page-number span {
+    font-size: 0.375rem;
+  }
+}
+
+/* Prevent horizontal scroll */
+.book-page * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure text wrapping works properly */
+.book-page .page-content,
+.book-page .page-title,
+.book-page .page-subtitle,
+.book-page .artist-name {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+/* Optimize for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .book-page .page-content p {
+    /* Slightly larger text for touch devices */
+    font-size: clamp(0.75rem, 4vw, 1rem);
+    line-height: 1.4;
+  }
+  
+  .book-page .page-number {
+    /* Larger touch targets */
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .book-page * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }

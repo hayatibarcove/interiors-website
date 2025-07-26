@@ -86,46 +86,42 @@ const BookPage: React.FC<BookPageProps> = ({
         }}
       >
         
-        {/* Top Section: Header with Proper Spacing */}
-        <header className="px-16 pt-8" style={{ overflow: 'visible', clipPath: 'none' }}>
+        {/* Top Section: Header with Responsive Spacing */}
+        <header className="px-4 sm:px-6 md:px-8 lg:px-16 pt-4 sm:pt-6 md:pt-8" style={{ overflow: 'visible', clipPath: 'none' }}>
           <div className="max-w-full" style={{ overflow: 'visible', clipPath: 'none' }}>
-            {/* Year Badge */}
-            <div className="year-badge inline-block px-3 py-1 bg-gray-100 rounded-full mb-4" style={{ overflow: 'visible', clipPath: 'none' }}>
-              <span className="text-xs font-medium text-gray-600 tracking-wide">
+            {/* Year Badge with Responsive Sizing */}
+            <div className="year-badge inline-block px-2 py-1 sm:px-3 sm:py-1 bg-gray-100 rounded-full mb-2 sm:mb-3 md:mb-4" style={{ overflow: 'visible', clipPath: 'none' }}>
+              <span className="text-xs sm:text-sm font-medium text-gray-600 tracking-wide">
                 {story.year}
               </span>
             </div>
             
-            {/* Clean Typography Hierarchy */}
-            <h1 className="page-title font-display text-3xl font-light text-gray-900 mb-2 leading-tight" style={{ overflow: 'visible', clipPath: 'none' }}>
+            {/* Responsive Typography Hierarchy */}
+            <h1 className="page-title font-display text-lg sm:text-xl md:text-2xl lg:text-3xl font-light text-gray-900 mb-1 sm:mb-2 leading-tight" style={{ overflow: 'visible', clipPath: 'none' }}>
               {story.title}
             </h1>
-            <p className="page-subtitle text-base text-gray-500 font-light leading-relaxed" style={{ overflow: 'visible', clipPath: 'none' }}>
+            <p className="page-subtitle text-sm sm:text-base md:text-lg font-light text-gray-500 leading-relaxed" style={{ overflow: 'visible', clipPath: 'none' }}>
               {story.subtitle}
             </p>
-            
-            {/* Minimal Divider */}
-            {/* <div className="w-12 h-px bg-gray-300 mt-4"></div> */}
           </div>
         </header>
 
-        {/* Main Section: Two-Column Grid Layout */}
-        <main className="flex-1 px-16 pb-16" style={{ overflow: 'visible', clipPath: 'none' }}>
+        {/* Main Section: Two-Column Grid Layout with Responsive Padding */}
+        <main className="flex-1 px-4 sm:px-6 md:px-8 lg:px-16 pb-4 sm:pb-6 md:pb-8 lg:pb-16" style={{ overflow: 'visible', clipPath: 'none' }}>
           <div 
-            className="h-full grid gap-8 items-center"
+            className="h-full grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:gap-8 items-center"
             style={{ 
-              gridTemplateColumns: '1fr 1fr', // Equal columns
               overflow: 'visible',
               clipPath: 'none'
             }}
           >
             {/* Left Column: Art Scene */}
             <div className="flex items-center justify-center" style={{ overflow: 'visible', clipPath: 'none' }}>
-              <div className="w-full max-w-md aspect-square relative" style={{ overflow: 'visible', clipPath: 'none' }}>
+              <div className="w-full max-w-full aspect-square relative" style={{ overflow: 'visible', clipPath: 'none' }}>
                 {/* Image loading state */}
                 {!imageLoaded && (
                   <div className="absolute inset-0 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center" style={{ overflow: 'visible', clipPath: 'none' }}>
-                    <div className="text-gray-400 text-sm">Loading image...</div>
+                    <div className="text-gray-400 text-xs sm:text-sm">Loading image...</div>
                   </div>
                 )}
                 
@@ -144,29 +140,29 @@ const BookPage: React.FC<BookPageProps> = ({
               </div>
             </div>
 
-            {/* Right Column: Content */}
-            <div className="flex flex-col justify-center space-y-6" style={{ overflow: 'visible', clipPath: 'none' }}>
-              {/* Content Text */}
-              <div className="page-content space-y-4" style={{ overflow: 'visible', clipPath: 'none' }}>
-                <p className="text-base text-gray-700 leading-relaxed font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
+            {/* Right Column: Content with Responsive Typography */}
+            <div className="flex flex-col justify-center space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-6" style={{ overflow: 'visible', clipPath: 'none' }}>
+              {/* Content Text with Responsive Sizing */}
+              <div className="page-content space-y-2 sm:space-y-3 md:space-y-4" style={{ overflow: 'visible', clipPath: 'none' }}>
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 leading-relaxed font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
                   {story.content}
                 </p>
               </div>
               
-              {/* Attribution Section */}
-              <div className="pt-6 border-t border-gray-100" style={{ overflow: 'visible', clipPath: 'none' }}>
+              {/* Attribution Section with Responsive Sizing */}
+              <div className="pt-2 sm:pt-3 md:pt-4 lg:pt-6 border-t border-gray-100" style={{ overflow: 'visible', clipPath: 'none' }}>
                 <div className="flex items-center justify-between" style={{ overflow: 'visible', clipPath: 'none' }}>
                   <div style={{ overflow: 'visible', clipPath: 'none' }}>
-                    <p className="artist-name text-sm text-gray-500 font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
+                    <p className="artist-name text-xs sm:text-sm md:text-base text-gray-500 font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
                       {story.artist}
                     </p>
                   </div>
                   
-                  {/* Minimal Page Number with ready indicator */}
-                  <div className={`page-number w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                  {/* Responsive Page Number */}
+                  <div className={`page-number w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
                     isPageReady ? 'bg-gray-50' : 'bg-yellow-50'
                   }`} style={{ overflow: 'visible', clipPath: 'none' }}>
-                    <span className={`text-sm font-medium transition-colors duration-300 ${
+                    <span className={`text-xs sm:text-sm md:text-sm font-medium transition-colors duration-300 ${
                       isPageReady ? 'text-gray-600' : 'text-yellow-600'
                     }`} style={{ overflow: 'visible', clipPath: 'none' }}>
                       {pageIndex + 1}
@@ -207,7 +203,7 @@ const BookPage: React.FC<BookPageProps> = ({
         }}
       >
         <div className="h-full flex items-center justify-center opacity-20" style={{ overflow: 'visible', clipPath: 'none' }}>
-          <div className="text-stone-400 text-6xl font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
+          <div className="text-stone-400 text-2xl sm:text-4xl md:text-6xl font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
             {pageIndex + 1}
           </div>
         </div>
