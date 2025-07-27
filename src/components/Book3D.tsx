@@ -37,16 +37,16 @@ const useResponsiveBookSize = () => {
     const isMobile = viewportWidth <= 768;
     const isPortrait = viewportHeight > viewportWidth;
     
-    // Adjust padding for mobile
-    const mobilePadding = isMobile ? bookPadding * 0.75 : bookPadding;
+    // Adjust padding for mobile - use less padding to make book larger
+    const mobilePadding = isMobile ? bookPadding * 0.5 : bookPadding;
     
     // Available space calculation with mobile considerations
     const availableHeight = viewportHeight - headerHeight - footerHeight - (mobilePadding * 2);
     const availableWidth = viewportWidth - (mobilePadding * 2);
 
-    // Ensure minimum available space
-    const minAvailableHeight = isMobile ? 150 : 200;
-    const minAvailableWidth = isMobile ? 280 : 320;
+    // Ensure minimum available space - more permissive on mobile
+    const minAvailableHeight = isMobile ? 120 : 200;
+    const minAvailableWidth = isMobile ? 240 : 320;
     
     if (availableHeight < minAvailableHeight || availableWidth < minAvailableWidth) {
       console.warn('Insufficient space for book layout');
@@ -56,8 +56,8 @@ const useResponsiveBookSize = () => {
     // Book aspect ratio (width:height = 1.52:1 for standard book)
     const bookAspectRatio = 1.52;
     
-    // Mobile-specific aspect ratio adjustments
-    const mobileAspectRatio = isMobile && isPortrait ? 1.3 : bookAspectRatio;
+    // Mobile-specific aspect ratio adjustments - optimize for orientation
+    const mobileAspectRatio = isMobile && isPortrait ? 1.2 : (isMobile && !isPortrait ? 1.8 : bookAspectRatio);
     const finalAspectRatio = isMobile ? mobileAspectRatio : bookAspectRatio;
     
     // Calculate maximum possible dimensions while maintaining aspect ratio
@@ -66,21 +66,44 @@ const useResponsiveBookSize = () => {
     
     let finalWidth, finalHeight;
     
-    if (widthFromHeight <= availableWidth) {
-      // Height is the limiting factor
-      finalWidth = widthFromHeight;
-      finalHeight = availableHeight;
+    // On mobile, prioritize using more space
+    if (isMobile) {
+      // Use more aggressive sizing on mobile
+      if (isPortrait) {
+        // In portrait, prioritize height usage
+        finalHeight = availableHeight * 0.95;
+        finalWidth = finalHeight * finalAspectRatio;
+        if (finalWidth > availableWidth * 0.95) {
+          finalWidth = availableWidth * 0.95;
+          finalHeight = finalWidth / finalAspectRatio;
+        }
+      } else {
+        // In landscape, prioritize width usage
+        finalWidth = availableWidth * 0.95;
+        finalHeight = finalWidth / finalAspectRatio;
+        if (finalHeight > availableHeight * 0.95) {
+          finalHeight = availableHeight * 0.95;
+          finalWidth = finalHeight * finalAspectRatio;
+        }
+      }
     } else {
-      // Width is the limiting factor
-      finalWidth = availableWidth;
-      finalHeight = heightFromWidth;
+      // Desktop logic remains the same
+      if (widthFromHeight <= availableWidth) {
+        // Height is the limiting factor
+        finalWidth = widthFromHeight;
+        finalHeight = availableHeight;
+      } else {
+        // Width is the limiting factor
+        finalWidth = availableWidth;
+        finalHeight = heightFromWidth;
+      }
     }
 
-    // Mobile-specific size constraints
-    const minWidth = isMobile ? Math.min(280, availableWidth * 0.85) : Math.min(320, availableWidth * 0.8);
-    const maxWidth = isMobile ? Math.min(600, availableWidth * 0.98) : Math.min(1000, availableWidth * 0.95);
-    const minHeight = isMobile ? Math.min(180, availableHeight * 0.85) : Math.min(210, availableHeight * 0.8);
-    const maxHeight = isMobile ? Math.min(450, availableHeight * 0.98) : Math.min(650, availableHeight * 0.95);
+    // Mobile-specific size constraints - make book larger on mobile
+    const minWidth = isMobile ? Math.min(320, availableWidth * 0.95) : Math.min(320, availableWidth * 0.8);
+    const maxWidth = isMobile ? Math.min(availableWidth * 0.98, availableWidth - 20) : Math.min(1000, availableWidth * 0.95);
+    const minHeight = isMobile ? Math.min(220, availableHeight * 0.95) : Math.min(210, availableHeight * 0.8);
+    const maxHeight = isMobile ? Math.min(availableHeight * 0.98, availableHeight - 20) : Math.min(650, availableHeight * 0.95);
 
     finalWidth = Math.max(minWidth, Math.min(maxWidth, finalWidth));
     finalHeight = Math.max(minHeight, Math.min(maxHeight, finalHeight));
@@ -109,7 +132,7 @@ const useResponsiveBookSize = () => {
     setBookDimensions({
       width: Math.round(finalWidth),
       height: Math.round(finalHeight),
-      scale: Math.max(0.25, Math.min(1.5, scale))
+      scale: Math.max(0.25, Math.min(isMobile ? 2.0 : 1.5, scale))
     });
 
     // Update CSS custom properties
@@ -518,8 +541,16 @@ const Book3D: React.FC = () => {
               // Optimize text rendering
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
-              textRendering: 'optimizeLegibility'
+              textRendering: 'optimizeLegibility',
+              // Background image
+              backgroundImage: 'url(/photos/cover.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
             }}>
+              {/* Overlay for better text readability */}
+              <div className="absolute inset-0 bg-black/40 rounded-lg"></div>
+              
               <div className="absolute inset-0 flex flex-col justify-between" style={{ 
                 overflow: 'visible', 
                 clipPath: 'none',
@@ -529,7 +560,7 @@ const Book3D: React.FC = () => {
                 textRendering: 'optimizeLegibility'
               }}>
                 {/* Main Content Area */}
-                <div className="flex-1 flex flex-col items-center justify-center text-white px-8 pt-8" style={{ 
+                <div className="flex-1 flex flex-col items-center justify-center text-white px-8 pt-8 relative z-10" style={{ 
                   overflow: 'visible', 
                   clipPath: 'none',
                   // Optimize text rendering
@@ -546,7 +577,7 @@ const Book3D: React.FC = () => {
                     MozOsxFontSmoothing: 'grayscale',
                     textRendering: 'optimizeLegibility'
                   }}>
-                    <h1 className="font-display text-5xl md:text-6xl font-bold mb-4 tracking-tight text-white" style={{
+                    <h1 className="font-display text-5xl md:text-6xl font-bold mb-4 tracking-tight text-white drop-shadow-lg" style={{
                       // Optimize text rendering
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
@@ -557,8 +588,8 @@ const Book3D: React.FC = () => {
                     }}>
                       ARTISTRY
                     </h1>
-                    <div className="w-32 h-1 bg-orange-500 mx-auto mb-6"></div>
-                    <p className="font-body text-lg md:text-xl text-zinc-300 tracking-wide uppercase font-medium" style={{
+                    <div className="w-32 h-1 bg-orange-500 mx-auto mb-6 drop-shadow-lg"></div>
+                    <p className="font-body text-lg md:text-xl text-zinc-100 tracking-wide uppercase font-medium drop-shadow-lg" style={{
                       // Optimize text rendering
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
@@ -579,31 +610,10 @@ const Book3D: React.FC = () => {
                     transform: 'translateZ(0)',
                     willChange: 'transform'
                   }}>
-                    <div className="absolute inset-0 border-2 border-orange-500 transform rotate-45"></div>
-                    <div className="absolute inset-2 border border-orange-400 transform -rotate-45"></div>
-                    <div className="absolute inset-4 bg-orange-500 rounded-full"></div>
+                    <div className="absolute inset-0 border-2 border-orange-500 transform rotate-45 drop-shadow-lg"></div>
+                    <div className="absolute inset-2 border border-orange-400 transform -rotate-45 drop-shadow-lg"></div>
+                    <div className="absolute inset-4 bg-orange-500 rounded-full drop-shadow-lg"></div>
                   </div>
-                </div>
-                
-                {/* Bottom Orange Band */}
-                <div className="bg-orange-500 h-16 md:h-20 flex items-center justify-center" style={{ 
-                  overflow: 'visible', 
-                  clipPath: 'none',
-                  // Force hardware acceleration
-                  transform: 'translateZ(0)',
-                  willChange: 'transform'
-                }}>
-                  <p className="font-body text-sm md:text-base text-white tracking-widest uppercase font-medium" style={{
-                    // Optimize text rendering
-                    WebkitFontSmoothing: 'antialiased',
-                    MozOsxFontSmoothing: 'grayscale',
-                    textRendering: 'optimizeLegibility',
-                    // Force hardware acceleration
-                    transform: 'translateZ(0)',
-                    willChange: 'transform'
-                  }}>
-                    A Curated Journey
-                  </p>
                 </div>
               </div>
             </div>

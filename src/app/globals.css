@@ -140,6 +140,20 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
   
+  /* Mobile circle indicators */
+  .mobile-page-progress {
+    background-color: rgba(168, 162, 158, 0.6) !important;
+    border: 1px solid rgba(168, 162, 158, 0.3);
+    transition: all 0.5s ease-out;
+  }
+  
+  .mobile-page-progress.active {
+    background-color: rgb(55, 65, 81) !important;
+    border-color: rgb(55, 65, 81);
+    transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(55, 65, 81, 0.4);
+  }
+  
   /* Adjust progress indicator layout for mobile */
   .fullscreen-progress .flex {
     flex-direction: row !important;
@@ -178,6 +192,12 @@
   .fullscreen-progress .space-y-2 > div:not(:last-child) {
     margin-right: 0.375rem;
   }
+  
+  /* Smaller circles for small mobile */
+  .mobile-page-progress {
+    width: 0.375rem !important;
+    height: 0.375rem !important;
+  }
 }
 
 .fullscreen-scroll-instruction {
@@ -210,7 +230,8 @@
 /* Mobile scroll instruction adjustments */
 @media (max-width: 768px) {
   .fullscreen-scroll-instruction {
-    bottom: calc(var(--footer-height) + var(--book-padding) + 0.5rem);
+    bottom: auto;
+    top: calc(var(--header-height) + var(--book-padding) + 0.5rem);
   }
   
   /* Enhanced overlay background for mobile */
@@ -229,7 +250,8 @@
 
 @media (max-width: 480px) {
   .fullscreen-scroll-instruction {
-    bottom: calc(var(--footer-height) + var(--book-padding) + 0.25rem);
+    bottom: auto;
+    top: calc(var(--header-height) + var(--book-padding) + 0.25rem);
   }
   
   /* Smaller overlay for very small screens */
@@ -343,7 +365,8 @@ body {
   }
   
   .fullscreen-scroll-instruction {
-    bottom: 2.5rem;
+    bottom: auto;
+    top: calc(var(--header-height) + var(--book-padding) + 0.5rem);
   }
   :root {
     --header-height: 68px;
@@ -1237,8 +1260,9 @@ button:focus,
   }
   
   .fullscreen-progress {
-    right: 1rem;
-    transform: translateY(-50%) scale(0.8);
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
   }
   
   .fullscreen-scroll-instruction {
@@ -1344,8 +1368,9 @@ button:focus,
   }
   
   .fullscreen-progress {
-    right: 0.75rem;
-    transform: translateY(-50%) scale(0.7);
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%) scale(0.7);
   }
   
   :root {

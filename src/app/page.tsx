@@ -1,6 +1,7 @@
 "use client";
 
 import BookAnimation from '../components/BookAnimation';
+import ProgressIndicator from '../components/ProgressIndicator';
 
 export default function Home() {
   return (
@@ -23,23 +24,7 @@ export default function Home() {
       </main>
 
       {/* Overlay Progress Indicator */}
-      <div className="fullscreen-progress" role="progressbar" aria-label="Book progress">
-        <div className="flex flex-col space-y-2 md:space-y-2 space-x-0 md:space-x-0">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((page) => (
-            <div
-              key={page}
-              className="w-0.5 h-6 md:h-6 bg-stone-200/60 rounded-full overflow-hidden"
-            >
-              <div 
-                className="w-full bg-zinc-700 rounded-full transition-all duration-500 ease-out page-progress"
-                data-page={page}
-                style={{ height: '0%' }}
-                aria-label={`Page ${page} progress`}
-              ></div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ProgressIndicator totalPages={10} />
 
       {/* Overlay Scroll Instruction */}
       <div className="fullscreen-scroll-instruction" role="note" aria-label="Scroll instruction">
