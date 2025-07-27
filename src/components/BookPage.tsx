@@ -63,7 +63,14 @@ const BookPage: React.FC<BookPageProps> = ({
         opacity: 1,
         visibility: 'visible',
         overflow: 'visible',
-        clipPath: 'none'
+        clipPath: 'none',
+        // Force hardware acceleration
+        transform: 'translateZ(0)',
+        willChange: 'transform',
+        // Optimize text rendering
+        WebkitFontSmoothing: 'antialiased',
+        MozOsxFontSmoothing: 'grayscale',
+        textRendering: 'optimizeLegibility'
       }}
     >
       {/* Page Loader - shows during flip or content loading */}
@@ -82,7 +89,14 @@ const BookPage: React.FC<BookPageProps> = ({
           transformStyle: 'preserve-3d',
           backfaceVisibility: 'hidden',
           overflow: 'visible',
-          clipPath: 'none'
+          clipPath: 'none',
+          // Force hardware acceleration
+          transform: 'translateZ(0)',
+          willChange: 'transform',
+          // Optimize text rendering
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+          textRendering: 'optimizeLegibility'
         }}
       >
         

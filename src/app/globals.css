@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
+  --background: #fff7de;
   --foreground: #1a1a1a;
   --gallery-white: #ffffff;
-  --gallery-warm: #f8f6f3;
+  --gallery-warm: #fff7de;
   --gallery-accent: #2a2a2a;
   --gallery-muted: #6b6b6b;
   
@@ -26,7 +26,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1a1a1a;
+    --background: #d9d9d9;
     --foreground: #f0f0f0;
     --gallery-white: #2a2a2a;
     --gallery-warm: #252525;
@@ -98,6 +98,88 @@
   pointer-events: none;
 }
 
+/* Progress indicator overlay background */
+.fullscreen-progress::before {
+  content: '';
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  bottom: -0.75rem;
+  left: -0.75rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  z-index: -1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Mobile progress indicator positioning */
+@media (max-width: 768px) {
+  .fullscreen-progress {
+    position: fixed;
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: calc(var(--footer-height) + var(--book-padding) + 2rem);
+    transform: translateX(-50%);
+    z-index: 40;
+    pointer-events: none;
+  }
+  
+  /* Enhanced overlay background for mobile */
+  .fullscreen-progress::before {
+    top: -1rem;
+    right: -1rem;
+    bottom: -1rem;
+    left: -1rem;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Adjust progress indicator layout for mobile */
+  .fullscreen-progress .flex {
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+  }
+  
+  .fullscreen-progress .space-y-2 > div {
+    margin-bottom: 0 !important;
+  }
+  
+  /* Ensure proper spacing for mobile horizontal layout */
+  .fullscreen-progress .space-y-2 > div:not(:last-child) {
+    margin-right: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .fullscreen-progress {
+    bottom: calc(var(--footer-height) + var(--book-padding) + 1.5rem);
+  }
+  
+  /* Smaller overlay for very small screens */
+  .fullscreen-progress::before {
+    top: -0.75rem;
+    right: -0.75rem;
+    bottom: -0.75rem;
+    left: -0.75rem;
+    border-radius: 12px;
+  }
+  
+  /* Adjust spacing for small mobile */
+  .fullscreen-progress .flex {
+    gap: 0.375rem !important;
+  }
+  
+  .fullscreen-progress .space-y-2 > div:not(:last-child) {
+    margin-right: 0.375rem;
+  }
+}
+
 .fullscreen-scroll-instruction {
   position: fixed;
   left: 50%;
@@ -107,6 +189,57 @@
   text-align: center;
   pointer-events: none;
   transition: opacity 0.3s ease;
+}
+
+/* Scroll instruction overlay background */
+.fullscreen-scroll-instruction::before {
+  content: '';
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  bottom: -0.75rem;
+  left: -0.75rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  z-index: -1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Mobile scroll instruction adjustments */
+@media (max-width: 768px) {
+  .fullscreen-scroll-instruction {
+    bottom: calc(var(--footer-height) + var(--book-padding) + 0.5rem);
+  }
+  
+  /* Enhanced overlay background for mobile */
+  .fullscreen-scroll-instruction::before {
+    top: -0.5rem;
+    right: -0.5rem;
+    bottom: -0.5rem;
+    left: -0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+}
+
+@media (max-width: 480px) {
+  .fullscreen-scroll-instruction {
+    bottom: calc(var(--footer-height) + var(--book-padding) + 0.25rem);
+  }
+  
+  /* Smaller overlay for very small screens */
+  .fullscreen-scroll-instruction::before {
+    top: -0.375rem;
+    right: -0.375rem;
+    bottom: -0.375rem;
+    left: -0.375rem;
+    border-radius: 8px;
+  }
 }
 
 /* ScrollTrigger-friendly scrolling */
@@ -528,7 +661,7 @@ img {
   top: 0;
   bottom: 0;
   width: 8px;
-  background: linear-gradient(to right, #8b7355, #a0522d, #8b7355);
+  background: black;
   border-radius: 4px 0 0 4px;
   z-index: 3;
 }
@@ -659,10 +792,60 @@ body {
 /* Enhanced Performance */
 .book-container * {
   backface-visibility: hidden;
+  /* Optimize text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .book-display {
   transform: translateZ(0); /* Force hardware acceleration */
+  /* Optimize text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Enhanced text rendering for book components */
+.book-cover,
+.book-page,
+.book-base {
+  /* Optimize text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Optimize text rendering for all text elements */
+.book-page *,
+.book-cover * {
+  /* Optimize text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Enhanced image rendering */
+.book-page img,
+.book-cover img {
+  /* Optimize image rendering */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 /* Clean Focus States */

@@ -135,7 +135,10 @@ const BookAnimation: React.FC = () => {
             console.log('ScrollTrigger left - animations paused');
           },
           onRefresh: () => {
-            console.log('ScrollTrigger refreshed - timeline updated');
+            // ScrollTrigger refreshed - only log in development
+            if (process.env.NODE_ENV === 'development') {
+              console.log('ScrollTrigger refreshed - timeline updated');
+            }
           }
         }
       });
@@ -321,22 +324,21 @@ const BookAnimation: React.FC = () => {
       className="scroll-container"
       style={{ 
         height: '600vh',
-        background: 'linear-gradient(135deg, #f8f4e6 0%, #f0e6d2 100%)',
         position: 'relative',
         willChange: 'transform' // Optimize for animations
       }}
     >
       {/* Atmospheric background elements */}
-      <div className="fixed inset-0 pointer-events-none">
+      {/* <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-amber-100 via-transparent to-amber-200 opacity-30"></div>
         <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-200 rounded-full blur-3xl opacity-10 animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-orange-200 rounded-full blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-100 rounded-full blur-3xl opacity-5 animate-pulse" style={{ animationDelay: '4s' }}></div>
-      </div>
+      </div> */}
 
       <div 
         ref={bookContainerRef}
-        className="sticky top-0 h-screen flex items-center justify-center pt-20 relative z-10"
+        className="sticky top-0 h-screen flex items-center justify-center relative z-10"
         style={{ willChange: 'transform' }}
       >
         <Book3D />

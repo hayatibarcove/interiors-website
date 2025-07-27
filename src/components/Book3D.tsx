@@ -125,7 +125,9 @@ const useResponsiveBookSize = () => {
     let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(calculateBookSize, 150);
+      // Use longer debounce on mobile to reduce frequency
+      const debounceTime = window.innerWidth <= 768 ? 300 : 150;
+      resizeTimeout = setTimeout(calculateBookSize, debounceTime);
     };
 
     window.addEventListener('resize', handleResize);
@@ -270,20 +272,27 @@ const Book3D: React.FC = () => {
     const pagesContainer = pagesContainerRef.current;
     const pages = Array.from(pagesContainer.querySelectorAll('.book-page')) as HTMLElement[];
 
-    // Enhanced 3D perspective setup with dynamic scaling
+    // Optimized 3D perspective setup with reduced blur
     gsap.set(book, { 
-      rotationY: -8,
-      rotationX: 2,
+      rotationY: -5, // Reduced rotation to minimize blur
+      rotationX: 1,  // Reduced rotation to minimize blur
       transformOrigin: "center center",
       transformStyle: "preserve-3d",
-      perspective: `${1400 * bookDimensions.scale}px`
+      perspective: `${1200 * bookDimensions.scale}px`, // Reduced perspective
+      // Force hardware acceleration
+      force3D: true,
+      backfaceVisibility: "hidden"
     });
 
-    // Initialize all pages and cover with proper 3D setup for realistic book behavior
+    // Initialize all pages and cover with optimized 3D setup
     gsap.set([cover, ...pages], { 
       transformOrigin: "left center",
       transformStyle: "preserve-3d",
-      backfaceVisibility: "hidden"
+      backfaceVisibility: "hidden",
+      // Force hardware acceleration
+      force3D: true,
+      // Optimize for crisp rendering
+      clearProps: "transform"
     });
 
     // Set initial page states for ScrollTrigger - keep pages visible
@@ -292,7 +301,11 @@ const Book3D: React.FC = () => {
         rotationY: 0,
         opacity: 1, // Keep pages visible for ScrollTrigger
         zIndex: artTopics.length - index,
-        visibility: 'visible' // Ensure pages are always visible
+        visibility: 'visible', // Ensure pages are always visible
+        // Force hardware acceleration
+        force3D: true,
+        // Optimize for crisp rendering
+        clearProps: "transform"
       });
     });
 
@@ -301,7 +314,11 @@ const Book3D: React.FC = () => {
       rotationY: 0,
       opacity: 1,
       zIndex: artTopics.length + 1,
-      visibility: 'visible'
+      visibility: 'visible',
+      // Force hardware acceleration
+      force3D: true,
+      // Optimize for crisp rendering
+      clearProps: "transform"
     });
 
     console.log('Book 3D setup initialized for ScrollTrigger animations');
@@ -328,6 +345,10 @@ const Book3D: React.FC = () => {
       preventOverlaps: true,
       // Optimize performance on mobile
       fastScrollEnd: isMobile,
+      // Reduce refresh frequency on mobile
+      ignoreMobileResize: isMobile,
+      // Disable automatic refresh on mobile to prevent excessive calls
+      autoRefreshEvents: isMobile ? "none" : "resize,load,orientationchange",
     };
 
     // Create ScrollTrigger for book opening animation
@@ -347,8 +368,12 @@ const Book3D: React.FC = () => {
         if (coverRef.current) {
           gsap.to(coverRef.current, {
             rotationY: progress * 180,
-            duration: 0.1,
-            ease: "none"
+            duration: 0.05, // Reduced duration for smoother animation
+            ease: "none",
+            // Force hardware acceleration
+            force3D: true,
+            // Optimize for crisp rendering
+            clearProps: "transform"
           });
         }
 
@@ -360,11 +385,30 @@ const Book3D: React.FC = () => {
         setActiveFlipTargets(new Set([activePageIndex]));
       },
       onRefresh: () => {
-        // Recalculate on orientation change or resize
+        // Only refresh on significant layout changes, not on every mobile event
         if (isMobile) {
-          setTimeout(() => {
-            ScrollTrigger.refresh();
-          }, 100);
+          // Debounce refresh to prevent excessive calls
+          clearTimeout((window as any).scrollTriggerRefreshTimeout);
+          (window as any).scrollTriggerRefreshTimeout = setTimeout(() => {
+            // Only refresh if there's a significant change
+            const currentWidth = window.innerWidth;
+            const currentHeight = window.innerHeight;
+            
+            if (!(window as any).lastScrollTriggerDimensions) {
+              (window as any).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
+              return;
+            }
+            
+            const last = (window as any).lastScrollTriggerDimensions;
+            const widthChange = Math.abs(currentWidth - last.width);
+            const heightChange = Math.abs(currentHeight - last.height);
+            
+            // Only refresh if change is significant (more than 50px)
+            if (widthChange > 50 || heightChange > 50) {
+              (window as any).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
+              ScrollTrigger.refresh();
+            }
+          }, 300);
         }
       }
     });
@@ -377,6 +421,10 @@ const Book3D: React.FC = () => {
 
     return () => {
       bookOpenTrigger.kill();
+      // Clean up timeout to prevent memory leaks
+      if ((window as any).scrollTriggerRefreshTimeout) {
+        clearTimeout((window as any).scrollTriggerRefreshTimeout);
+      }
     };
   }, [artTopics.length]);
 
@@ -410,10 +458,14 @@ const Book3D: React.FC = () => {
         ref={bookRef}
         className="book-container relative"
         style={{ 
-          perspective: `${1600 * bookDimensions.scale}px`,
+          perspective: `${1200 * bookDimensions.scale}px`,
           perspectiveOrigin: 'center center',
           overflow: 'visible',
-          clipPath: 'none'
+          clipPath: 'none',
+          // Force hardware acceleration
+          transform: 'translateZ(0)',
+          willChange: 'transform',
+          backfaceVisibility: 'hidden'
         }}
       >
         {/* Book Base with enhanced shadows - always visible */}
@@ -428,7 +480,11 @@ const Book3D: React.FC = () => {
             visibility: 'visible',
             zIndex: 1,
             overflow: 'visible',
-            clipPath: 'none'
+            clipPath: 'none',
+            // Force hardware acceleration
+            transform: 'translateZ(0)',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden'
           }}
         >
           {/* Premium Art Book Cover */}
@@ -441,35 +497,113 @@ const Book3D: React.FC = () => {
               opacity: 1,
               visibility: 'visible',
               overflow: 'visible',
-              clipPath: 'none'
+              clipPath: 'none',
+              // Force hardware acceleration
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+              // Optimize text rendering
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale',
+              textRendering: 'optimizeLegibility'
             }}
           >
             {/* Front Face */}
-            <div className="cover-front absolute inset-0 bg-gradient-to-br from-stone-100 to-stone-200 rounded-lg shadow-lg border border-stone-300" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(0deg)', width: '100%', height: '100%' }}>
-              <div className="absolute inset-8 border border-zinc-200 rounded-sm" style={{ overflow: 'visible', clipPath: 'none' }}>
-                <div className="flex flex-col items-center justify-center h-full text-zinc-800" style={{ overflow: 'visible', clipPath: 'none' }}>
-                  {/* Minimalist Title */}
-                  <div className="text-center mb-8" style={{ overflow: 'visible', clipPath: 'none' }}>
-                    <h1 className="font-display text-4xl md:text-5xl font-light mb-3 tracking-wider">
+            <div className="cover-front absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg shadow-lg" style={{ 
+              backfaceVisibility: 'hidden', 
+              transform: 'rotateY(0deg) translateZ(0)', 
+              width: '100%', 
+              height: '100%',
+              // Force hardware acceleration
+              willChange: 'transform',
+              // Optimize text rendering
+              WebkitFontSmoothing: 'antialiased',
+              MozOsxFontSmoothing: 'grayscale',
+              textRendering: 'optimizeLegibility'
+            }}>
+              <div className="absolute inset-0 flex flex-col justify-between" style={{ 
+                overflow: 'visible', 
+                clipPath: 'none',
+                // Optimize text rendering
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                textRendering: 'optimizeLegibility'
+              }}>
+                {/* Main Content Area */}
+                <div className="flex-1 flex flex-col items-center justify-center text-white px-8 pt-8" style={{ 
+                  overflow: 'visible', 
+                  clipPath: 'none',
+                  // Optimize text rendering
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
+                  textRendering: 'optimizeLegibility'
+                }}>
+                  {/* Main Title */}
+                  <div className="text-center mb-6" style={{ 
+                    overflow: 'visible', 
+                    clipPath: 'none',
+                    // Optimize text rendering
+                    WebkitFontSmoothing: 'antialiased',
+                    MozOsxFontSmoothing: 'grayscale',
+                    textRendering: 'optimizeLegibility'
+                  }}>
+                    <h1 className="font-display text-5xl md:text-6xl font-bold mb-4 tracking-tight text-white" style={{
+                      // Optimize text rendering
+                      WebkitFontSmoothing: 'antialiased',
+                      MozOsxFontSmoothing: 'grayscale',
+                      textRendering: 'optimizeLegibility',
+                      // Force hardware acceleration
+                      transform: 'translateZ(0)',
+                      willChange: 'transform'
+                    }}>
                       ARTISTRY
                     </h1>
-                    <div className="w-24 h-px bg-zinc-400 mx-auto mb-4"></div>
-                    <p className="font-body text-sm md:text-base text-zinc-600 tracking-wide uppercase">
+                    <div className="w-32 h-1 bg-orange-500 mx-auto mb-6"></div>
+                    <p className="font-body text-lg md:text-xl text-zinc-300 tracking-wide uppercase font-medium" style={{
+                      // Optimize text rendering
+                      WebkitFontSmoothing: 'antialiased',
+                      MozOsxFontSmoothing: 'grayscale',
+                      textRendering: 'optimizeLegibility',
+                      // Force hardware acceleration
+                      transform: 'translateZ(0)',
+                      willChange: 'transform'
+                    }}>
                       Art • Design • Photography
                     </p>
                   </div>
-                  {/* Geometric Logo Mark */}
-                  <div className="relative w-20 h-20 md:w-24 md:h-24" style={{ overflow: 'visible', clipPath: 'none' }}>
-                    <div className="absolute inset-0 border-2 border-zinc-400 transform rotate-45"></div>
-                    <div className="absolute inset-3 border border-zinc-500 transform -rotate-45"></div>
-                    <div className="absolute inset-6 bg-zinc-600 rounded-full"></div>
+                  
+                  {/* Decorative Element */}
+                  <div className="relative w-16 h-16 md:w-20 md:h-20 mb-8" style={{ 
+                    overflow: 'visible', 
+                    clipPath: 'none',
+                    // Force hardware acceleration
+                    transform: 'translateZ(0)',
+                    willChange: 'transform'
+                  }}>
+                    <div className="absolute inset-0 border-2 border-orange-500 transform rotate-45"></div>
+                    <div className="absolute inset-2 border border-orange-400 transform -rotate-45"></div>
+                    <div className="absolute inset-4 bg-orange-500 rounded-full"></div>
                   </div>
-                  {/* Subtitle */}
-                  <div className="mt-8 text-center" style={{ overflow: 'visible', clipPath: 'none' }}>
-                    <p className="font-body text-xs text-zinc-500 tracking-widest uppercase">
-                      A Curated Journey
-                    </p>
-                  </div>
+                </div>
+                
+                {/* Bottom Orange Band */}
+                <div className="bg-orange-500 h-16 md:h-20 flex items-center justify-center" style={{ 
+                  overflow: 'visible', 
+                  clipPath: 'none',
+                  // Force hardware acceleration
+                  transform: 'translateZ(0)',
+                  willChange: 'transform'
+                }}>
+                  <p className="font-body text-sm md:text-base text-white tracking-widest uppercase font-medium" style={{
+                    // Optimize text rendering
+                    WebkitFontSmoothing: 'antialiased',
+                    MozOsxFontSmoothing: 'grayscale',
+                    textRendering: 'optimizeLegibility',
+                    // Force hardware acceleration
+                    transform: 'translateZ(0)',
+                    willChange: 'transform'
+                  }}>
+                    A Curated Journey
+                  </p>
                 </div>
               </div>
             </div>
@@ -492,7 +626,11 @@ const Book3D: React.FC = () => {
               visibility: 'visible',
               zIndex: 2,
               overflow: 'visible',
-              clipPath: 'none'
+              clipPath: 'none',
+              // Force hardware acceleration
+              transform: 'translateZ(0)',
+              willChange: 'transform',
+              backfaceVisibility: 'hidden'
             }}
           >
             {artTopics.map((topic, index) => (
