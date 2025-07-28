@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 interface ProgressIndicatorProps {
   totalPages: number;
@@ -23,8 +24,25 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ totalPages }) => 
       setActivePage(Math.min(currentPage, totalPages - 1));
     };
 
+    // Listen for ScrollTrigger updates
+    const handleScrollTriggerUpdate = () => {
+      const scrollTrigger = ScrollTrigger.getById('book-animation');
+      if (scrollTrigger) {
+        const progress = scrollTrigger.progress;
+        const currentPage = Math.floor(progress * totalPages);
+        setActivePage(Math.min(currentPage, totalPages - 1));
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    // Set up ScrollTrigger listener
+    ScrollTrigger.addEventListener('refresh', handleScrollTriggerUpdate);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      ScrollTrigger.removeEventListener('refresh', handleScrollTriggerUpdate);
+    };
   }, [totalPages]);
 
   return (

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Facebook, Twitter, Instagram } from 'lucide-react';
 import BookPage from './BookPage';
 
 // Register GSAP plugins
@@ -180,88 +181,88 @@ const Book3D: React.FC = () => {
   // Use responsive book sizing
   const bookDimensions = useResponsiveBookSize();
 
-  // Art, Design & Photography content for each page
-  const artTopics = [
+  // Interior Design Portfolio content for each page
+  const interiorTopics = [
     {
-      title: "Bauhaus Typography",
-      subtitle: "Evolution of Geometric Design",
-      content: "Explore the revolutionary typography movement that transformed visual communication through geometric precision, functional clarity, and modernist principles.",
-      scene: "bauhaus",
-      image: "/photos/bauhaus.png",
-      year: "1919-1933",
-      artist: "Herbert Bayer, László Moholy-Nagy"
+      title: "Modern Living Spaces",
+      subtitle: "Contemporary Comfort & Style",
+      content: "Explore sophisticated residential interiors that blend clean lines, natural materials, and thoughtful functionality to create spaces that inspire daily living.",
+      scene: "modern-living",
+      image: "/photos/modern.jpeg",
+      year: "2024",
+      artist: "Studio Luxe Interiors"
     },
     {
-      title: "Golden Ratio in Design",
-      subtitle: "Mathematics of Beauty",
-      content: "Unveil the mathematical principle that creates visual harmony in everything from classical architecture to modern interface design.",
-      scene: "golden-ratio",
-      image: "/photos/golden-ratio.png",
-      year: "Ancient-Present",
-      artist: "Le Corbusier, Phidias"
+      title: "Minimalist Interiors",
+      subtitle: "Less is More Philosophy",
+      content: "Discover the art of intentional design where every element serves a purpose, creating serene spaces that promote clarity and mindfulness.",
+      scene: "minimalist",
+      image: "/photos/minimalist.jpeg",
+      year: "2024",
+      artist: "Pure Design Studio"
     },
     {
-      title: "Decisive Moment",
-      subtitle: "Street Photography Mastery",
-      content: "Experience the philosophy behind capturing life's fleeting moments through the lens of Henri Cartier-Bresson and contemporary masters.",
-      scene: "photography",
-      image: "/photos/decisive-moment.png",
-      year: "1930s-Present",
-      artist: "Henri Cartier-Bresson, Vivian Maier"
+      title: "Luxury Kitchens",
+      subtitle: "Culinary Excellence & Design",
+      content: "Experience the perfect fusion of functionality and aesthetics in kitchen spaces that serve as both culinary workshops and social gathering places.",
+      scene: "luxury-kitchens",
+      image: "/photos/luxury.jpeg",
+      year: "2024",
+      artist: "Culinary Design Group"
     },
     {
-      title: "Color Theory Masters",
-      subtitle: "Psychology of Visual Impact",
-      content: "Journey through the emotional and psychological power of color as wielded by artists from Rothko to contemporary digital designers.",
-      scene: "color-theory",
-      image: "/photos/color-theory.png",
-      year: "1860s-Present",
-      artist: "Mark Rothko, Josef Albers"
+      title: "Workspace Design",
+      subtitle: "Productivity Meets Comfort",
+      content: "Transform work environments into inspiring spaces that enhance creativity, collaboration, and well-being through thoughtful design solutions.",
+      scene: "workspace",
+      image: "/photos/workspace.jpeg",
+      year: "2024",
+      artist: "Office Design Collective"
     },
     {
-      title: "Abstract Expressionism",
-      subtitle: "Freedom in Form",
-      content: "Immerse yourself in the spontaneous energy and emotional depth that defined America's first major art movement.",
-      scene: "abstract",
-      image: "/photos/abstract.png",
-      year: "1940s-1960s",
-      artist: "Jackson Pollock, Willem de Kooning"
+      title: "Sustainable Interiors",
+      subtitle: "Eco-Conscious Design",
+      content: "Embrace environmentally responsible design practices that prioritize natural materials, energy efficiency, and sustainable living principles.",
+      scene: "sustainable",
+      image: "/photos/sustainable.jpeg",
+      year: "2024",
+      artist: "Green Space Studio"
     },
     {
-      title: "Swiss Grid System",
-      subtitle: "Order Through Structure",
-      content: "Master the fundamental organizing principle that brought clarity and hierarchy to editorial design and digital interfaces.",
-      scene: "grid-system",
-      image: "/photos/grid-system.png",
-      year: "1950s-Present",
-      artist: "Karl Gerstner, Massimo Vignelli"
-    },
-    {
-      title: "Surrealist Vision",
-      subtitle: "Dreams Made Visual",
-      content: "Enter the realm where photography and reality blend, creating impossible worlds that challenge perception and imagination.",
-      scene: "surrealism",
-      image: "/photos/surrealist-vision.png",
-      year: "1920s-Present",
-      artist: "Man Ray, Jerry Uelsmann"
-    },
-    {
-      title: "Studio Lighting",
-      subtitle: "Sculpting with Light",
-      content: "Understand how master photographers shape mood, dimension, and emotion through the strategic control of light and shadow.",
+      title: "Lighting Concepts",
+      subtitle: "Illuminating Atmosphere",
+      content: "Master the art of lighting design to create mood, highlight architectural features, and transform spaces through strategic illumination.",
       scene: "lighting",
-      image: "/photos/studio-light.png",
-      year: "1940s-Present",
-      artist: "Richard Avedon, Annie Leibovitz"
+      image: "/photos/lighting.jpeg",
+      year: "2024",
+      artist: "Luminary Design"
     },
     {
-      title: "Digital Art Evolution",
-      subtitle: "Future of Creativity",
-      content: "Witness the convergence of technology and artistry in contemporary digital installations, generative art, and interactive experiences.",
-      scene: "digital",
-      image: "/photos/digital-art.png",
-      year: "1960s-Present",
-      artist: "Casey Reas, Refik Anadol"
+      title: "Textile & Materiality",
+      subtitle: "Tactile Design Elements",
+      content: "Explore the sensory world of fabrics, textures, and materials that add depth, warmth, and character to interior environments.",
+      scene: "textiles",
+      image: "/photos/eclectic.png",
+      year: "2024",
+      artist: "Texture & Form Studio"
+    },
+    {
+      title: "Small Space Solutions",
+      subtitle: "Maximizing Minimal Footprints",
+      content: "Innovative design strategies for compact living that maximize functionality while maintaining aesthetic appeal and comfort.",
+      scene: "small-spaces",
+      image: "/photos/scandinavian.jpeg",
+      year: "2024",
+      artist: "Compact Living Design"
+    },
+    {
+      title: "Historical Inspirations",
+      subtitle: "Timeless Design Elements",
+      content: "Draw inspiration from classical design principles and historical periods to create spaces that honor tradition while embracing modernity.",
+      scene: "historical",
+      image: "/photos/historical.jpeg",
+      year: "2024",
+      artist: "Heritage Design Studio"
     }
   ];
 
@@ -295,13 +296,13 @@ const Book3D: React.FC = () => {
     const pagesContainer = pagesContainerRef.current;
     const pages = Array.from(pagesContainer.querySelectorAll('.book-page')) as HTMLElement[];
 
-    // Optimized 3D perspective setup with reduced blur
+    // Optimized 3D perspective setup with minimal blur
     gsap.set(book, { 
-      rotationY: -5, // Reduced rotation to minimize blur
-      rotationX: 1,  // Reduced rotation to minimize blur
+      rotationY: 0, // Remove rotation to eliminate blur
+      rotationX: 0, // Remove rotation to eliminate blur
       transformOrigin: "center center",
       transformStyle: "preserve-3d",
-      perspective: `${1200 * bookDimensions.scale}px`, // Reduced perspective
+      perspective: `${1000 * bookDimensions.scale}px`, // Reduced perspective further
       // Force hardware acceleration
       force3D: true,
       backfaceVisibility: "hidden"
@@ -323,7 +324,7 @@ const Book3D: React.FC = () => {
       gsap.set(page, { 
         rotationY: 0,
         opacity: 1, // Keep pages visible for ScrollTrigger
-        zIndex: artTopics.length - index,
+        zIndex: interiorTopics.length - index,
         visibility: 'visible', // Ensure pages are always visible
         // Force hardware acceleration
         force3D: true,
@@ -336,7 +337,7 @@ const Book3D: React.FC = () => {
     gsap.set(cover, { 
       rotationY: 0,
       opacity: 1,
-      zIndex: artTopics.length + 1,
+              zIndex: interiorTopics.length + 1,
       visibility: 'visible',
       // Force hardware acceleration
       force3D: true,
@@ -346,7 +347,7 @@ const Book3D: React.FC = () => {
 
     console.log('Book 3D setup initialized for ScrollTrigger animations');
 
-  }, [isClientSide, artTopics.length, bookDimensions.scale]);
+      }, [isClientSide, interiorTopics.length, bookDimensions.scale]);
 
   // Mobile-optimized ScrollTrigger setup
   const setupMobileScrollTrigger = useCallback(() => {
@@ -361,7 +362,7 @@ const Book3D: React.FC = () => {
       // Reduce sensitivity on mobile to prevent jitter
       scrub: isMobile ? 1.5 : 1,
       // Increase snap distance for better mobile experience
-      snap: 1 / (artTopics.length - 1),
+      snap: 1 / (interiorTopics.length - 1),
       // Optimize for touch scrolling
       anticipatePin: isMobile ? 1 : 0,
       // Prevent conflicts with mobile browser UI
@@ -401,7 +402,7 @@ const Book3D: React.FC = () => {
         }
 
         // Calculate which page should be active
-        const totalPages = artTopics.length;
+        const totalPages = interiorTopics.length;
         const activePageIndex = Math.floor(progress * totalPages);
         
         // Update active page state
@@ -449,7 +450,7 @@ const Book3D: React.FC = () => {
         clearTimeout((window as any).scrollTriggerRefreshTimeout);
       }
     };
-  }, [artTopics.length]);
+      }, [interiorTopics.length]);
 
   // Initialize ScrollTrigger when component mounts
   useEffect(() => {
@@ -531,7 +532,7 @@ const Book3D: React.FC = () => {
             }}
           >
             {/* Front Face */}
-            <div className="cover-front absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg shadow-lg" style={{ 
+            <div className="cover-front absolute inset-0 bg-white rounded-lg shadow-lg" style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'rotateY(0deg) translateZ(0)', 
               width: '100%', 
@@ -542,16 +543,29 @@ const Book3D: React.FC = () => {
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               textRendering: 'optimizeLegibility',
-              // Background image
-              backgroundImage: 'url(/photos/cover.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
+              // Ensure crisp rendering
+              imageRendering: '-webkit-optimize-contrast'
             }}>
-              {/* Overlay for better text readability */}
-              <div className="absolute inset-0 bg-black/40 rounded-lg"></div>
+              {/* Left Sidebar - Light green/beige */}
+              <div className="absolute left-0 top-0 w-1/5 h-full" style={{
+                backgroundColor: '#E3E8D7'
+              }}>
+                {/* Social Media Icons */}
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 space-y-4">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity duration-200" style={{ backgroundColor: '#DDE3D0' }}>
+                    <Facebook className="w-4 h-4" style={{ color: '#40472D' }} />
+                  </div>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity duration-200" style={{ backgroundColor: '#DDE3D0' }}>
+                    <Twitter className="w-4 h-4" style={{ color: '#40472D' }} />
+                  </div>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity duration-200" style={{ backgroundColor: '#DDE3D0' }}>
+                    <Instagram className="w-4 h-4" style={{ color: '#40472D' }} />
+                  </div>
+                </div>
+              </div>
               
-              <div className="absolute inset-0 flex flex-col justify-between" style={{ 
+              {/* Main Content Area */}
+              <div className="absolute right-0 top-0 w-4/5 h-full flex items-center" style={{ 
                 overflow: 'visible', 
                 clipPath: 'none',
                 // Optimize text rendering
@@ -559,69 +573,56 @@ const Book3D: React.FC = () => {
                 MozOsxFontSmoothing: 'grayscale',
                 textRendering: 'optimizeLegibility'
               }}>
-                {/* Main Content Area */}
-                <div className="flex-1 flex flex-col items-center justify-center text-white px-8 pt-8 relative z-10" style={{ 
-                  overflow: 'visible', 
-                  clipPath: 'none',
-                  // Optimize text rendering
-                  WebkitFontSmoothing: 'antialiased',
-                  MozOsxFontSmoothing: 'grayscale',
-                  textRendering: 'optimizeLegibility'
+                {/* Interior Image */}
+                <div className="w-1/2 h-full flex items-center justify-center p-4">
+                  <div className="w-full h-4/5 bg-stone-100 rounded-lg flex items-center justify-center" style={{
+                    backgroundImage: 'url(/photos/cover.jpeg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    imageRendering: '-webkit-optimize-contrast'
                 }}>
-                  {/* Main Title */}
-                  <div className="text-center mb-6" style={{ 
-                    overflow: 'visible', 
-                    clipPath: 'none',
-                    // Optimize text rendering
-                    WebkitFontSmoothing: 'antialiased',
-                    MozOsxFontSmoothing: 'grayscale',
-                    textRendering: 'optimizeLegibility'
-                  }}>
-                    <h1 className="font-display text-5xl md:text-6xl font-bold mb-4 tracking-tight text-white drop-shadow-lg" style={{
-                      // Optimize text rendering
-                      WebkitFontSmoothing: 'antialiased',
-                      MozOsxFontSmoothing: 'grayscale',
-                      textRendering: 'optimizeLegibility',
-                      // Force hardware acceleration
-                      transform: 'translateZ(0)',
-                      willChange: 'transform'
-                    }}>
-                      ARTISTRY
-                    </h1>
-                    <div className="w-32 h-1 bg-orange-500 mx-auto mb-6 drop-shadow-lg"></div>
-                    <p className="font-body text-lg md:text-xl text-zinc-100 tracking-wide uppercase font-medium drop-shadow-lg" style={{
-                      // Optimize text rendering
-                      WebkitFontSmoothing: 'antialiased',
-                      MozOsxFontSmoothing: 'grayscale',
-                      textRendering: 'optimizeLegibility',
-                      // Force hardware acceleration
-                      transform: 'translateZ(0)',
-                      willChange: 'transform'
-                    }}>
-                      Art • Design • Photography
-                    </p>
+                    {/* Image placeholder */}
+                    <div className="text-stone-400 text-sm">Interior</div>
                   </div>
-                  
-                  {/* Decorative Element */}
-                  <div className="relative w-16 h-16 md:w-20 md:h-20 mb-8" style={{ 
-                    overflow: 'visible', 
-                    clipPath: 'none',
-                    // Force hardware acceleration
-                    transform: 'translateZ(0)',
-                    willChange: 'transform'
-                  }}>
-                    <div className="absolute inset-0 border-2 border-orange-500 transform rotate-45 drop-shadow-lg"></div>
-                    <div className="absolute inset-2 border border-orange-400 transform -rotate-45 drop-shadow-lg"></div>
-                    <div className="absolute inset-4 bg-orange-500 rounded-full drop-shadow-lg"></div>
+                </div>
+                
+                {/* Text Content */}
+                <div className="w-1/2 h-full flex flex-col justify-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4">
+                  <div className="space-y-2 sm:space-y-3 md:space-y-4">
+                    <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight" style={{
+                      color: '#40472D',
+                      // Optimize text rendering
+                      WebkitFontSmoothing: 'antialiased',
+                      MozOsxFontSmoothing: 'grayscale',
+                      textRendering: 'optimizeLegibility',
+                      // Force hardware acceleration
+                      transform: 'translateZ(0)',
+                      willChange: 'transform'
+                    }}>
+                      INTERIORS
+                    </h1>
+                    <p className="font-body text-xs sm:text-sm md:text-base text-stone-600 leading-relaxed" style={{
+                      // Optimize text rendering
+                      WebkitFontSmoothing: 'antialiased',
+                      MozOsxFontSmoothing: 'grayscale',
+                      textRendering: 'optimizeLegibility',
+                      // Force hardware acceleration
+                      transform: 'translateZ(0)',
+                      willChange: 'transform',
+                      color: '#757B6E'
+                    }}>
+                      Residential • Commercial • Conceptual
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
             {/* Inside Face */}
             <div className="cover-inside absolute inset-0 bg-stone-100 rounded-lg border border-stone-200 flex flex-col items-center justify-center" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', width: '100%', height: '100%' }}>
-              <div className="text-center px-8">
-                <h2 className="font-display text-2xl text-stone-400 font-light mb-2 tracking-wider">Inside Cover</h2>
-                <p className="font-body text-sm text-stone-400">Welcome to the curated journey of Art, Design, and Photography.</p>
+              <div className="text-center px-4 sm:px-6 md:px-8">
+                <h2 className="font-display text-lg sm:text-xl md:text-2xl text-stone-400 font-light mb-1 sm:mb-2 tracking-wider">Inside Cover</h2>
+                <p className="font-body text-xs sm:text-sm text-stone-400">Welcome to the curated journey of Art, Design, and Photography.</p>
               </div>
             </div>
           </div>
@@ -643,12 +644,12 @@ const Book3D: React.FC = () => {
               backfaceVisibility: 'hidden'
             }}
           >
-            {artTopics.map((topic, index) => (
+                    {interiorTopics.map((topic, index) => (
               <BookPage 
                 key={index}
                 story={topic}
                 pageIndex={index}
-                totalPages={artTopics.length}
+            totalPages={interiorTopics.length}
                 isLoading={pageLoadingStates[index] || activeFlipTargets.has(index)}
                 onContentReady={() => handlePageContentReady(index)}
               />

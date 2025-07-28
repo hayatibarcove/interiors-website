@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Book3D from './Book3D';
+import ContactSection from './ContactSection';
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -51,6 +52,8 @@ const BookAnimation: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const bookContainerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const [showContactSection, setShowContactSection] = useState(false);
+  const [isContactReady, setIsContactReady] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current || !bookContainerRef.current) return;
@@ -101,6 +104,7 @@ const BookAnimation: React.FC = () => {
       // Create unified master timeline with optimized ScrollTrigger
       const masterTimeline = gsap.timeline({
         scrollTrigger: {
+          id: 'book-animation',
           trigger: container,
           start: "top top",
           end: "bottom bottom",
@@ -126,6 +130,65 @@ const BookAnimation: React.FC = () => {
               gsap.set(scrollInstruction, { 
                 opacity: progress > 0.02 ? 0 : 1 
               });
+            }
+
+            // Handle end-state transition with smooth fade control
+            const contactThreshold = 0.95;
+            const fadeStartThreshold = 0.92; // Start fading contact in at 92%
+            
+            if (progress >= contactThreshold && !showContactSection) {
+              setShowContactSection(true);
+            } else if (progress < fadeStartThreshold && showContactSection) {
+              setShowContactSection(false);
+            }
+            
+            // Smooth fade control for contact section
+            const contactSection = document.querySelector('.contact-section');
+            if (contactSection) {
+              if (progress >= fadeStartThreshold && progress < contactThreshold) {
+                // Fade in contact section gradually
+                const fadeProgress = (progress - fadeStartThreshold) / (contactThreshold - fadeStartThreshold);
+                gsap.set(contactSection, { 
+                  opacity: fadeProgress,
+                  visibility: 'visible',
+                  pointerEvents: fadeProgress > 0.5 ? 'auto' : 'none'
+                });
+              } else if (progress >= contactThreshold) {
+                // Fully visible contact section
+                gsap.set(contactSection, { 
+                  opacity: 1,
+                  visibility: 'visible',
+                  pointerEvents: 'auto'
+                });
+                
+                // Animate contact content elements when fully visible
+                const contactElements = contactSection.querySelectorAll('.contact-element');
+                if (contactElements.length > 0) {
+                  gsap.to(contactElements, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.3,
+                    stagger: 0.1,
+                    ease: "power2.out"
+                  });
+                }
+              } else {
+                // Fade out contact section
+                gsap.set(contactSection, { 
+                  opacity: 0,
+                  visibility: 'hidden',
+                  pointerEvents: 'none'
+                });
+                
+                // Reset contact elements
+                const contactElements = contactSection.querySelectorAll('.contact-element');
+                if (contactElements.length > 0) {
+                  gsap.set(contactElements, {
+                    opacity: 0,
+                    y: 20
+                  });
+                }
+              }
             }
           },
           onEnter: () => {
@@ -281,6 +344,66 @@ const BookAnimation: React.FC = () => {
         overwrite: "auto" // Prevent overlapping breathing animations
       });
 
+      // Add sophisticated book closing animation for end-state transition
+      // Phase 1: Start closing animation (92% to 95%)
+      masterTimeline.to('.book-container', {
+        scale: 0.95,
+        y: -5,
+        rotationY: -2,
+        duration: 0.3,
+        ease: "power2.out"
+      }, 0.92);
+
+      // Phase 2: Continue closing (95% to 98%)
+      masterTimeline.to('.book-container', {
+        scale: 0.8,
+        y: -20,
+        rotationY: -8,
+        opacity: 0.6,
+        duration: 0.3,
+        ease: "power2.inOut"
+      }, 0.95);
+
+      // Phase 3: Final closing state (98% to 100%)
+      masterTimeline.to('.book-container', {
+        scale: 0.65,
+        y: -40,
+        rotationY: -12,
+        opacity: 0.4,
+        duration: 0.2,
+        ease: "power2.in"
+      }, 0.98);
+
+      // Reverse animations for scrolling back up
+      // When scrolling back from 100% to 98%
+      masterTimeline.to('.book-container', {
+        scale: 0.8,
+        y: -20,
+        rotationY: -8,
+        opacity: 0.6,
+        duration: 0.2,
+        ease: "power2.out"
+      }, 0.98);
+
+      // When scrolling back from 98% to 95%
+      masterTimeline.to('.book-container', {
+        scale: 0.95,
+        y: -5,
+        rotationY: -2,
+        duration: 0.3,
+        ease: "power2.out"
+      }, 0.95);
+
+      // When scrolling back from 95% to 92%
+      masterTimeline.to('.book-container', {
+        scale: 1,
+        y: 0,
+        rotationY: 0,
+        opacity: 1,
+        duration: 0.3,
+        ease: "power2.out"
+      }, 0.92);
+
       console.log('Unified ScrollTrigger timeline created with glitch-free animations');
       
       // Performance monitoring
@@ -342,6 +465,10 @@ const BookAnimation: React.FC = () => {
         style={{ willChange: 'transform' }}
       >
         <Book3D />
+        <ContactSection 
+          isVisible={showContactSection} 
+          onContactReady={() => setIsContactReady(true)}
+        />
       </div>
     </div>
   );
