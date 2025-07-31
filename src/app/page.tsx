@@ -1,43 +1,67 @@
 "use client";
 
-import BookAnimation from '../components/BookAnimation';
-import ProgressIndicator from '../components/ProgressIndicator';
-import ScrollInstruction from '../components/ScrollInstruction';
+import React, { useEffect } from 'react';
+import { gsap } from 'gsap';
+import HeaderMenu from '../components/HeaderMenu';
+import IntroductionBanner from '../components/IntroductionBanner';
+import AboutSection from '../components/AboutSection';
+import ServicesSection from '../components/ServicesSection';
+import PortfolioSection from '../components/PortfolioSection';
+import { AnimationUtils } from '../utils/animations';
+import { BookProvider } from '../contexts/BookContext';
 
 export default function Home() {
+  useEffect(() => {
+    // Initialize mobile responsive animations
+    AnimationUtils.matchMedia();
+
+    // Test GSAP functionality
+    console.log("Testing GSAP functionality...");
+    const testElement = document.createElement('div');
+    testElement.style.position = 'absolute';
+    testElement.style.left = '-9999px';
+    document.body.appendChild(testElement);
+    
+    gsap.to(testElement, {
+      opacity: 0.5,
+      duration: 0.1,
+      onComplete: () => {
+        console.log("GSAP is working correctly!");
+        document.body.removeChild(testElement);
+      }
+    });
+
+    return () => {
+      // Cleanup animations on unmount
+      AnimationUtils.cleanup();
+    };
+  }, []);
+
+  const handleScrollDown = () => {
+    const aboutSection = document.getElementById('about-section');
+    if (aboutSection) {
+      AnimationUtils.scrollTo(aboutSection, 80);
+    }
+  };
+
   return (
-    <div className="relative w-full">
-      {/* Overlay Header - Constrained positioning */}
-      {/* <header className="fullscreen-header" role="banner">
-        <div className="container mx-auto max-w-6xl h-full flex flex-col justify-center px-4">
-          <h1 className="text-2xl md:text-3xl font-light tracking-wider text-center">
-            INTERIORS
-          </h1>
-          <p className="text-center text-stone-600 mt-1 text-xs md:text-sm font-light tracking-wide">
-            A Portfolio of Interior Design Excellence
-          </p>
-        </div>
-      </header> */}
+    <BookProvider>
+      <div className="relative w-full">
+        {/* Sticky Header Menu */}
+        <HeaderMenu />
 
-      {/* Book Container */}
-      <main className="relative" role="main" aria-label="Interactive interior design portfolio">
-        <BookAnimation />
-      </main>
+        {/* Introduction Banner */}
+        <IntroductionBanner onScrollDown={handleScrollDown} />
 
-      {/* Overlay Progress Indicator */}
-      <ProgressIndicator totalPages={10} />
+        {/* About Section */}
+        <AboutSection />
 
-      {/* Enhanced Scroll Instruction */}
-      <ScrollInstruction text="Scroll to explore" />
+        {/* Services Section */}
+        <ServicesSection />
 
-      {/* Overlay Footer */}
-      {/* <footer className="fullscreen-footer" role="contentinfo">
-        <div className="container mx-auto h-full flex items-center justify-center px-4">
-          <p className="text-xs font-light opacity-70 tracking-wide">
-            Interior Design Portfolio • Built with Next.js & GSAP
-          </p>
-        </div>
-      </footer> */}
-    </div>
+        {/* Portfolio Section with Interactive Book */}
+        <PortfolioSection />
+      </div>
+    </BookProvider>
   );
 }

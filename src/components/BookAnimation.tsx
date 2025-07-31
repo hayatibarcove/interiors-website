@@ -5,6 +5,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Book3D from './Book3D';
 import ContactSection from './ContactSection';
+import { useBookContext } from '../contexts/BookContext';
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -54,6 +55,7 @@ const BookAnimation: React.FC = () => {
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const [showContactSection, setShowContactSection] = useState(false);
   const [isContactReady, setIsContactReady] = useState(false);
+  const { setCurrentPage, totalPages, isAutoScrolling } = useBookContext();
 
   useEffect(() => {
     if (!containerRef.current || !bookContainerRef.current) return;
@@ -101,16 +103,19 @@ const BookAnimation: React.FC = () => {
         zIndex: 1
       });
 
+      // Define contact threshold - this is where scrolling should stop
+      const contactThreshold = 0.92; // 92% - when contact section starts appearing
+      
       // Create unified master timeline with optimized ScrollTrigger
       const masterTimeline = gsap.timeline({
         scrollTrigger: {
           id: 'book-animation',
           trigger: container,
           start: "top top",
-          end: "bottom bottom",
+          end: `+=${window.innerHeight * contactThreshold * 5}`, // Stop at contact threshold
           scrub: ANIMATION_CONFIG.SCRUB,
           pin: true,
-          pinSpacing: ANIMATION_CONFIG.PIN_SPACING,
+          pinSpacing: false, // Disable automatic spacing to prevent scroll continuation
           anticipatePin: 1, // Prevent pinning glitches
           fastScrollEnd: true, // Optimize for fast scrolling
           preventOverlaps: true, // Prevent overlapping animations
@@ -132,9 +137,15 @@ const BookAnimation: React.FC = () => {
               });
             }
 
+            // Calculate current page based on progress
+            const pagesProgress = 0.84; // 84% for pages
+            const progressPerPage = pagesProgress / totalPages;
+            const pageProgress = Math.max(0, (progress - 0.08) / progressPerPage);
+            const currentPageIndex = Math.min(Math.floor(pageProgress), totalPages - 1);
+            setCurrentPage(currentPageIndex);
+
             // Handle end-state transition with smooth fade control
-            const contactThreshold = 0.95;
-            const fadeStartThreshold = 0.92; // Start fading contact in at 92%
+            const fadeStartThreshold = 0.85; // Start fading contact in at 85%
             
             if (progress >= contactThreshold && !showContactSection) {
               setShowContactSection(true);
@@ -233,9 +244,9 @@ const BookAnimation: React.FC = () => {
         ease: 'power1.out'
       }, ANIMATION_CONFIG.COVER_DURATION - 0.02);
 
-      // Phase 2: Pages with unified content animations (8% to 100%)
+      // Phase 2: Pages with unified content animations (8% to 92%)
       const totalPages = pages.length;
-      const pagesProgress = 0.92; // Remaining 92% for pages
+      const pagesProgress = 0.84; // Remaining 84% for pages (8% cover + 84% pages + 8% contact transition)
       const progressPerPage = pagesProgress / totalPages;
 
       // Create unified page animation function
@@ -257,19 +268,30 @@ const BookAnimation: React.FC = () => {
           { selector: '.page-number', stagger: ANIMATION_CONFIG.STAGGER.PAGE_NUMBER }
         ];
 
-        // Add content animations with consistent timing
-        contentAnimations.forEach(({ selector, stagger }) => {
-          masterTimeline.fromTo(
-            `.book-page[data-page="${pageIndex}"] ${selector}`,
-            ANIMATION_CONFIG.CONTENT.INITIAL,
-            {
-              ...ANIMATION_CONFIG.CONTENT.FINAL,
-              duration: contentDuration * 0.3,
-              ease: ANIMATION_CONFIG.EASING.CONTENT
-            },
-            startProgress + (contentDuration * stagger)
-          );
-        });
+        // Add content animations with consistent timing (skip during auto-scroll)
+        if (!isAutoScrolling) {
+          contentAnimations.forEach(({ selector, stagger }) => {
+            masterTimeline.fromTo(
+              `.book-page[data-page="${pageIndex}"] ${selector}`,
+              ANIMATION_CONFIG.CONTENT.INITIAL,
+              {
+                ...ANIMATION_CONFIG.CONTENT.FINAL,
+                duration: contentDuration * 0.3,
+                ease: ANIMATION_CONFIG.EASING.CONTENT
+              },
+              startProgress + (contentDuration * stagger)
+            );
+          });
+        } else {
+          // During auto-scroll, immediately show content without animations
+          contentAnimations.forEach(({ selector }) => {
+            masterTimeline.set(
+              `.book-page[data-page="${pageIndex}"] ${selector}`,
+              ANIMATION_CONFIG.CONTENT.FINAL,
+              startProgress
+            );
+          });
+        }
 
         // REALISTIC BOOK PAGE FLIP ANIMATION
         // Phase 1: Prepare page for flip (0-10% of flip duration)
@@ -345,16 +367,16 @@ const BookAnimation: React.FC = () => {
       });
 
       // Add sophisticated book closing animation for end-state transition
-      // Phase 1: Start closing animation (92% to 95%)
+      // Phase 1: Start closing animation (85% to 88%)
       masterTimeline.to('.book-container', {
         scale: 0.95,
         y: -5,
         rotationY: -2,
         duration: 0.3,
         ease: "power2.out"
-      }, 0.92);
+      }, 0.85);
 
-      // Phase 2: Continue closing (95% to 98%)
+      // Phase 2: Continue closing (88% to 91%)
       masterTimeline.to('.book-container', {
         scale: 0.8,
         y: -20,
@@ -362,9 +384,9 @@ const BookAnimation: React.FC = () => {
         opacity: 0.6,
         duration: 0.3,
         ease: "power2.inOut"
-      }, 0.95);
+      }, 0.88);
 
-      // Phase 3: Final closing state (98% to 100%)
+      // Phase 3: Final closing state (91% to 92%)
       masterTimeline.to('.book-container', {
         scale: 0.65,
         y: -40,
@@ -372,10 +394,10 @@ const BookAnimation: React.FC = () => {
         opacity: 0.4,
         duration: 0.2,
         ease: "power2.in"
-      }, 0.98);
+      }, 0.91);
 
       // Reverse animations for scrolling back up
-      // When scrolling back from 100% to 98%
+      // When scrolling back from 92% to 91%
       masterTimeline.to('.book-container', {
         scale: 0.8,
         y: -20,
@@ -383,18 +405,18 @@ const BookAnimation: React.FC = () => {
         opacity: 0.6,
         duration: 0.2,
         ease: "power2.out"
-      }, 0.98);
+      }, 0.91);
 
-      // When scrolling back from 98% to 95%
+      // When scrolling back from 91% to 88%
       masterTimeline.to('.book-container', {
         scale: 0.95,
         y: -5,
         rotationY: -2,
         duration: 0.3,
         ease: "power2.out"
-      }, 0.95);
+      }, 0.88);
 
-      // When scrolling back from 95% to 92%
+      // When scrolling back from 88% to 85%
       masterTimeline.to('.book-container', {
         scale: 1,
         y: 0,
@@ -402,7 +424,7 @@ const BookAnimation: React.FC = () => {
         opacity: 1,
         duration: 0.3,
         ease: "power2.out"
-      }, 0.92);
+      }, 0.85);
 
       console.log('Unified ScrollTrigger timeline created with glitch-free animations');
       
@@ -446,7 +468,7 @@ const BookAnimation: React.FC = () => {
       ref={containerRef}
       className="scroll-container"
       style={{ 
-        height: '600vh',
+        height: '552vh', // Reduced from 600vh to 552vh (92% of 600vh) to match contact threshold
         position: 'relative',
         willChange: 'transform' // Optimize for animations
       }}

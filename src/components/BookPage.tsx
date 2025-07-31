@@ -51,7 +51,7 @@ const BookPage: React.FC<BookPageProps> = ({
   
   return (
     <div 
-      className={`book-page absolute inset-0 bg-stone-50 ${
+      className={`book-page absolute inset-0 ${
         isLeftPage ? 'origin-right' : 'origin-left'
       }`}
       data-page={pageIndex}
@@ -70,15 +70,16 @@ const BookPage: React.FC<BookPageProps> = ({
         // Optimize text rendering
         WebkitFontSmoothing: 'antialiased',
         MozOsxFontSmoothing: 'grayscale',
-        textRendering: 'optimizeLegibility'
+        textRendering: 'optimizeLegibility',
+        background: 'var(--secondary-background)'
       }}
     >
       {/* Page Loader - shows during flip or content loading */}
-      <PageLoader 
+      {/* <PageLoader 
         isVisible={isLoading || !isPageReady}
         type="spinner"
         size="medium"
-      />
+      /> */}
       
       {/* Main Page Content - Front Side */}
       <div 
@@ -107,18 +108,26 @@ const BookPage: React.FC<BookPageProps> = ({
             <div className="year-badge inline-block px-2 py-1 sm:px-3 sm:py-1 rounded-full mb-2 sm:mb-3 md:mb-4" style={{ 
               overflow: 'visible', 
               clipPath: 'none',
-              backgroundColor: '#DDE3D0'
+              backgroundColor: 'var(--accent-1)'
             }}>
-              <span className="text-xs sm:text-sm font-medium tracking-wide" style={{ color: '#40472D' }}>
+              <span className="text-xs sm:text-sm font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
                 {story.year}
               </span>
             </div>
             
             {/* Responsive Typography Hierarchy */}
-            <h1 className="page-title font-display text-lg sm:text-xl md:text-2xl lg:text-3xl font-light text-stone-900 mb-1 sm:mb-2 leading-tight" style={{ overflow: 'visible', clipPath: 'none' }}>
+            <h1 className="page-title font-display text-lg sm:text-xl md:text-2xl lg:text-3xl font-light mb-1 sm:mb-2 leading-tight" style={{ 
+              overflow: 'visible', 
+              clipPath: 'none',
+              color: 'var(--foreground)'
+            }}>
               {story.title}
             </h1>
-            <p className="page-subtitle text-sm sm:text-base md:text-lg font-light text-stone-600 leading-relaxed" style={{ overflow: 'visible', clipPath: 'none' }}>
+            <p className="page-subtitle text-sm sm:text-base md:text-lg font-light leading-relaxed" style={{ 
+              overflow: 'visible', 
+              clipPath: 'none',
+              color: 'var(--typography-secondary)'
+            }}>
               {story.subtitle}
             </p>
           </div>
@@ -138,8 +147,12 @@ const BookPage: React.FC<BookPageProps> = ({
               <div className="w-full max-w-full aspect-square relative" style={{ overflow: 'hidden', borderRadius: '50%' }}>
                 {/* Image loading state */}
                 {!imageLoaded && (
-                  <div className="absolute inset-0 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center" style={{ overflow: 'visible', clipPath: 'none' }}>
-                    <div className="text-gray-400 text-xs sm:text-sm">Loading image...</div>
+                  <div className="absolute inset-0 rounded-lg animate-pulse flex items-center justify-center" style={{ 
+                    overflow: 'visible', 
+                    clipPath: 'none',
+                    background: 'var(--accent-1)'
+                  }}>
+                    <div className="text-xs sm:text-sm" style={{ color: 'var(--typography-secondary)' }}>Loading image...</div>
                   </div>
                 )}
                 
@@ -162,16 +175,28 @@ const BookPage: React.FC<BookPageProps> = ({
             <div className="flex flex-col justify-center space-y-2 sm:space-y-3 md:space-y-4 lg:space-y-6" style={{ overflow: 'visible', clipPath: 'none' }}>
               {/* Content Text with Responsive Sizing */}
               <div className="page-content space-y-2 sm:space-y-3 md:space-y-4" style={{ overflow: 'visible', clipPath: 'none' }}>
-                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-stone-700 leading-relaxed font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed font-light" style={{ 
+                  overflow: 'visible', 
+                  clipPath: 'none',
+                  color: 'var(--typography-secondary)'
+                }}>
                   {story.content}
                 </p>
               </div>
               
               {/* Attribution Section with Responsive Sizing */}
-              <div className="pt-2 sm:pt-3 md:pt-4 lg:pt-6 border-t border-stone-200" style={{ overflow: 'visible', clipPath: 'none' }}>
+              <div className="pt-2 sm:pt-3 md:pt-4 lg:pt-6 border-t" style={{ 
+                overflow: 'visible', 
+                clipPath: 'none',
+                borderColor: 'var(--accent-1)'
+              }}>
                 <div className="flex items-center justify-between" style={{ overflow: 'visible', clipPath: 'none' }}>
                   <div style={{ overflow: 'visible', clipPath: 'none' }}>
-                    <p className="artist-name text-xs sm:text-sm md:text-base text-stone-500 font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
+                    <p className="artist-name text-xs sm:text-sm md:text-base font-light" style={{ 
+                      overflow: 'visible', 
+                      clipPath: 'none',
+                      color: 'var(--typography-secondary)'
+                    }}>
                       {story.artist}
                     </p>
                   </div>
@@ -180,12 +205,12 @@ const BookPage: React.FC<BookPageProps> = ({
                   <div className={`page-number w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-colors duration-300`} style={{ 
                     overflow: 'visible', 
                     clipPath: 'none',
-                    backgroundColor: '#DDE3D0'
+                    backgroundColor: 'var(--accent-1)'
                   }}>
                     <span className={`text-xs sm:text-sm md:text-sm font-medium transition-colors duration-300`} style={{ 
                       overflow: 'visible', 
                       clipPath: 'none',
-                      color: '#40472D'
+                      color: 'var(--foreground)'
                     }}>
                       {pageIndex + 1}
                     </span>
@@ -211,7 +236,7 @@ const BookPage: React.FC<BookPageProps> = ({
 
       {/* Enhanced Page Back for 3D Realism - Only Visible When Flipped */}
       <div 
-        className="absolute inset-0 bg-stone-200 rounded-lg"
+        className="absolute inset-0 rounded-lg"
         style={{
           transformStyle: 'preserve-3d',
           transform: 'rotateY(180deg)',
@@ -221,11 +246,16 @@ const BookPage: React.FC<BookPageProps> = ({
           visibility: 'hidden', // Start hidden
           overflow: 'visible',
           clipPath: 'none',
-          pointerEvents: 'none' // Prevent interaction when hidden
+          pointerEvents: 'none', // Prevent interaction when hidden
+          background: 'var(--accent-2)'
         }}
       >
         <div className="h-full flex items-center justify-center opacity-20" style={{ overflow: 'visible', clipPath: 'none' }}>
-          <div className="text-stone-500 text-2xl sm:text-4xl md:text-6xl font-light" style={{ overflow: 'visible', clipPath: 'none' }}>
+          <div className="text-2xl sm:text-4xl md:text-6xl font-light" style={{ 
+            overflow: 'visible', 
+            clipPath: 'none',
+            color: 'var(--foreground)'
+          }}>
             {pageIndex + 1}
           </div>
         </div>

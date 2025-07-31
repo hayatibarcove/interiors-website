@@ -135,14 +135,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({ isVisible, onContactRea
     >
       <div
         ref={contentRef}
-        className="contact-content max-w-md mx-auto p-8 text-center space-y-6"
+        className="contact-content max-w-md mx-auto p-4 md:p-8 text-center space-y-4 md:space-y-6"
       >
         {/* Header */}
         <div className="contact-element opacity-0 transform translate-y-4">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-stone-800 mb-2">
-            Let's Create Together
+          <h2 className="font-display text-xl md:text-2xl lg:text-3xl font-bold text-stone-800 mb-1 md:mb-2">
+            Let&apos;s Create Together
           </h2>
-          <p className="text-stone-600 text-sm md:text-base">
+          <p className="text-stone-600 text-xs md:text-sm lg:text-base">
             Ready to transform your space? Get in touch to start your design journey.
           </p>
         </div>
@@ -151,31 +151,31 @@ const ContactSection: React.FC<ContactSectionProps> = ({ isVisible, onContactRea
         <form
           ref={formRef}
           onSubmit={handleSubmit}
-          className="contact-element opacity-0 transform translate-y-4 space-y-4"
+          className="contact-element opacity-0 transform translate-y-4 space-y-3 md:space-y-4"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <input
               type="text"
               placeholder="Name"
-              className="w-full px-4 py-3 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
               required
             />
             <input
               type="email"
               placeholder="Email"
-              className="w-full px-4 py-3 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
               required
             />
           </div>
           <textarea
             placeholder="Tell us about your project..."
-            rows={4}
-            className="w-full px-4 py-3 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 resize-none"
+            rows={3}
+            className="w-full px-3 md:px-4 py-2 md:py-3 text-sm md:text-base border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 resize-none"
             required
           />
           <button
             type="submit"
-            className="w-full bg-stone-800 text-white py-3 px-6 rounded-lg font-medium hover:bg-stone-700 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+            className="w-full bg-transparent text-stone-700 font-medium tracking-wide border-2 border-stone-400 rounded-full py-2 md:py-3 px-4 md:px-6 text-sm md:text-base hover:scale-105 hover:border-stone-600 hover:text-stone-800 hover:bg-stone-50/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-stone-400/50 focus:ring-offset-2"
           >
             Send Message
           </button>
@@ -183,46 +183,81 @@ const ContactSection: React.FC<ContactSectionProps> = ({ isVisible, onContactRea
 
         {/* Contact Info */}
         <div className="contact-element opacity-0 transform translate-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="flex items-center justify-center space-x-2 text-stone-600">
-              <Mail className="w-4 h-4" />
-              <span>hello@studio.com</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 text-xs md:text-sm">
+            <div className="flex items-center justify-center space-x-1 md:space-x-2 text-stone-600">
+              <Mail className="w-3 h-3 md:w-4 md:h-4" />
+              <span>info@luminarestudio.com</span>
             </div>
-            <div className="flex items-center justify-center space-x-2 text-stone-600">
-              <Phone className="w-4 h-4" />
-              <span>+1 (555) 123-4567</span>
+            <div className="flex items-center justify-center space-x-1 md:space-x-2 text-stone-600">
+              <Phone className="w-3 h-3 md:w-4 md:h-4" />
+              <span>+60 333333333</span>
             </div>
-            <div className="flex items-center justify-center space-x-2 text-stone-600">
-              <MapPin className="w-4 h-4" />
-              <span>New York, NY</span>
+            <div className="flex items-center justify-center space-x-1 md:space-x-2 text-stone-600">
+              <MapPin className="w-3 h-3 md:w-4 md:h-4" />
+              <span>Kuala Lumpur, Malaysia</span>
             </div>
           </div>
         </div>
 
         {/* Social Links */}
         <div className="contact-element opacity-0 transform translate-y-4">
-          <div className="flex justify-center space-x-4">
+          <div className="flex justify-center space-x-3 md:space-x-4">
             <a
               href="#"
-              className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-all duration-200 transform hover:scale-110"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-all duration-200 transform hover:scale-110"
               aria-label="Instagram"
             >
-              <Instagram className="w-4 h-4 text-stone-600" />
+              <Instagram className="w-3 h-3 md:w-4 md:h-4 text-stone-600" />
             </a>
             <a
               href="#"
-              className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-all duration-200 transform hover:scale-110"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-all duration-200 transform hover:scale-110"
               aria-label="Twitter"
             >
-              <Twitter className="w-4 h-4 text-stone-600" />
+              <Twitter className="w-3 h-3 md:w-4 md:h-4 text-stone-600" />
             </a>
             <a
               href="#"
-              className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-all duration-200 transform hover:scale-110"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-stone-100 flex items-center justify-center hover:bg-stone-200 transition-all duration-200 transform hover:scale-110"
               aria-label="Facebook"
             >
-              <Facebook className="w-4 h-4 text-stone-600" />
+              <Facebook className="w-3 h-3 md:w-4 md:h-4 text-stone-600" />
             </a>
+          </div>
+        </div>
+
+        {/* Scroll Instruction */}
+        <div className="contact-element opacity-0 transform translate-y-4 mt-6 md:mt-12">
+          <div className="flex flex-col items-center space-y-2 md:space-y-3">
+            {/* Enhanced scroll indicator */}
+            <div className="relative w-6 h-9 md:w-8 md:h-12 border-2 rounded-full flex justify-center items-start pt-2 md:pt-3 transition-all duration-500 ease-out"
+                 style={{ borderColor: 'var(--accent-1, #a8a29e)' }}>
+              {/* Animated scroll dot */}
+              <div className="w-1 h-1.5 md:w-1.5 md:h-2 rounded-full animate-bounce transition-all duration-300 ease-out" 
+                   style={{ 
+                     background: 'var(--typography-secondary, #78716c)',
+                     animationDuration: '2s', 
+                     animationDelay: '0.5s' 
+                   }} />
+              
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 w-6 h-9 md:w-8 md:h-12 border rounded-full opacity-0 transition-opacity duration-500 ease-out"
+                   style={{ borderColor: 'var(--accent-2, #d6d3d1)' }} />
+            </div>
+            
+            {/* Enhanced text */}
+            <p className="text-xs font-light tracking-wider uppercase transition-all duration-300 ease-out"
+               style={{ color: 'var(--typography-secondary, #78716c)' }}>
+              Scroll up to close
+            </p>
+            
+            {/* Subtle arrow indicator */}
+            <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out transform group-hover:-translate-y-1">
+              <svg className="w-3 h-3 md:w-4 md:h-4 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                   style={{ color: 'var(--typography-secondary, #78716c)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>

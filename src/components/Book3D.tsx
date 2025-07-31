@@ -242,7 +242,7 @@ const Book3D: React.FC = () => {
       subtitle: "Tactile Design Elements",
       content: "Explore the sensory world of fabrics, textures, and materials that add depth, warmth, and character to interior environments.",
       scene: "textiles",
-      image: "/photos/eclectic.png",
+      image: "/photos/eclectic.jpg",
       year: "2024",
       artist: "Texture & Form Studio"
     },
@@ -469,7 +469,7 @@ const Book3D: React.FC = () => {
 
   // Render nothing on server side
   if (!isClientSide) {
-    return <div className="w-full h-full bg-gradient-to-b from-zinc-50 to-stone-100"></div>;
+    return <div className="w-full h-full" style={{ background: 'var(--background)' }}></div>;
   }
 
   return (
@@ -494,7 +494,7 @@ const Book3D: React.FC = () => {
       >
         {/* Book Base with enhanced shadows - always visible */}
         <div 
-          className="book-base relative bg-stone-50 rounded-r-lg shadow-2xl transition-all duration-300 ease-out"
+          className="book-base relative rounded-r-lg shadow-2xl transition-all duration-300 ease-out"
           style={{ 
             width: `${bookDimensions.width}px`,
             height: `${bookDimensions.height}px`,
@@ -508,7 +508,8 @@ const Book3D: React.FC = () => {
             // Force hardware acceleration
             transform: 'translateZ(0)',
             willChange: 'transform',
-            backfaceVisibility: 'hidden'
+            backfaceVisibility: 'hidden',
+            background: 'var(--secondary-background)'
           }}
         >
           {/* Premium Art Book Cover */}
@@ -532,7 +533,7 @@ const Book3D: React.FC = () => {
             }}
           >
             {/* Front Face */}
-            <div className="cover-front absolute inset-0 bg-white rounded-lg shadow-lg" style={{ 
+            <div className="cover-front absolute inset-0 rounded-lg shadow-lg" style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'rotateY(0deg) translateZ(0)', 
               width: '100%', 
@@ -544,24 +545,13 @@ const Book3D: React.FC = () => {
               MozOsxFontSmoothing: 'grayscale',
               textRendering: 'optimizeLegibility',
               // Ensure crisp rendering
-              imageRendering: '-webkit-optimize-contrast'
+              imageRendering: '-webkit-optimize-contrast',
+              background: 'var(--background)'
             }}>
               {/* Left Sidebar - Light green/beige */}
               <div className="absolute left-0 top-0 w-1/5 h-full" style={{
-                backgroundColor: '#E3E8D7'
+                backgroundColor: 'var(--accent-1)'
               }}>
-                {/* Social Media Icons */}
-                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 space-y-4">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity duration-200" style={{ backgroundColor: '#DDE3D0' }}>
-                    <Facebook className="w-4 h-4" style={{ color: '#40472D' }} />
-                  </div>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity duration-200" style={{ backgroundColor: '#DDE3D0' }}>
-                    <Twitter className="w-4 h-4" style={{ color: '#40472D' }} />
-                  </div>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity duration-200" style={{ backgroundColor: '#DDE3D0' }}>
-                    <Instagram className="w-4 h-4" style={{ color: '#40472D' }} />
-                  </div>
-                </div>
               </div>
               
               {/* Main Content Area */}
@@ -575,15 +565,16 @@ const Book3D: React.FC = () => {
               }}>
                 {/* Interior Image */}
                 <div className="w-1/2 h-full flex items-center justify-center p-4">
-                  <div className="w-full h-4/5 bg-stone-100 rounded-lg flex items-center justify-center" style={{
+                  <div className="w-full h-4/5 rounded-lg flex items-center justify-center" style={{
                     backgroundImage: 'url(/photos/cover.jpeg)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
-                    imageRendering: '-webkit-optimize-contrast'
+                    imageRendering: '-webkit-optimize-contrast',
+                    backgroundColor: 'var(--secondary-background)'
                 }}>
                     {/* Image placeholder */}
-                    <div className="text-stone-400 text-sm">Interior</div>
+                    <div className="text-sm" style={{ color: 'var(--typography-secondary)' }}>Interior</div>
                   </div>
                 </div>
                 
@@ -591,7 +582,7 @@ const Book3D: React.FC = () => {
                 <div className="w-1/2 h-full flex flex-col justify-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4">
                   <div className="space-y-2 sm:space-y-3 md:space-y-4">
                     <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight" style={{
-                      color: '#40472D',
+                      color: 'var(--foreground)',
                       // Optimize text rendering
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
@@ -602,7 +593,7 @@ const Book3D: React.FC = () => {
                     }}>
                       INTERIORS
                     </h1>
-                    <p className="font-body text-xs sm:text-sm md:text-base text-stone-600 leading-relaxed" style={{
+                    <p className="font-body text-xs sm:text-sm md:text-base leading-relaxed" style={{
                       // Optimize text rendering
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
@@ -610,7 +601,7 @@ const Book3D: React.FC = () => {
                       // Force hardware acceleration
                       transform: 'translateZ(0)',
                       willChange: 'transform',
-                      color: '#757B6E'
+                      color: 'var(--typography-secondary)'
                     }}>
                       Residential • Commercial • Conceptual
                     </p>
@@ -619,10 +610,17 @@ const Book3D: React.FC = () => {
               </div>
             </div>
             {/* Inside Face */}
-            <div className="cover-inside absolute inset-0 bg-stone-100 rounded-lg border border-stone-200 flex flex-col items-center justify-center" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', width: '100%', height: '100%' }}>
+            <div className="cover-inside absolute inset-0 rounded-lg border flex flex-col items-center justify-center" style={{ 
+              backfaceVisibility: 'hidden', 
+              transform: 'rotateY(180deg)', 
+              width: '100%', 
+              height: '100%',
+              background: 'var(--secondary-background)',
+              borderColor: 'var(--accent-1)'
+            }}>
               <div className="text-center px-4 sm:px-6 md:px-8">
-                <h2 className="font-display text-lg sm:text-xl md:text-2xl text-stone-400 font-light mb-1 sm:mb-2 tracking-wider">Inside Cover</h2>
-                <p className="font-body text-xs sm:text-sm text-stone-400">Welcome to the curated journey of Art, Design, and Photography.</p>
+                <h2 className="font-display text-lg sm:text-xl md:text-2xl font-light mb-1 sm:mb-2 tracking-wider" style={{ color: 'var(--typography-secondary)' }}>Inside Cover</h2>
+                <p className="font-body text-xs sm:text-sm" style={{ color: 'var(--typography-secondary)' }}>Welcome to the curated journey of Art, Design, and Photography.</p>
               </div>
             </div>
           </div>
