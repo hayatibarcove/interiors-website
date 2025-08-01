@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface PillarCardProps {
   title: string;
@@ -25,9 +26,11 @@ const PillarCard: React.FC<PillarCardProps> = ({
       }}
     >
       <div className="aspect-[4/3] overflow-hidden">
-        <img
+        <Image
           src={imageSrc}
           alt={imageAlt}
+          width={400}
+          height={300}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
       </div>

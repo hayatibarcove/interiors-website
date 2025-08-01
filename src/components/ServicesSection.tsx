@@ -5,19 +5,21 @@ import { SectionAnimations } from '../utils/animations';
 import { gsap } from 'gsap';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import type { SwiperRef } from 'swiper/react';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useBookContext } from '../contexts/BookContext';
+import Image from 'next/image';
 
 const ServicesSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<SwiperRef | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const { smartScrollToContact, isAnimating, isAutoScrolling } = useBookContext();
+  const { smartScrollToContact, isAnimating, isAutoScrolling, isSmartScrolling } = useBookContext();
 
   useEffect(() => {
     // Check if mobile/tablet
@@ -280,9 +282,11 @@ const ServicesSection: React.FC = () => {
                            style={{ background: 'var(--secondary-background)' }}>
                         {/* Service Image */}
                         <div className="aspect-[4/3] overflow-hidden flex-shrink-0">
-                          <img
+                          <Image
                             src={service.image}
                             alt={service.title}
+                            width={400}
+                            height={300}
                             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                           />
                         </div>
@@ -403,18 +407,18 @@ const ServicesSection: React.FC = () => {
                     }
                   }
                 }}
-                disabled={isAnimating || isAutoScrolling}
+                disabled={isAnimating || isAutoScrolling || isSmartScrolling}
                 className={`px-6 py-3 font-medium tracking-wide rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  isAnimating || isAutoScrolling ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+                  isAnimating || isAutoScrolling || isSmartScrolling ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
                 }`}
                 style={{
                   background: 'transparent',
                   color: 'var(--foreground)',
                   border: '2px solid var(--accent-1)'
                 }}
-              >
-                {isAnimating || isAutoScrolling ? 'Navigating...' : 'Start Your Project'}
-              </button>
+                              >
+                  {isAnimating || isAutoScrolling || isSmartScrolling ? 'Navigating...' : 'Start Your Project'}
+                </button>
             </div>
           </div>
         </div>

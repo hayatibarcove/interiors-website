@@ -9,7 +9,7 @@ interface ContactSectionProps {
   onContactReady?: () => void;
 }
 
-const ContactSection: React.FC<ContactSectionProps> = ({ isVisible, onContactReady }) => {
+const ContactSection: React.FC<ContactSectionProps> = ({ onContactReady }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -30,67 +30,42 @@ const ContactSection: React.FC<ContactSectionProps> = ({ isVisible, onContactRea
       y: 30
     });
 
-    // Animate in when visible
-    if (isVisible) {
-      const tl = gsap.timeline({
-        onComplete: () => {
-          onContactReady?.();
-        }
-      });
+    const tl = gsap.timeline({
+      onComplete: () => {
+        onContactReady?.();
+      }
+    });
 
-      // Show container with smooth fade and scale
-      tl.set(containerRef.current, { visibility: 'visible' })
-        .to(containerRef.current, {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "power2.out"
-        })
-        .to(contentRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: "power2.out"
-        }, "-=0.3");
-
-      // Stagger animate contact elements
-      const contactElements = contentRef.current.querySelectorAll('.contact-element');
-      tl.to(contactElements, {
+    // Show container with smooth fade and scale
+    tl.set(containerRef.current, { visibility: 'hidden' })
+      .to(containerRef.current, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      })
+      .to(contentRef.current, {
         opacity: 1,
         y: 0,
-        duration: 0.3,
-        stagger: 0.1,
+        duration: 0.4,
         ease: "power2.out"
-      }, "-=0.2");
+      }, "-=0.3");
 
-      return () => {
-        tl.kill();
-      };
-    } else {
-      // Animate out
-      const tl = gsap.timeline();
-      
-      tl.to(contentRef.current, {
-        opacity: 0,
-        y: -20,
-        duration: 0.3,
-        ease: "power2.in"
-      })
-        .to(containerRef.current, {
-          opacity: 0,
-          scale: 0.9,
-          y: -10,
-          duration: 0.4,
-          ease: "power2.in"
-        }, "-=0.2")
-        .set(containerRef.current, { visibility: 'hidden' });
+    // Stagger animate contact elements
+    const contactElements = contentRef.current.querySelectorAll('.contact-element');
+    tl.to(contactElements, {
+      opacity: 1,
+      y: 0,
+      duration: 0.3,
+      stagger: 0.1,
+      ease: "power2.out"
+    }, "-=0.2");
 
-      return () => {
-        tl.kill();
-      };
-    }
-  }, [isVisible, onContactReady]);
+    return () => {
+      tl.kill();
+    };
+  }, [onContactReady]);
 
   // Handle smooth fade transitions from ScrollTrigger
   useEffect(() => {

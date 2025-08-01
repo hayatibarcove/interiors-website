@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Facebook, Twitter, Instagram } from 'lucide-react';
 import BookPage from './BookPage';
 
 // Register GSAP plugins
@@ -175,8 +174,7 @@ const Book3D: React.FC = () => {
   const [isClientSide, setIsClientSide] = useState(false);
 
   // Loading state management for pages
-  const [pageLoadingStates, setPageLoadingStates] = useState<Record<number, boolean>>({});
-  const [activeFlipTargets, setActiveFlipTargets] = useState<Set<number>>(new Set());
+
   
   // Use responsive book sizing
   const bookDimensions = useResponsiveBookSize();
@@ -266,21 +264,7 @@ const Book3D: React.FC = () => {
     }
   ];
 
-  // Handle page content ready state
-  const handlePageContentReady = useCallback((pageIndex: number) => {
-    setPageLoadingStates(prev => ({
-      ...prev,
-      [pageIndex]: false
-    }));
-  }, []);
 
-  // Enhanced flip management with loader coordination
-  const setPageLoading = useCallback((pageIndex: number, loading: boolean) => {
-    setPageLoadingStates(prev => ({
-      ...prev,
-      [pageIndex]: loading
-    }));
-  }, []);
 
   // SSR compatibility check
   useEffect(() => {
@@ -330,6 +314,19 @@ const Book3D: React.FC = () => {
         force3D: true,
         // Optimize for crisp rendering
         clearProps: "transform"
+      });
+      
+      // Ensure content elements are properly set up for animations
+      const contentElements = page.querySelectorAll('.year-badge, .page-title, .page-subtitle, .page-content, .artist-name, .page-number, img');
+      gsap.set(contentElements, {
+        opacity: 0,
+        y: 20,
+        // Force hardware acceleration for content elements
+        force3D: true,
+        // Optimize for crisp rendering
+        clearProps: "transform",
+        // Ensure proper animation setup
+        willChange: 'transform, opacity'
       });
     });
 
@@ -401,38 +398,39 @@ const Book3D: React.FC = () => {
           });
         }
 
-        // Calculate which page should be active
-        const totalPages = interiorTopics.length;
-        const activePageIndex = Math.floor(progress * totalPages);
         
-        // Update active page state
-        setActiveFlipTargets(new Set([activePageIndex]));
+        
+        
+        
+
       },
       onRefresh: () => {
         // Only refresh on significant layout changes, not on every mobile event
         if (isMobile) {
-          // Debounce refresh to prevent excessive calls
-          clearTimeout((window as any).scrollTriggerRefreshTimeout);
-          (window as any).scrollTriggerRefreshTimeout = setTimeout(() => {
-            // Only refresh if there's a significant change
-            const currentWidth = window.innerWidth;
-            const currentHeight = window.innerHeight;
-            
-            if (!(window as any).lastScrollTriggerDimensions) {
-              (window as any).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
-              return;
-            }
-            
-            const last = (window as any).lastScrollTriggerDimensions;
+                  // Debounce refresh to prevent excessive calls
+        clearTimeout((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout);
+        (window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout = setTimeout(() => {
+          // Only refresh if there's a significant change
+          const currentWidth = window.innerWidth;
+          const currentHeight = window.innerHeight;
+          
+          if (!(window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions) {
+            (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
+            return;
+          }
+          
+          const last = (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions;
+          if (last) {
             const widthChange = Math.abs(currentWidth - last.width);
             const heightChange = Math.abs(currentHeight - last.height);
             
             // Only refresh if change is significant (more than 50px)
             if (widthChange > 50 || heightChange > 50) {
-              (window as any).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
+              (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
               ScrollTrigger.refresh();
             }
-          }, 300);
+          }
+        }, 300);
         }
       }
     });
@@ -440,14 +438,14 @@ const Book3D: React.FC = () => {
     // Mobile-specific optimizations
     if (isTouchDevice && containerRef.current) {
       // Enable smooth scrolling for touch devices
-      (containerRef.current.style as any).webkitOverflowScrolling = 'touch';
+      (containerRef.current.style as CSSStyleDeclaration & { webkitOverflowScrolling?: string }).webkitOverflowScrolling = 'touch';
     }
 
     return () => {
       bookOpenTrigger.kill();
       // Clean up timeout to prevent memory leaks
-      if ((window as any).scrollTriggerRefreshTimeout) {
-        clearTimeout((window as any).scrollTriggerRefreshTimeout);
+      if ((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout) {
+        clearTimeout((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout);
       }
     };
       }, [interiorTopics.length]);
@@ -643,13 +641,12 @@ const Book3D: React.FC = () => {
             }}
           >
                     {interiorTopics.map((topic, index) => (
-              <BookPage 
+                            <BookPage
                 key={index}
                 story={topic}
                 pageIndex={index}
-            totalPages={interiorTopics.length}
-                isLoading={pageLoadingStates[index] || activeFlipTargets.has(index)}
-                onContentReady={() => handlePageContentReady(index)}
+                totalPages={interiorTopics.length}
+
               />
             ))}
           </div>

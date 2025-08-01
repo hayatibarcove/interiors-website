@@ -24,7 +24,7 @@ const HeaderMenu: React.FC = () => {
     // Header scroll animations with floating button behavior
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const scrollThreshold = 100; // When to start showing floating button
+      // const scrollThreshold = 100; // When to start showing floating button
       const bannerHeight = window.innerHeight; // Approximate banner height
       
       setIsScrolled(scrollY > 50);
@@ -122,7 +122,7 @@ const HeaderMenu: React.FC = () => {
                 alt="Luminare Studio Logo" 
                 width={40}
                 height={40}
-                className="h-8 md:h-16 w-auto mr-3 object-contain"
+                className="h-10 md:h-16 w-auto mr-3 object-contain"
                 quality={100}
                 priority
               />
@@ -202,7 +202,7 @@ const HeaderMenu: React.FC = () => {
             <nav className="py-4 space-y-4">
               <button
                 onClick={() => scrollToSection('about-section')}
-                className="block w-full text-left font-light tracking-wide transition-colors duration-300 py-2"
+                className="block w-full text-left font-medium tracking-wide transition-colors duration-300 py-2"
                 style={{ color: 'var(--typography-secondary)' }}
               >
                 About Us
@@ -210,7 +210,7 @@ const HeaderMenu: React.FC = () => {
               
               <button
                 onClick={() => scrollToSection('services-section')}
-                className="block w-full text-left font-light tracking-wide transition-colors duration-300 py-2"
+                className="block w-full text-left font-medium tracking-wide transition-colors duration-300 py-2"
                 style={{ color: 'var(--typography-secondary)' }}
               >
                 Services
@@ -218,7 +218,7 @@ const HeaderMenu: React.FC = () => {
               
               <button
                 onClick={() => scrollToSection('portfolio-section')}
-                className="block w-full text-left font-light tracking-wide transition-colors duration-300 py-2"
+                className="block w-full text-left font-medium tracking-wide transition-colors duration-300 py-2"
                 style={{ color: 'var(--typography-secondary)' }}
               >
                 Portfolio
@@ -277,7 +277,7 @@ const HeaderMenu: React.FC = () => {
           <nav className="text-center space-y-8">
             <button
               onClick={() => scrollToSection('about-section')}
-              className="block text-2xl md:text-3xl font-light transition-colors duration-300 py-4 relative group"
+              className="block text-2xl md:text-3xl font-medium transition-colors duration-300 py-4 relative group"
               style={{ color: 'var(--typography-secondary)' }}
             >
               About Us
@@ -287,7 +287,7 @@ const HeaderMenu: React.FC = () => {
             
             <button
               onClick={() => scrollToSection('services-section')}
-              className="block text-2xl md:text-3xl font-light transition-colors duration-300 py-4 relative group"
+              className="block text-2xl md:text-3xl font-medium transition-colors duration-300 py-4 relative group"
               style={{ color: 'var(--typography-secondary)' }}
             >
               Services
@@ -297,7 +297,7 @@ const HeaderMenu: React.FC = () => {
             
             <button
               onClick={() => scrollToSection('portfolio-section')}
-              className="block text-2xl md:text-3xl font-light transition-colors duration-300 py-4 relative group"
+              className="block text-2xl md:text-3xl font-medium transition-colors duration-300 py-4 relative group"
               style={{ color: 'var(--typography-secondary)' }}
             >
               Portfolio

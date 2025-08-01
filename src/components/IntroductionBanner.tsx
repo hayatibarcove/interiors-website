@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+// import { gsap } from 'gsap';
 import { BannerAnimations } from '../utils/animations';
 
 interface IntroductionBannerProps {
@@ -12,7 +12,7 @@ const IntroductionBanner: React.FC<IntroductionBannerProps> = ({ onScrollDown })
   const bannerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [currentVideoIndex] = useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   // Debug video loading
@@ -22,9 +22,9 @@ const IntroductionBanner: React.FC<IntroductionBannerProps> = ({ onScrollDown })
   }, [currentVideoIndex, isVideoLoaded]);
 
   // Video options - you can add more videos to the public/videos folder
-  const videos = [
+  const videos = useMemo(() => [
     '/videos/banner-1.mp4' // Existing video
-  ];
+  ], []);
 
   useEffect(() => {
     if (!bannerRef.current || !contentRef.current) return;
@@ -48,11 +48,11 @@ const IntroductionBanner: React.FC<IntroductionBannerProps> = ({ onScrollDown })
     return () => {
       clearTimeout(timer);
     };
-  }, []);
+  }, [currentVideoIndex]);
 
-  const handleVideoChange = () => {
-    setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
-  };
+  // const handleVideoChange = () => {
+  //   setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
+  // };
 
   const handleScrollDown = () => {
     onScrollDown();

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 interface ResponsiveImageProps {
   src: string;
@@ -23,9 +24,9 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
   objectFit = 'contain',
   className = '',
   style = {},
-  loading = 'lazy',
-  sizes,
-  srcSet,
+  // loading = 'lazy',
+  // sizes,
+  // srcSet,
   onLoad,
   onError
 }) => {
@@ -78,18 +79,15 @@ const ResponsiveImage: React.FC<ResponsiveImageProps> = ({
 
       {/* Actual image */}
       {!hasError && (
-        <img
+        <Image
           src={src}
-          srcSet={srcSet}
-          sizes={sizes}
           alt={alt}
-          loading={loading}
+          fill
           className={imageClasses}
           onLoad={handleLoad}
           onError={handleError}
           style={{
-            width: '100%',
-            height: '100%',
+            objectFit: objectFit,
           }}
         />
       )}

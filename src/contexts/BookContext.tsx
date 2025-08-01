@@ -15,6 +15,7 @@ interface BookContextType {
   totalPages: number;
   isAnimating: boolean;
   isAutoScrolling: boolean;
+  isSmartScrolling: boolean;
   scrollToLastPage: () => Promise<void>;
   scrollToContact: () => Promise<void>;
   smartScrollToContact: () => Promise<void>;
@@ -22,6 +23,7 @@ interface BookContextType {
   setCurrentPage: (page: number) => void;
   setIsAnimating: (animating: boolean) => void;
   setIsAutoScrolling: (autoScrolling: boolean) => void;
+  setIsSmartScrolling: (smartScrolling: boolean) => void;
 }
 
 const BookContext = createContext<BookContextType | undefined>(undefined);
@@ -42,6 +44,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
+  const [isSmartScrolling, setIsSmartScrolling] = useState(false);
   const totalPages = 4; // Based on the current book structure
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
@@ -234,45 +237,106 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     });
   }, [getScrollTrigger, getPageProgress, disableScrollInput, enableScrollInput, currentPage]);
 
-  // Smart scroll: go to last page first, then to contact
+  // Unified smart scroll with single timeline for seamless transition
   const smartScrollToContact = useCallback(async (): Promise<void> => {
     if (isAnimating) {
       console.log('Animation already in progress, ignoring request');
       return;
     }
 
-    setIsAnimating(true);
-    
-    try {
-      // If not on the last page, use natural page flip to last page first
-      if (currentPage < totalPages - 1) {
-        console.log('Using natural page flip to last page...');
-        await naturalPageFlip(totalPages - 1);
-        
-        // Wait a bit for the page flip animation to complete
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-      
-      // Then scroll to contact section
-      console.log('Scrolling to contact section...');
-      await scrollToContact();
-      
-    } catch (error) {
-      console.error('Error during smart scroll:', error);
-      // Cleanup on error
-      setIsAnimating(false);
-      setIsAutoScrolling(false);
-      enableScrollInput();
-    } finally {
-      setIsAnimating(false);
+    const scrollTrigger = getScrollTrigger();
+    if (!scrollTrigger) {
+      console.warn('ScrollTrigger not found, retrying in 100ms...');
+      setTimeout(() => smartScrollToContact(), 100);
+      return;
     }
-  }, [currentPage, totalPages, isAnimating, naturalPageFlip, scrollToContact, enableScrollInput]);
+
+    setIsAnimating(true);
+    setIsAutoScrolling(true);
+    setIsSmartScrolling(true);
+    disableScrollInput();
+
+    console.log('Starting unified smart scroll sequence...');
+
+    return new Promise((resolve) => {
+      // Create unified timeline for the entire sequence
+      const unifiedTimeline = gsap.timeline({
+        onComplete: () => {
+          console.log('Unified smart scroll sequence completed');
+          setIsAnimating(false);
+          setIsAutoScrolling(false);
+          setIsSmartScrolling(false);
+          enableScrollInput();
+          resolve();
+        },
+        onInterrupt: () => {
+          console.log('Unified smart scroll sequence interrupted');
+          setIsAnimating(false);
+          setIsAutoScrolling(false);
+          setIsSmartScrolling(false);
+          enableScrollInput();
+          resolve();
+        }
+      });
+
+      // Detect if we're flipping to the last page for conditional handling
+      const isFlippingToLastPage = currentPage < totalPages - 1;
+      const isAlreadyOnLastPage = currentPage === totalPages - 1;
+      const flipDuration = isFlippingToLastPage ? 1.5 : 2.5; // Shorter duration for last page
+      const shouldSkipDelay = isFlippingToLastPage; // Skip delay for last page
+
+      // If not on the last page, animate to last page first
+      if (isFlippingToLastPage) {
+        console.log('Adding last page flip animation with optimized timing...');
+        const lastPageProgress = getPageProgress(totalPages - 1);
+        
+        unifiedTimeline.to(window, {
+          duration: flipDuration,
+          scrollTo: {
+            y: scrollTrigger.start + (scrollTrigger.end - scrollTrigger.start) * lastPageProgress,
+            offsetY: 0
+          },
+          ease: "power1.inOut",
+        });
+      }
+
+      // Conditional delay handling - skip delay for last page scenarios
+      if (!shouldSkipDelay && !isAlreadyOnLastPage) {
+        // Add delay only for non-last page scenarios (when flipping from earlier pages)
+        unifiedTimeline.add(() => {
+          console.log('Book flip completed, preparing for contact scroll...');
+        }, "+=0.3"); // 300ms delay only for non-last page scenarios
+      } else if (isFlippingToLastPage) {
+        // For last page flip: immediately prepare contact scroll without delay
+        unifiedTimeline.add(() => {
+          console.log('Last page flip completed, immediately preparing contact scroll...');
+        }, "+=0.1"); // Minimal delay for last page (100ms for smooth transition)
+      }
+      // Note: isAlreadyOnLastPage case is handled above with no delay
+
+      // Then scroll to contact section with conditional duration
+      console.log('Adding contact scroll to timeline...');
+      const contactProgress = 0.92;
+      const contactScrollDuration = (isFlippingToLastPage || isAlreadyOnLastPage) ? 1.5 : 2; // Shorter duration for last page scenarios
+      
+      unifiedTimeline.to(window, {
+        duration: contactScrollDuration,
+        scrollTo: {
+          y: scrollTrigger.start + (scrollTrigger.end - scrollTrigger.start) * contactProgress,
+          offsetY: 0
+        },
+        ease: "power2.inOut",
+      });
+
+    });
+  }, [currentPage, totalPages, isAnimating, getScrollTrigger, getPageProgress, disableScrollInput, enableScrollInput]);
 
   const value: BookContextType = {
     currentPage,
     totalPages,
     isAnimating,
     isAutoScrolling,
+    isSmartScrolling,
     scrollToLastPage,
     scrollToContact,
     smartScrollToContact,
@@ -280,6 +344,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     setCurrentPage,
     setIsAnimating,
     setIsAutoScrolling,
+    setIsSmartScrolling,
   };
 
   // Cleanup effect to ensure proper reset
@@ -288,6 +353,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       // Cleanup on unmount
       setIsAnimating(false);
       setIsAutoScrolling(false);
+      setIsSmartScrolling(false);
       enableScrollInput();
     };
   }, [enableScrollInput]);

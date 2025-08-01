@@ -2,6 +2,10 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
+interface ScrollTriggerInstance {
+  progress: number;
+}
+
 // Register GSAP plugins
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -343,7 +347,7 @@ export const HeaderAnimations = {
       trigger: "body",
       start: "top top",
       end: "bottom bottom",
-      onUpdate: (self) => {
+      onUpdate: () => {
         const scrollY = window.scrollY;
         const bannerHeight = window.innerHeight;
 
@@ -605,7 +609,7 @@ export const HorizontalScrollAnimations = {
     });
 
     // Add fade-in effect for each service card as it enters viewport
-    items.forEach((item, index) => {
+    items.forEach((item) => {
       const cardTl = gsap.timeline({
         scrollTrigger: {
           trigger: item,
@@ -663,7 +667,7 @@ export const HorizontalScrollAnimations = {
       trigger: sectionRef,
       start: "top center",
       end: "bottom center",
-      onUpdate: (self) => {
+      onUpdate: (self: ScrollTriggerInstance) => {
         setScrollProgress(self.progress);
         setIsProgressVisible(self.progress > 0 && self.progress < 1);
       },

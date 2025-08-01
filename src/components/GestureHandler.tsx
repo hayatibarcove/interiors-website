@@ -4,6 +4,17 @@ import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { Observer } from 'gsap/Observer';
 
+// Register GSAP plugins
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(Observer);
+}
+
+interface ObserverInstance {
+  deltaX: number;
+  deltaY: number;
+  velocityX: number;
+}
+
 // Register GSAP plugins with SSR safety
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(Observer);
@@ -25,7 +36,7 @@ const GestureHandler: React.FC<GestureHandlerProps> = ({
   children
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<any>(null);
+  const observerRef = useRef<Observer | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || disabled || typeof window === 'undefined') return;
@@ -40,7 +51,7 @@ const GestureHandler: React.FC<GestureHandlerProps> = ({
       dragMinimum: 10, // Minimum distance for swipe detection
       
       // Touch/swipe handling
-      onPress: (self) => {
+      onPress: () => {
         // Add visual feedback on press
         gsap.to(container, {
           opacity: 0.9,
@@ -49,7 +60,7 @@ const GestureHandler: React.FC<GestureHandlerProps> = ({
         });
       },
       
-      onRelease: (self) => {
+      onRelease: (self: ObserverInstance) => {
         // Reset visual feedback
         gsap.to(container, {
           opacity: 1,
@@ -107,7 +118,7 @@ const GestureHandler: React.FC<GestureHandlerProps> = ({
       },
 
       // Drag feedback during gesture
-      onDrag: (self) => {
+      onDrag: (self: ObserverInstance) => {
         const progress = Math.max(-1, Math.min(1, self.deltaX / 100));
         
         // Visual feedback during drag
@@ -118,7 +129,7 @@ const GestureHandler: React.FC<GestureHandlerProps> = ({
         });
       },
 
-      onDragEnd: (self) => {
+      onDragEnd: () => {
         // Reset drag transforms
         gsap.to(container, {
           x: 0,

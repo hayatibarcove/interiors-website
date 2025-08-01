@@ -3,10 +3,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SectionAnimations } from '../utils/animations';
+// import { SectionAnimations } from '../utils/animations';
 import PillarCard from './PillarCard';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import type { SwiperRef } from 'swiper/react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -23,7 +24,7 @@ const AboutSection: React.FC = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const pillarsRef = useRef<HTMLDivElement>(null);
   const pillarsContainerRef = useRef<HTMLDivElement>(null);
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<SwiperRef | null>(null);
   const [yearsCount, setYearsCount] = useState(0);
   const [projectsCount, setProjectsCount] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -265,10 +266,10 @@ const AboutSection: React.FC = () => {
             </div>
 
             <div className="about-element section-element">
-              <p className="text-lg md:text-xl leading-relaxed"
-                 style={{ color: 'var(--typography-secondary)' }}>
-                Luminare Studio is a boutique interior design firm dedicated to transforming spaces with light, harmony, and timeless elegance. We craft personalized environments that reflect each client's lifestyle, blending natural textures and refined palettes with purposeful design.
-              </p>
+                              <p className="text-lg md:text-xl leading-relaxed"
+                   style={{ color: 'var(--typography-secondary)' }}>
+                  Luminare Studio is a boutique interior design firm dedicated to transforming spaces with light, harmony, and timeless elegance. We craft personalized environments that reflect each client&apos;s lifestyle, blending natural textures and refined palettes with purposeful design.
+                </p>
             </div>
           </div>
 

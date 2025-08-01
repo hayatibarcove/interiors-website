@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Book3D from './Book3D';
@@ -14,10 +14,10 @@ if (typeof window !== 'undefined') {
 
 // Animation configuration constants for consistency
 const ANIMATION_CONFIG = {
-  // Timing constants
+  // Timing constants - Optimized for smooth content animations
   COVER_DURATION: 0.08,
-  CONTENT_PHASE_RATIO: 0.7, // 70% of page time for content (longer content phase)
-  FLIP_PHASE_RATIO: 0.3,    // 30% of page time for flip (shorter flip phase)
+  CONTENT_PHASE_RATIO: 0.6, // 60% of page time for content (increased for smoother animations)
+  FLIP_PHASE_RATIO: 0.4,    // 40% of page time for flip (reduced to give content more time)
   
   // Easing functions for smooth animations
   EASING: {
@@ -27,15 +27,15 @@ const ANIMATION_CONFIG = {
     BREATHING: "power1.inOut"
   },
   
-  // Stagger timing for content elements
+  // Stagger timing for content elements - Optimized for smooth sequential reveals
   STAGGER: {
     YEAR_BADGE: 0,
-    TITLE: 0.1,
-    SUBTITLE: 0.2,
-    IMAGE: 0.3,
-    CONTENT: 0.4,
-    ARTIST: 0.5,
-    PAGE_NUMBER: 0.6
+    TITLE: 0.1,     // Reduced for faster start
+    SUBTITLE: 0.2,  // Reduced for better flow
+    IMAGE: 0.3,     // Reduced for better flow
+    CONTENT: 0.4,   // Reduced for better flow
+    ARTIST: 0.5,    // Reduced for better flow
+    PAGE_NUMBER: 0.6 // Reduced for better flow
   },
   
   // Animation properties
@@ -53,15 +53,12 @@ const BookAnimation: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const bookContainerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
-  const [showContactSection, setShowContactSection] = useState(false);
-  const [isContactReady, setIsContactReady] = useState(false);
-  const { setCurrentPage, totalPages, isAutoScrolling } = useBookContext();
+  const { setCurrentPage, isAutoScrolling, isSmartScrolling } = useBookContext();
 
   useEffect(() => {
     if (!containerRef.current || !bookContainerRef.current) return;
 
     const container = containerRef.current;
-    const bookContainer = bookContainerRef.current;
 
     console.log('Setting up unified ScrollTrigger animation system...');
 
@@ -112,7 +109,7 @@ const BookAnimation: React.FC = () => {
           id: 'book-animation',
           trigger: container,
           start: "top top",
-          end: `+=${window.innerHeight * contactThreshold * 5}`, // Stop at contact threshold
+          end: `+=${window.innerHeight * contactThreshold}`, // Fixed: Stop exactly at contact threshold
           scrub: ANIMATION_CONFIG.SCRUB,
           pin: true,
           pinSpacing: false, // Disable automatic spacing to prevent scroll continuation
@@ -120,7 +117,23 @@ const BookAnimation: React.FC = () => {
           fastScrollEnd: true, // Optimize for fast scrolling
           preventOverlaps: true, // Prevent overlapping animations
           onUpdate: (self) => {
+            // Skip ScrollTrigger updates during smart scroll to prevent interference
+            if (isSmartScrolling) {
+              return;
+            }
+
             const progress = self.progress;
+            
+            // Prevent scrolling beyond contact threshold by checking scroll position
+            if (progress >= contactThreshold) {
+              const scrollPosition = window.scrollY;
+              const maxScrollPosition = self.start + (self.end - self.start) * contactThreshold;
+              
+              // If scrolled beyond the contact threshold, prevent further scrolling
+              if (scrollPosition > maxScrollPosition) {
+                window.scrollTo(0, maxScrollPosition);
+              }
+            }
             
             // Update progress indicators smoothly
             const progressBars = document.querySelectorAll('.page-progress');
@@ -144,14 +157,8 @@ const BookAnimation: React.FC = () => {
             const currentPageIndex = Math.min(Math.floor(pageProgress), totalPages - 1);
             setCurrentPage(currentPageIndex);
 
-            // Handle end-state transition with smooth fade control
+            // Handle contact section visibility with fixed thresholds
             const fadeStartThreshold = 0.85; // Start fading contact in at 85%
-            
-            if (progress >= contactThreshold && !showContactSection) {
-              setShowContactSection(true);
-            } else if (progress < fadeStartThreshold && showContactSection) {
-              setShowContactSection(false);
-            }
             
             // Smooth fade control for contact section
             const contactSection = document.querySelector('.contact-section');
@@ -165,7 +172,7 @@ const BookAnimation: React.FC = () => {
                   pointerEvents: fadeProgress > 0.5 ? 'auto' : 'none'
                 });
               } else if (progress >= contactThreshold) {
-                // Fully visible contact section
+                // Fully visible contact section - ensure it stays visible
                 gsap.set(contactSection, { 
                   opacity: 1,
                   visibility: 'visible',
@@ -268,69 +275,76 @@ const BookAnimation: React.FC = () => {
           { selector: '.page-number', stagger: ANIMATION_CONFIG.STAGGER.PAGE_NUMBER }
         ];
 
-        // Add content animations with consistent timing (skip during auto-scroll)
-        if (!isAutoScrolling) {
-          contentAnimations.forEach(({ selector, stagger }) => {
+        // Add content animations with consistent timing - Always animate content
+        contentAnimations.forEach(({ selector, stagger }) => {
+          // During auto-scroll, use moderate animations for smooth experience
+          if (isAutoScrolling) {
             masterTimeline.fromTo(
               `.book-page[data-page="${pageIndex}"] ${selector}`,
               ANIMATION_CONFIG.CONTENT.INITIAL,
               {
                 ...ANIMATION_CONFIG.CONTENT.FINAL,
-                duration: contentDuration * 0.3,
+                duration: contentDuration * 0.25, // Increased duration for smoother auto-scroll
                 ease: ANIMATION_CONFIG.EASING.CONTENT
               },
               startProgress + (contentDuration * stagger)
             );
-          });
-        } else {
-          // During auto-scroll, immediately show content without animations
-          contentAnimations.forEach(({ selector }) => {
-            masterTimeline.set(
+          } else {
+            // Normal manual scrolling - use full animation duration for smooth reveals
+            masterTimeline.fromTo(
               `.book-page[data-page="${pageIndex}"] ${selector}`,
-              ANIMATION_CONFIG.CONTENT.FINAL,
-              startProgress
+              ANIMATION_CONFIG.CONTENT.INITIAL,
+              {
+                ...ANIMATION_CONFIG.CONTENT.FINAL,
+                duration: contentDuration * 0.4, // Increased duration for smoother manual scroll
+                ease: ANIMATION_CONFIG.EASING.CONTENT
+              },
+              startProgress + (contentDuration * stagger)
             );
-          });
-        }
+          }
+        });
 
-        // REALISTIC BOOK PAGE FLIP ANIMATION
-        // Phase 1: Prepare page for flip (0-10% of flip duration)
+        // Add a small delay before page flip to ensure content animations complete
+        const contentCompletionDelay = contentDuration * 0.1; // 10% delay after content phase
+
+        // REALISTIC BOOK PAGE FLIP ANIMATION - Improved timing with content coordination
+        // Phase 1: Prepare page for flip (after content animations complete)
         masterTimeline.set(`.book-page[data-page="${pageIndex}"]`, {
           opacity: 1,
           visibility: 'visible',
           transformOrigin: 'left center'
-        }, flipStartProgress);
+        }, flipStartProgress + contentCompletionDelay);
 
-        // Phase 2: Initial curl effect (10-30% of flip duration)
+        // Phase 2: Initial curl effect (5-25% of flip duration) - More gradual start
         masterTimeline.to(`.book-page[data-page="${pageIndex}"]`, {
           rotationX: 0, // Subtle upward curl
-          rotationY: -25, // Start turning the page
+          rotationY: -15, // Start turning the page more gradually
           duration: flipDuration * 0.2,
           ease: "power2.out"
-        }, flipStartProgress + flipDuration * 0.1);
+        }, flipStartProgress + contentCompletionDelay + flipDuration * 0.05);
 
-        // Phase 3: Main flip animation (30-80% of flip duration)
+        // Phase 3: Main flip animation (25-75% of flip duration) - Longer main phase
         masterTimeline.to(`.book-page[data-page="${pageIndex}"]`, {
           rotationY: -180, // Complete flip
           rotationX: 0, // Flatten the curl
           duration: flipDuration * 0.5,
           ease: "power2.inOut"
-        }, flipStartProgress + flipDuration * 0.3);
+        }, flipStartProgress + contentCompletionDelay + flipDuration * 0.25);
 
-        // Phase 4: Show page back ONLY when page is fully flipped (80% of flip duration)
+        // Phase 4: Show page back ONLY when page is fully flipped (75% of flip duration)
         masterTimeline.set(`.book-page[data-page="${pageIndex}"] > div:last-child`, {
           opacity: 1,
           visibility: 'visible',
           backfaceVisibility: 'visible'
-        }, flipStartProgress + flipDuration * 0.8);
+        }, flipStartProgress + contentCompletionDelay + flipDuration * 0.75);
 
-        // Phase 5: Final settling (80-100% of flip duration)
+        // Phase 5: Final settling (75-100% of flip duration) - Longer settling phase
         masterTimeline.to(`.book-page[data-page="${pageIndex}"]`, {
           rotationX: 0,
           rotationY: -180, // Ensure it stays flipped
-          duration: flipDuration * 0.2,
+          duration: flipDuration * 0.25,
           ease: "power2.out"
-        }, flipStartProgress + flipDuration * 0.8);
+        }, flipStartProgress + contentCompletionDelay + flipDuration * 0.75);
 
         // REVERSE ANIMATION: When scrolling back up
         // Hide page back immediately when starting reverse
@@ -338,7 +352,7 @@ const BookAnimation: React.FC = () => {
           opacity: 0,
           visibility: 'hidden',
           backfaceVisibility: 'hidden'
-        }, flipStartProgress + flipDuration * 0.3 - 0.001); // Just before main flip starts
+        }, flipStartProgress + contentCompletionDelay + flipDuration * 0.25 - 0.001); // Just before main flip starts
 
         // Add subtle book movement for realism
         masterTimeline.to('.book-base', {
@@ -347,7 +361,7 @@ const BookAnimation: React.FC = () => {
           ease: "power2.inOut",
           yoyo: true,
           repeat: 1
-        }, flipStartProgress + flipDuration * 0.3);
+        }, flipStartProgress + contentCompletionDelay + flipDuration * 0.3);
       };
 
       // Apply unified animations to all pages
@@ -461,14 +475,14 @@ const BookAnimation: React.FC = () => {
       }
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
-  }, []);
+  }, [isAutoScrolling, isSmartScrolling, setCurrentPage]);
 
   return (
     <div 
       ref={containerRef}
       className="scroll-container"
       style={{ 
-        height: '552vh', // Reduced from 600vh to 552vh (92% of 600vh) to match contact threshold
+        height: '600vh', // Fixed: Match the full ScrollTrigger range
         position: 'relative',
         willChange: 'transform' // Optimize for animations
       }}
@@ -488,8 +502,7 @@ const BookAnimation: React.FC = () => {
       >
         <Book3D />
         <ContactSection 
-          isVisible={showContactSection} 
-          onContactReady={() => setIsContactReady(true)}
+          isVisible={true} 
         />
       </div>
     </div>
