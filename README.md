@@ -1,15 +1,16 @@
-# 📚 The Enchanted Tales - Interactive Book Experience
+# 🏠 Interior Design Portfolio - Interactive Showcase
 
-An immersive 3D book opening animation built with **Next.js** and **GSAP**, featuring scroll-controlled page turning and animated story scenes.
+An immersive interior design portfolio website built with **Next.js** and **GSAP**, featuring scroll-controlled animations, interactive service showcases, and a 3D book-style portfolio presentation.
 
 ## ✨ Features
 
-- **3D Book Opening Animation**: Realistic book cover that opens as you scroll
-- **Page Turning Effects**: Smooth 3D page flips triggered by scroll position
-- **Animated Story Scenes**: Each page contains unique animated illustrations
+- **Interactive Service Showcase**: Animated service cards with hover effects and detailed descriptions
+- **3D Portfolio Book**: Interactive book-style portfolio presentation with scroll-controlled page turning
+- **Animated Story Scenes**: Each portfolio piece contains unique animated illustrations
 - **Scroll-Driven Interactions**: All animations are controlled by scroll position using GSAP ScrollTrigger
-- **Responsive Design**: Optimized for different screen sizes
+- **Responsive Design**: Optimized for different screen sizes and devices
 - **TypeScript**: Fully typed for better development experience
+- **Video Backgrounds**: Dynamic video backgrounds for immersive experience
 
 ## 🚀 Technologies Used
 
@@ -18,33 +19,25 @@ An immersive 3D book opening animation built with **Next.js** and **GSAP**, feat
 - **ScrollTrigger** - GSAP plugin for scroll-based animations
 - **Tailwind CSS 4** - Utility-first CSS framework
 - **TypeScript** - Type-safe JavaScript
+- **Swiper** - Touch slider for mobile-friendly interactions
+- **Three.js** - 3D graphics and animations
 
 ## 🎬 How It Works
 
-### 1. Book Opening Animation
+### 1. Service Showcase Animation
 
 ```typescript
-// Initial book opening triggered by scroll
-const tl = gsap.timeline({
-  scrollTrigger: {
-    trigger: book,
-    start: "top 80%",
-    end: "top 20%",
-    scrub: 1,
-  },
-});
-
-tl.to(cover, {
-  rotationY: -180,
-  duration: 1,
-  ease: "power2.inOut",
+// Service cards with hover animations
+const serviceCards = contentRef.current!.querySelectorAll(".service-card");
+serviceCards.forEach((card) => {
+  SectionAnimations.serviceCardHover(card as HTMLElement);
 });
 ```
 
-### 2. Page Turning Mechanics
+### 2. Portfolio Book Mechanics
 
 ```typescript
-// Each page turns based on scroll position
+// Each portfolio piece turns based on scroll position
 gsap
   .timeline({
     scrollTrigger: {
@@ -61,10 +54,10 @@ gsap
   });
 ```
 
-### 3. Story Scene Animations
+### 3. Design Scene Animations
 
 ```typescript
-// Animated elements within each story scene
+// Animated elements within each design scene
 gsap.to(elements, {
   y: -10,
   duration: 2,
@@ -83,34 +76,66 @@ src/
 │   ├── layout.tsx          # Root layout with metadata
 │   ├── page.tsx            # Main page component
 │   └── globals.css         # Global styles
-└── components/
-    ├── Book3D.tsx          # Main book component with GSAP animations
-    ├── BookPage.tsx        # Individual page component
-    └── StoryScene.tsx      # Animated story scenes
+├── components/
+│   ├── HeaderMenu.tsx      # Navigation menu
+│   ├── IntroductionBanner.tsx # Hero section with video background
+│   ├── AboutSection.tsx    # Company information and statistics
+│   ├── ServicesSection.tsx # Service offerings showcase
+│   ├── PortfolioSection.tsx # Portfolio with 3D book
+│   ├── Book3D.tsx          # Main book component with GSAP animations
+│   ├── BookPage.tsx        # Individual portfolio page component
+│   └── StoryScene.tsx      # Animated design scenes
+├── contexts/
+│   └── BookContext.tsx     # State management for book interactions
+├── utils/
+│   └── animations.ts       # Animation utilities and configurations
+└── hooks/
+    └── Custom hooks for reusable logic
 ```
 
 ## 🎨 Key Components
 
+### IntroductionBanner Component
+
+- Hero section with video background
+- Animated content entrance
+- Scroll-triggered animations
+- Mobile-responsive design
+
+### ServicesSection Component
+
+- Interactive service cards with hover effects
+- Swiper carousel for mobile
+- Animated statistics counters
+- Professional service descriptions
+
+### AboutSection Component
+
+- Company pillars showcase (Creativity, Craftsmanship, Sustainability)
+- Animated statistics (years of experience, projects completed)
+- Swiper carousel for pillar cards
+- Smooth scroll animations
+
 ### Book3D Component
 
-- Main orchestrator of all animations
+- Main orchestrator of portfolio animations
 - Manages book opening and page turning
 - Sets up ScrollTrigger instances
 - Controls 3D perspective and transforms
 
 ### BookPage Component
 
-- Individual page styling and layout
+- Individual portfolio page styling and layout
 - Paper-like texture with ruled lines
 - Page shadows and depth effects
 - Content organization
 
 ### StoryScene Component
 
-- Animated illustrations for each story
-- Multiple scene types (forest, mountain, castle, treasure, sunset)
+- Animated illustrations for each design project
+- Multiple scene types (residential, commercial, luxury, sustainable)
 - GSAP animations for floating and rotating elements
-- Emoji-based graphics for visual appeal
+- Design-focused graphics and icons
 
 ## 🎯 Animation Techniques
 
@@ -125,22 +150,22 @@ transform-origin: left center; /* For page turning */
 ### GSAP ScrollTrigger Configuration
 
 - **Scrub**: `scrub: 1` for smooth scroll-linked animations
-- **Stagger**: `stagger: 0.1` for sequential element animation
-- **Easing**: `power2.inOut` for natural motion curves
+- **Stagger**: `stagger: 0.15` for sequential element animation
+- **Easing**: `power2.out` for natural motion curves
 
-### Page Turning Physics
+### Service Card Hover Effects
 
-- Pages rotate around Y-axis from left edge
-- Alternating rotation directions for realistic effect
-- Z-index management for proper layering
+- Scale and shadow transformations
+- Smooth color transitions
+- Interactive feedback for user engagement
 
 ## 🎨 Styling Approach
 
-- **Amber Color Palette**: Warm, book-like aesthetic
-- **Paper Texture**: Subtle grid background pattern
-- **Typography**: Mix of sans-serif and serif fonts
-- **Shadows**: Multiple shadow layers for depth
-- **Gradients**: Smooth color transitions
+- **Neutral Color Palette**: Professional, design-focused aesthetic
+- **Paper Texture**: Subtle grid background pattern for book pages
+- **Typography**: Mix of sans-serif and serif fonts for hierarchy
+- **Shadows**: Multiple shadow layers for depth and dimension
+- **Gradients**: Smooth color transitions and overlays
 
 ## 🚀 Getting Started
 
@@ -159,34 +184,35 @@ transform-origin: left center; /* For page turning */
 3. **Open Browser**
    Navigate to `http://localhost:3000`
 
-4. **Experience the Animation**
-   - Scroll down to open the book
-   - Continue scrolling to turn pages
-   - Watch story scenes animate as they appear
+4. **Experience the Portfolio**
+   - Scroll down to explore services
+   - Continue scrolling to view portfolio book
+   - Watch design scenes animate as they appear
 
 ## 🔧 Customization
 
-### Adding New Stories
+### Adding New Services
 
 ```typescript
-const stories = [
+const services = [
   {
-    title: "Your New Chapter",
-    content: "Your story content here...",
-    scene: "your-scene-type",
+    title: "Your New Service",
+    description: "Your service description here...",
+    icon: "Your SVG icon",
+    image: "/photos/your-service.jpg",
   },
 ];
 ```
 
-### Creating New Scene Types
+### Creating New Design Scenes
 
 Add a new case in `StoryScene.tsx`:
 
 ```typescript
-case 'your-scene-type':
+case 'your-design-type':
   return (
     <div className="relative w-48 h-32 mx-auto">
-      {/* Your custom scene elements */}
+      {/* Your custom design scene elements */}
     </div>
   );
 ```
@@ -209,15 +235,17 @@ scrollTrigger: {
 - **Element Queries**: Efficient DOM selections
 - **Animation Cleanup**: Proper ScrollTrigger disposal
 - **Transform Optimization**: Hardware-accelerated 3D transforms
+- **Video Optimization**: Compressed video backgrounds
 
 ## 🌟 Best Practices Implemented
 
 1. **Progressive Enhancement**: Works without JavaScript
-2. **Accessibility**: Semantic HTML structure
+2. **Accessibility**: Semantic HTML structure and ARIA labels
 3. **Performance**: Optimized animations and transforms
 4. **Responsive Design**: Adapts to different screen sizes
 5. **Type Safety**: Full TypeScript implementation
 6. **Clean Code**: Modular component architecture
+7. **Mobile-First**: Touch-friendly interactions
 
 ## 🎨 Visual Design Principles
 
@@ -226,6 +254,7 @@ scrollTrigger: {
 - **Hierarchy**: Clear visual information structure
 - **Consistency**: Unified color palette and spacing
 - **Delight**: Unexpected animation details
+- **Professional**: Interior design industry standards
 
 ## 📱 Browser Support
 
@@ -235,13 +264,15 @@ scrollTrigger: {
 
 ## 🔮 Future Enhancements
 
-- **Audio Integration**: Page turning sound effects
-- **Interactive Elements**: Clickable story elements
-- **Dynamic Content**: Load stories from API
-- **Bookmark System**: Save reading progress
+- **Project Galleries**: Detailed project showcases
+- **Client Testimonials**: Interactive testimonial carousel
+- **Contact Forms**: Integrated contact functionality
+- **Blog Integration**: Design insights and trends
+- **Virtual Tours**: 3D room walkthroughs
+- **Booking System**: Consultation scheduling
 - **Multi-language Support**: Internationalization
-- **Touch Gestures**: Swipe to turn pages on mobile
+- **Touch Gestures**: Swipe to navigate on mobile
 
 ---
 
-**Built with ❤️ using Next.js and GSAP**
+**Built with ❤️ for Interior Design Excellence using Next.js and GSAP**

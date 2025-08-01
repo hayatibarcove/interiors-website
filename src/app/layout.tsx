@@ -17,15 +17,34 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "ARTISTRY - A Visual Journey Through Art, Design & Photography",
-  description: "An immersive digital gallery showcasing the evolution of art, design principles, and photography through interactive 3D book experience.",
-  keywords: "art, design, photography, interactive gallery, Bauhaus, minimalism, color theory, digital art",
-  authors: [{ name: "Creative Studio" }],
+  title: "Luminare Studio - Luxury Interior Design & Creative Solutions",
+  description: "Transform your space with Luminare Studio's innovative interior design services. From residential elegance to commercial sophistication, we create timeless environments that inspire.",
+  keywords: "interior design, luxury design, residential design, commercial design, sustainable design, home renovation, space planning, furniture selection, lighting design, color consultation, Luminare Studio",
+  authors: [{ name: "Luminare Studio" }],
   openGraph: {
-    title: "ARTISTRY - Digital Art Gallery",
-    description: "Explore art history through an interactive 3D book experience",
+    title: "Luminare Studio - Luxury Interior Design",
+    description: "Elevate your space with our innovative interior design solutions. Residential and commercial projects with timeless elegance.",
     type: "website",
+    images: [
+      {
+        url: "/photos/luminare-studio-hero.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Luminare Studio Interior Design Portfolio",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Luminare Studio - Luxury Interior Design",
+    description: "Transform your space with innovative interior design solutions",
+    images: ["/photos/luminare-studio-hero.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  viewport: "width=device-width, initial-scale=1.0",
 };
 
 export default function RootLayout({
@@ -37,6 +56,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="canonical" href="https://luminarestudio.com" />
       </head>
       <body className={`${inter.variable} ${playfairDisplay.variable} antialiased`}>
         {children}
