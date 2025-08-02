@@ -31,6 +31,28 @@ export default function Home() {
       }
     });
 
+    // Debug: Check if sections are rendering
+    // console.log("Checking section visibility...");
+    // setTimeout(() => {
+    //   const aboutSection = document.getElementById('about-section');
+    //   const servicesSection = document.getElementById('services-section');
+    //   const portfolioSection = document.getElementById('portfolio-section');
+      
+    //   console.log('About section:', aboutSection);
+    //   console.log('Services section:', servicesSection);
+    //   console.log('Portfolio section:', portfolioSection);
+      
+    //   if (aboutSection) {
+    //     console.log('About section styles:', window.getComputedStyle(aboutSection));
+    //   }
+    //   if (servicesSection) {
+    //     console.log('Services section styles:', window.getComputedStyle(servicesSection));
+    //   }
+    //   if (portfolioSection) {
+    //     console.log('Portfolio section styles:', window.getComputedStyle(portfolioSection));
+    //   }
+    // }, 2000);
+
     return () => {
       // Cleanup animations on unmount
       AnimationUtils.cleanup();
@@ -61,6 +83,19 @@ export default function Home() {
 
         {/* Portfolio Section with Interactive Book */}
         <PortfolioSection />
+
+        {/* Test Section - Should be visible after Portfolio */}
+        {/* <section 
+          id="test-section"
+          className="min-h-screen bg-red-100 flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)' }}
+        >
+          <div className="text-center text-white">
+            <h2 className="text-4xl font-bold mb-4">Test Section</h2>
+            <p className="text-xl">This section should be visible after the book animation</p>
+            <p className="text-sm mt-4">If you can see this, the sections are rendering correctly</p>
+          </div>
+        </section> */}
       </div>
     </BookProvider>
   );

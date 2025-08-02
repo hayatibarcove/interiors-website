@@ -10,6 +10,25 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// Performance optimization settings
+const PERFORMANCE_CONFIG = {
+  GPU_ACCELERATION: true,
+  DEBOUNCE_DELAY: 16, // ~60fps
+  THROTTLE_DELAY: 100,
+  MAX_FPS: 60,
+  FORCE_3D: true,
+  WILL_CHANGE: 'transform'
+};
+
+// Debounced function utility
+const debounce = (func: (...args: unknown[]) => void, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+  return (...args: unknown[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
 // Custom hook for dynamic book sizing for constrained fullscreen
 const useResponsiveBookSize = () => {
   const [bookDimensions, setBookDimensions] = useState({
@@ -145,13 +164,9 @@ const useResponsiveBookSize = () => {
   useEffect(() => {
     calculateBookSize();
 
-    let resizeTimeout: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      // Use longer debounce on mobile to reduce frequency
-      const debounceTime = window.innerWidth <= 768 ? 300 : 150;
-      resizeTimeout = setTimeout(calculateBookSize, debounceTime);
-    };
+    const handleResize = debounce(() => {
+      calculateBookSize();
+    }, 150);
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
@@ -159,7 +174,6 @@ const useResponsiveBookSize = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
-      clearTimeout(resizeTimeout);
     };
   }, [calculateBookSize]);
 
@@ -173,9 +187,6 @@ const Book3D: React.FC = () => {
   const pagesContainerRef = useRef<HTMLDivElement>(null);
   const [isClientSide, setIsClientSide] = useState(false);
 
-  // Loading state management for pages
-
-  
   // Use responsive book sizing
   const bookDimensions = useResponsiveBookSize();
 
@@ -264,14 +275,12 @@ const Book3D: React.FC = () => {
     }
   ];
 
-
-
   // SSR compatibility check
   useEffect(() => {
     setIsClientSide(true);
   }, []);
 
-  // Initialize book 3D setup
+  // Initialize book 3D setup with performance optimizations
   useEffect(() => {
     if (!isClientSide || !containerRef.current || !bookRef.current || !coverRef.current || !pagesContainerRef.current) return;
 
@@ -280,73 +289,67 @@ const Book3D: React.FC = () => {
     const pagesContainer = pagesContainerRef.current;
     const pages = Array.from(pagesContainer.querySelectorAll('.book-page')) as HTMLElement[];
 
-    // Optimized 3D perspective setup with minimal blur
+    // Optimized 3D perspective setup with GPU acceleration
     gsap.set(book, { 
-      rotationY: 0, // Remove rotation to eliminate blur
-      rotationX: 0, // Remove rotation to eliminate blur
+      rotationY: 0,
+      rotationX: 0,
       transformOrigin: "center center",
       transformStyle: "preserve-3d",
-      perspective: `${1000 * bookDimensions.scale}px`, // Reduced perspective further
-      // Force hardware acceleration
-      force3D: true,
-      backfaceVisibility: "hidden"
+      perspective: `${1000 * bookDimensions.scale}px`,
+      force3D: PERFORMANCE_CONFIG.FORCE_3D,
+      backfaceVisibility: "hidden",
+      willChange: PERFORMANCE_CONFIG.WILL_CHANGE
     });
 
-    // Initialize all pages and cover with optimized 3D setup
+    // Initialize all pages and cover with optimized 3D setup and GPU acceleration
     gsap.set([cover, ...pages], { 
       transformOrigin: "left center",
       transformStyle: "preserve-3d",
       backfaceVisibility: "hidden",
-      // Force hardware acceleration
-      force3D: true,
-      // Optimize for crisp rendering
-      clearProps: "transform"
+      force3D: PERFORMANCE_CONFIG.FORCE_3D,
+      clearProps: "transform",
+      willChange: PERFORMANCE_CONFIG.WILL_CHANGE
     });
 
-    // Set initial page states for ScrollTrigger - keep pages visible
+    // Set initial page states for ScrollTrigger with GPU acceleration
     pages.forEach((page, index) => {
       gsap.set(page, { 
         rotationY: 0,
-        opacity: 1, // Keep pages visible for ScrollTrigger
+        opacity: 1,
         zIndex: interiorTopics.length - index,
-        visibility: 'visible', // Ensure pages are always visible
-        // Force hardware acceleration
-        force3D: true,
-        // Optimize for crisp rendering
-        clearProps: "transform"
+        visibility: 'visible',
+        force3D: PERFORMANCE_CONFIG.FORCE_3D,
+        clearProps: "transform",
+        willChange: PERFORMANCE_CONFIG.WILL_CHANGE
       });
       
-      // Ensure content elements are properly set up for animations
+      // Ensure content elements are properly set up for animations with GPU acceleration
       const contentElements = page.querySelectorAll('.year-badge, .page-title, .page-subtitle, .page-content, .artist-name, .page-number, img');
       gsap.set(contentElements, {
         opacity: 0,
         y: 20,
-        // Force hardware acceleration for content elements
-        force3D: true,
-        // Optimize for crisp rendering
+        force3D: PERFORMANCE_CONFIG.FORCE_3D,
         clearProps: "transform",
-        // Ensure proper animation setup
         willChange: 'transform, opacity'
       });
     });
 
-    // Cover initial state - ensure it's visible
+    // Cover initial state with GPU acceleration
     gsap.set(cover, { 
       rotationY: 0,
       opacity: 1,
-              zIndex: interiorTopics.length + 1,
+      zIndex: interiorTopics.length + 1,
       visibility: 'visible',
-      // Force hardware acceleration
-      force3D: true,
-      // Optimize for crisp rendering
-      clearProps: "transform"
+      force3D: PERFORMANCE_CONFIG.FORCE_3D,
+      clearProps: "transform",
+      willChange: PERFORMANCE_CONFIG.WILL_CHANGE
     });
 
-    console.log('Book 3D setup initialized for ScrollTrigger animations');
+    console.log('Book 3D setup initialized with GPU acceleration');
 
-      }, [isClientSide, interiorTopics.length, bookDimensions.scale]);
+  }, [isClientSide, interiorTopics.length, bookDimensions.scale]);
 
-  // Mobile-optimized ScrollTrigger setup
+  // Mobile-optimized ScrollTrigger setup with performance improvements
   const setupMobileScrollTrigger = useCallback(() => {
     if (!containerRef.current || !bookRef.current) return;
 
@@ -354,25 +357,18 @@ const Book3D: React.FC = () => {
     const isMobile = window.innerWidth <= 768;
     const isTouchDevice = 'ontouchstart' in window;
 
-    // Mobile-specific ScrollTrigger settings
+    // Mobile-specific ScrollTrigger settings with performance optimizations
     const mobileSettings = {
-      // Reduce sensitivity on mobile to prevent jitter
       scrub: isMobile ? 1.5 : 1,
-      // Increase snap distance for better mobile experience
       snap: 1 / (interiorTopics.length - 1),
-      // Optimize for touch scrolling
       anticipatePin: isMobile ? 1 : 0,
-      // Prevent conflicts with mobile browser UI
       preventOverlaps: true,
-      // Optimize performance on mobile
       fastScrollEnd: isMobile,
-      // Reduce refresh frequency on mobile
       ignoreMobileResize: isMobile,
-      // Disable automatic refresh on mobile to prevent excessive calls
       autoRefreshEvents: isMobile ? "none" : "resize,load,orientationchange",
     };
 
-    // Create ScrollTrigger for book opening animation
+    // Create ScrollTrigger for book opening animation with GPU acceleration
     const bookOpenTrigger = ScrollTrigger.create({
       trigger: containerRef.current,
       start: "top top",
@@ -382,57 +378,49 @@ const Book3D: React.FC = () => {
       anticipatePin: mobileSettings.anticipatePin,
       preventOverlaps: mobileSettings.preventOverlaps,
       fastScrollEnd: mobileSettings.fastScrollEnd,
-      onUpdate: (self) => {
+      onUpdate: (self: ScrollTrigger) => {
         const progress = self.progress;
         
-        // Book opening animation
+        // Book opening animation with GPU acceleration
         if (coverRef.current) {
           gsap.to(coverRef.current, {
             rotationY: progress * 180,
-            duration: 0.05, // Reduced duration for smoother animation
+            duration: 0.05,
             ease: "none",
-            // Force hardware acceleration
-            force3D: true,
-            // Optimize for crisp rendering
+            force3D: PERFORMANCE_CONFIG.FORCE_3D,
             clearProps: "transform"
           });
         }
-
-        
-        
-        
-        
-
       },
-      onRefresh: () => {
+      onRefresh: debounce(() => {
         // Only refresh on significant layout changes, not on every mobile event
         if (isMobile) {
-                  // Debounce refresh to prevent excessive calls
-        clearTimeout((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout);
-        (window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout = setTimeout(() => {
-          // Only refresh if there's a significant change
-          const currentWidth = window.innerWidth;
-          const currentHeight = window.innerHeight;
-          
-          if (!(window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions) {
-            (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
-            return;
-          }
-          
-          const last = (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions;
-          if (last) {
-            const widthChange = Math.abs(currentWidth - last.width);
-            const heightChange = Math.abs(currentHeight - last.height);
+          // Debounce refresh to prevent excessive calls
+          clearTimeout((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout);
+          (window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout = setTimeout(() => {
+            // Only refresh if there's a significant change
+            const currentWidth = window.innerWidth;
+            const currentHeight = window.innerHeight;
             
-            // Only refresh if change is significant (more than 50px)
-            if (widthChange > 50 || heightChange > 50) {
+            if (!(window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions) {
               (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
-              ScrollTrigger.refresh();
+              return;
             }
-          }
-        }, 300);
+            
+            const last = (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions;
+            if (last) {
+              const widthChange = Math.abs(currentWidth - last.width);
+              const heightChange = Math.abs(currentHeight - last.height);
+              
+              // Only refresh if change is significant (more than 50px)
+              if (widthChange > 50 || heightChange > 50) {
+                (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
+                ScrollTrigger.refresh();
+              }
+            }
+          }, 300);
         }
-      }
+      }, PERFORMANCE_CONFIG.THROTTLE_DELAY)
     });
 
     // Mobile-specific optimizations
@@ -448,9 +436,9 @@ const Book3D: React.FC = () => {
         clearTimeout((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout);
       }
     };
-      }, [interiorTopics.length]);
+  }, [interiorTopics.length]);
 
-  // Initialize ScrollTrigger when component mounts
+  // Initialize ScrollTrigger when component mounts with proper cleanup
   useEffect(() => {
     if (!isClientSide || !containerRef.current || !bookRef.current) return;
 
@@ -474,7 +462,12 @@ const Book3D: React.FC = () => {
     <div 
       ref={containerRef}
       className="relative w-full h-full flex items-center justify-center"
-      style={{ overflow: 'visible', clipPath: 'none' }}
+      style={{ 
+        overflow: 'visible', 
+        clipPath: 'none',
+        willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
+        transform: 'translateZ(0)' // Force GPU acceleration
+      }}
     >
       <div 
         ref={bookRef}
@@ -484,13 +477,12 @@ const Book3D: React.FC = () => {
           perspectiveOrigin: 'center center',
           overflow: 'visible',
           clipPath: 'none',
-          // Force hardware acceleration
-          transform: 'translateZ(0)',
-          willChange: 'transform',
+          transform: 'translateZ(0)', // Force GPU acceleration
+          willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
           backfaceVisibility: 'hidden'
         }}
       >
-        {/* Book Base with enhanced shadows - always visible */}
+        {/* Book Base with enhanced shadows - always visible with GPU acceleration */}
         <div 
           className="book-base relative rounded-r-lg shadow-2xl transition-all duration-300 ease-out"
           style={{ 
@@ -503,14 +495,13 @@ const Book3D: React.FC = () => {
             zIndex: 1,
             overflow: 'visible',
             clipPath: 'none',
-            // Force hardware acceleration
-            transform: 'translateZ(0)',
-            willChange: 'transform',
+            transform: 'translateZ(0)', // Force GPU acceleration
+            willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
             backfaceVisibility: 'hidden',
             background: 'var(--secondary-background)'
           }}
         >
-          {/* Premium Art Book Cover */}
+          {/* Premium Art Book Cover with GPU acceleration */}
           <div 
             ref={coverRef}
             className="book-cover absolute inset-0 z-10"
@@ -521,28 +512,23 @@ const Book3D: React.FC = () => {
               visibility: 'visible',
               overflow: 'visible',
               clipPath: 'none',
-              // Force hardware acceleration
-              transform: 'translateZ(0)',
-              willChange: 'transform',
-              // Optimize text rendering
+              transform: 'translateZ(0)', // Force GPU acceleration
+              willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               textRendering: 'optimizeLegibility'
             }}
           >
-            {/* Front Face */}
+            {/* Front Face with GPU acceleration */}
             <div className="cover-front absolute inset-0 rounded-lg shadow-lg" style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'rotateY(0deg) translateZ(0)', 
               width: '100%', 
               height: '100%',
-              // Force hardware acceleration
-              willChange: 'transform',
-              // Optimize text rendering
+              willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               textRendering: 'optimizeLegibility',
-              // Ensure crisp rendering
               imageRendering: '-webkit-optimize-contrast',
               background: 'var(--background)'
             }}>
@@ -552,14 +538,14 @@ const Book3D: React.FC = () => {
               }}>
               </div>
               
-              {/* Main Content Area */}
+              {/* Main Content Area with GPU acceleration */}
               <div className="absolute right-0 top-0 w-4/5 h-full flex items-center" style={{ 
                 overflow: 'visible', 
                 clipPath: 'none',
-                // Optimize text rendering
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
-                textRendering: 'optimizeLegibility'
+                textRendering: 'optimizeLegibility',
+                willChange: PERFORMANCE_CONFIG.WILL_CHANGE
               }}>
                 {/* Interior Image */}
                 <div className="w-1/2 h-full flex items-center justify-center p-4">
@@ -569,36 +555,33 @@ const Book3D: React.FC = () => {
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                     imageRendering: '-webkit-optimize-contrast',
-                    backgroundColor: 'var(--secondary-background)'
+                    backgroundColor: 'var(--secondary-background)',
+                    willChange: PERFORMANCE_CONFIG.WILL_CHANGE
                 }}>
                     {/* Image placeholder */}
                     <div className="text-sm" style={{ color: 'var(--typography-secondary)' }}>Interior</div>
                   </div>
                 </div>
                 
-                {/* Text Content */}
+                {/* Text Content with GPU acceleration */}
                 <div className="w-1/2 h-full flex flex-col justify-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4">
                   <div className="space-y-2 sm:space-y-3 md:space-y-4">
                     <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight" style={{
                       color: 'var(--foreground)',
-                      // Optimize text rendering
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
                       textRendering: 'optimizeLegibility',
-                      // Force hardware acceleration
-                      transform: 'translateZ(0)',
-                      willChange: 'transform'
+                      transform: 'translateZ(0)', // Force GPU acceleration
+                      willChange: PERFORMANCE_CONFIG.WILL_CHANGE
                     }}>
                       INTERIORS
                     </h1>
                     <p className="font-body text-xs sm:text-sm md:text-base leading-relaxed" style={{
-                      // Optimize text rendering
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
                       textRendering: 'optimizeLegibility',
-                      // Force hardware acceleration
-                      transform: 'translateZ(0)',
-                      willChange: 'transform',
+                      transform: 'translateZ(0)', // Force GPU acceleration
+                      willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
                       color: 'var(--typography-secondary)'
                     }}>
                       Residential • Commercial • Conceptual
@@ -607,14 +590,15 @@ const Book3D: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* Inside Face */}
+            {/* Inside Face with GPU acceleration */}
             <div className="cover-inside absolute inset-0 rounded-lg border flex flex-col items-center justify-center" style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'rotateY(180deg)', 
               width: '100%', 
               height: '100%',
               background: 'var(--secondary-background)',
-              borderColor: 'var(--accent-1)'
+              borderColor: 'var(--accent-1)',
+              willChange: PERFORMANCE_CONFIG.WILL_CHANGE
             }}>
               <div className="text-center px-4 sm:px-6 md:px-8">
                 <h2 className="font-display text-lg sm:text-xl md:text-2xl font-light mb-1 sm:mb-2 tracking-wider" style={{ color: 'var(--typography-secondary)' }}>Inside Cover</h2>
@@ -623,10 +607,10 @@ const Book3D: React.FC = () => {
             </div>
           </div>
 
-          {/* Pages Container - ensure it's always visible */}
+          {/* Pages Container - ensure it's always visible with GPU acceleration */}
           <div 
             ref={pagesContainerRef}
-            className="pages-container absolute inset-0"
+            className="pages-container rounded-lg absolute inset-0"
             style={{ 
               transformStyle: 'preserve-3d',
               opacity: 1,
@@ -634,19 +618,17 @@ const Book3D: React.FC = () => {
               zIndex: 2,
               overflow: 'visible',
               clipPath: 'none',
-              // Force hardware acceleration
-              transform: 'translateZ(0)',
-              willChange: 'transform',
+              transform: 'translateZ(0)', // Force GPU acceleration
+              willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
               backfaceVisibility: 'hidden'
             }}
           >
-                    {interiorTopics.map((topic, index) => (
-                            <BookPage
+            {interiorTopics.map((topic, index) => (
+              <BookPage
                 key={index}
                 story={topic}
                 pageIndex={index}
                 totalPages={interiorTopics.length}
-
               />
             ))}
           </div>

@@ -103,8 +103,6 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onContactReady }) => {
         background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,245,245,0.95) 100%)',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
-        opacity: 0,
-        visibility: 'hidden',
         pointerEvents: 'none'
       }}
     >

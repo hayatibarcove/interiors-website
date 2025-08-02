@@ -10,6 +10,24 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 }
 
+// Performance optimization settings
+const PERFORMANCE_CONFIG = {
+  DEBOUNCE_DELAY: 16, // ~60fps
+  THROTTLE_DELAY: 100,
+  MAX_FPS: 60,
+  FORCE_3D: true,
+  WILL_CHANGE: 'transform'
+};
+
+// Debounced function utility - not currently used
+// const debounce = (func: (...args: unknown[]) => void, delay: number) => {
+//   let timeoutId: NodeJS.Timeout;
+//   return (...args: unknown[]) => {
+//     clearTimeout(timeoutId);
+//     timeoutId = setTimeout(() => func(...args), delay);
+//   };
+// };
+
 interface BookContextType {
   currentPage: number;
   totalPages: number;
@@ -48,7 +66,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
   const totalPages = 4; // Based on the current book structure
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
-  // Get the ScrollTrigger instance
+  // Get the ScrollTrigger instance with performance optimization
   const getScrollTrigger = useCallback(() => {
     if (!scrollTriggerRef.current) {
       const trigger = ScrollTrigger.getById('book-animation');
@@ -71,7 +89,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     return 0.08 + (pageIndex * progressPerPage); // 8% offset for cover
   }, [totalPages]);
 
-  // Animate to a specific page
+  // Animate to a specific page with performance optimization
   const scrollToPage = useCallback(async (pageIndex: number): Promise<void> => {
     return new Promise((resolve) => {
       const scrollTrigger = getScrollTrigger();
@@ -86,7 +104,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       
       console.log(`Scrolling to page ${pageIndex}, target progress: ${targetProgress}`);
       
-      // Animate to the target progress
+      // Animate to the target progress with GPU acceleration
       gsap.to(window, {
         duration: 1.5,
         scrollTo: {
@@ -94,6 +112,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
           offsetY: 0
         },
         ease: "power2.inOut",
+        force3D: PERFORMANCE_CONFIG.FORCE_3D,
         onComplete: () => {
           setCurrentPage(pageIndex);
           setIsAnimating(false);
@@ -109,7 +128,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     await scrollToPage(lastPageIndex);
   }, [scrollToPage, totalPages]);
 
-  // Scroll directly to contact section
+  // Scroll directly to contact section with performance optimization
   const scrollToContact = useCallback(async (): Promise<void> => {
     return new Promise((resolve) => {
       const scrollTrigger = getScrollTrigger();
@@ -131,6 +150,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
           offsetY: 0
         },
         ease: "power2.inOut",
+        force3D: PERFORMANCE_CONFIG.FORCE_3D,
         onComplete: () => {
           setCurrentPage(totalPages);
           setIsAnimating(false);
@@ -152,7 +172,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     document.body.style.pointerEvents = '';
   }, []);
 
-  // Natural page flip with realistic timing and overlapping delays
+  // Natural page flip with realistic timing and overlapping delays - optimized
   const naturalPageFlip = useCallback(async (targetPage: number): Promise<void> => {
     return new Promise((resolve) => {
       const scrollTrigger = getScrollTrigger();
@@ -175,7 +195,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       if (Math.abs(targetPage - currentPage) > 1) {
         console.log(`Flipping ${Math.abs(targetPage - currentPage)} pages with overlapping delays`);
         
-        // Create a timeline for multiple page flips
+        // Create a timeline for multiple page flips with GPU acceleration
         const tl = gsap.timeline({
           onComplete: () => {
             setCurrentPage(targetPage);
@@ -192,7 +212,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
           }
         });
         
-        // Add overlapping page flip animations
+        // Add overlapping page flip animations with GPU acceleration
         const pagesToFlip = Math.abs(targetPage - currentPage);
         const delayPerPage = 0.3; // 300ms delay between page flips
         
@@ -207,10 +227,11 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
               offsetY: 0
             },
             ease: "power1.inOut",
+            force3D: PERFORMANCE_CONFIG.FORCE_3D
           }, i * delayPerPage);
         }
       } else {
-        // Single page flip with natural easing
+        // Single page flip with natural easing and GPU acceleration
         gsap.to(window, {
           duration: 2.5, // Longer duration for more natural feel
           scrollTo: {
@@ -218,6 +239,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
             offsetY: 0
           },
           ease: "power1.inOut", // Natural page turning easing
+          force3D: PERFORMANCE_CONFIG.FORCE_3D,
           onComplete: () => {
             setCurrentPage(targetPage);
             setIsAnimating(false);
@@ -237,7 +259,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     });
   }, [getScrollTrigger, getPageProgress, disableScrollInput, enableScrollInput, currentPage]);
 
-  // Unified smart scroll with single timeline for seamless transition
+  // Unified smart scroll with single timeline for seamless transition - optimized
   const smartScrollToContact = useCallback(async (): Promise<void> => {
     if (isAnimating) {
       console.log('Animation already in progress, ignoring request');
@@ -259,7 +281,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     console.log('Starting unified smart scroll sequence...');
 
     return new Promise((resolve) => {
-      // Create unified timeline for the entire sequence
+      // Create unified timeline for the entire sequence with GPU acceleration
       const unifiedTimeline = gsap.timeline({
         onComplete: () => {
           console.log('Unified smart scroll sequence completed');
@@ -297,6 +319,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
             offsetY: 0
           },
           ease: "power1.inOut",
+          force3D: PERFORMANCE_CONFIG.FORCE_3D
         });
       }
 
@@ -314,7 +337,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       }
       // Note: isAlreadyOnLastPage case is handled above with no delay
 
-      // Then scroll to contact section with conditional duration
+      // Then scroll to contact section with conditional duration and GPU acceleration
       console.log('Adding contact scroll to timeline...');
       const contactProgress = 0.92;
       const contactScrollDuration = (isFlippingToLastPage || isAlreadyOnLastPage) ? 1.5 : 2; // Shorter duration for last page scenarios
@@ -326,6 +349,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
           offsetY: 0
         },
         ease: "power2.inOut",
+        force3D: PERFORMANCE_CONFIG.FORCE_3D
       });
 
     });
@@ -355,6 +379,9 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       setIsAutoScrolling(false);
       setIsSmartScrolling(false);
       enableScrollInput();
+      
+      // Kill any remaining ScrollTriggers
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, [enableScrollInput]);
 
