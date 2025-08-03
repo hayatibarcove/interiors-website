@@ -460,144 +460,7 @@ body,
   background: linear-gradient(to right, transparent, #e5e7eb, transparent);
 }
 
-/* Book Animation Enhancements */
-.book-container {
-  will-change: transform;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
-  opacity: 1 !important;
-  visibility: visible !important;
-  border: 1px solid var(--accent-1);
-}
-
-.book-cover,
-.book-page {
-  backface-visibility: hidden;
-  will-change: transform;
-  transform-style: preserve-3d;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Book base - always visible */
-.book-base {
-  opacity: 1 !important;
-  visibility: visible !important;
-  z-index: 1;
-  transform-style: preserve-3d;
-  backface-visibility: visible; /* Allow book base to be visible from all angles */
-}
-
-/* Pages container - always visible */
-.pages-container {
-  opacity: 1 !important;
-  visibility: visible !important;
-  z-index: 2;
-  transform-style: preserve-3d;
-}
-
-/* Responsive Book Layout */
-.book-display {
-  contain: layout style paint;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-.book-base {
-  transition: width 0.3s ease-out, height 0.3s ease-out, box-shadow 0.3s ease-out;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Content Animation Classes for ScrollTrigger */
-.year-badge,
-.page-title,
-.page-subtitle,
-.page-content,
-.artist-name,
-.page-number {
-  will-change: transform, opacity;
-  transform: translateZ(0); /* Force hardware acceleration */
-  backface-visibility: hidden; /* Prevent flickering */
-  perspective: 1000px; /* Improve 3D performance */
-}
-
-/* Animation performance optimizations */
-.book-page * {
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-}
-
-/* Prevent layout shifts during animations */
-.book-page {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  opacity: 1 !important;
-  visibility: visible !important;
-  overflow: visible !important; /* Prevent cropping */
-  clip-path: none !important; /* Remove any clipping */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-/* Optimize book container for smooth animations */
-.book-container {
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  opacity: 1 !important;
-  visibility: visible !important;
-  overflow: visible !important; /* Prevent cropping */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
-/* Prevent glitches during page flips */
-.book-cover,
-.book-page {
-  backface-visibility: hidden;
-  will-change: transform;
-  transform-style: preserve-3d;
-  opacity: 1 !important;
-  visibility: visible !important;
-  overflow: visible !important; /* Prevent cropping */
-}
-
-/* Smooth scroll container */
-.scroll-container {
-  will-change: transform;
-  transform: translateZ(0);
-  overflow: visible !important; /* Prevent cropping */
-}
-
-/* Optimize sticky positioning */
-.sticky {
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  overflow: visible !important; /* Prevent cropping */
-}
-
-/* Prevent text rendering issues during animations */
-.book-page * {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  overflow: visible !important; /* Prevent cropping */
-}
-
-/* Optimize image rendering during animations */
-.book-page img {
-  will-change: transform, opacity;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  overflow: visible !important; /* Prevent cropping */
-}
-
-/* Prevent content jumping during animations */
+/* Book Animation Enhancements - Moved to CSS Module */
 .page-content,
 .page-title,
 .page-subtitle,
@@ -791,7 +654,7 @@ img {
   bottom: 0;
   width: 8px;
   background: var(--highlight);
-  border-radius: 4px 0 0 4px;
+  border-radius: unset;
   z-index: 3;
 }
 

@@ -4,13 +4,14 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import BookPage from './BookPage';
+import { useBookContext } from '../../contexts/BookContext';
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Custom hook for dynamic book sizing for constrained fullscreen
+// Custom hook for responsive book sizing
 const useResponsiveBookSize = () => {
   const [bookDimensions, setBookDimensions] = useState({
     width: 640,
@@ -21,7 +22,6 @@ const useResponsiveBookSize = () => {
   const calculateBookSize = useCallback(() => {
     if (typeof window === 'undefined') return;
 
-    // Get CSS custom property values for layout constraints
     const headerHeight = parseInt(getComputedStyle(document.documentElement)
       .getPropertyValue('--header-height') || '88');
     const footerHeight = parseInt(getComputedStyle(document.documentElement)
@@ -29,22 +29,17 @@ const useResponsiveBookSize = () => {
     const bookPadding = parseInt(getComputedStyle(document.documentElement)
       .getPropertyValue('--book-padding') || '24');
 
-    // Calculate available space between header and footer
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
-    // Mobile-specific adjustments
     const isMobile = viewportWidth <= 768;
     const isPortrait = viewportHeight > viewportWidth;
     
-    // Adjust padding for mobile - use less padding to make book larger
     const mobilePadding = isMobile ? bookPadding * 0.5 : bookPadding;
     
-    // Available space calculation with mobile considerations
     const availableHeight = viewportHeight - headerHeight - footerHeight - (mobilePadding * 2);
     const availableWidth = viewportWidth - (mobilePadding * 2);
 
-    // Ensure minimum available space - more permissive on mobile
     const minAvailableHeight = isMobile ? 120 : 200;
     const minAvailableWidth = isMobile ? 240 : 320;
     
@@ -53,24 +48,17 @@ const useResponsiveBookSize = () => {
       return;
     }
 
-    // Book aspect ratio (width:height = 1.52:1 for standard book)
     const bookAspectRatio = 1.52;
-    
-    // Mobile-specific aspect ratio adjustments - optimize for orientation
     const mobileAspectRatio = isMobile && isPortrait ? 1.2 : (isMobile && !isPortrait ? 1.8 : bookAspectRatio);
     const finalAspectRatio = isMobile ? mobileAspectRatio : bookAspectRatio;
     
-    // Calculate maximum possible dimensions while maintaining aspect ratio
     const widthFromHeight = availableHeight * finalAspectRatio;
     const heightFromWidth = availableWidth / finalAspectRatio;
     
     let finalWidth, finalHeight;
     
-    // On mobile, prioritize using more space
     if (isMobile) {
-      // Use more aggressive sizing on mobile
       if (isPortrait) {
-        // In portrait, prioritize height usage
         finalHeight = availableHeight * 0.95;
         finalWidth = finalHeight * finalAspectRatio;
         if (finalWidth > availableWidth * 0.95) {
@@ -78,7 +66,6 @@ const useResponsiveBookSize = () => {
           finalHeight = finalWidth / finalAspectRatio;
         }
       } else {
-        // In landscape, prioritize width usage
         finalWidth = availableWidth * 0.95;
         finalHeight = finalWidth / finalAspectRatio;
         if (finalHeight > availableHeight * 0.95) {
@@ -87,19 +74,15 @@ const useResponsiveBookSize = () => {
         }
       }
     } else {
-      // Desktop logic remains the same
       if (widthFromHeight <= availableWidth) {
-        // Height is the limiting factor
         finalWidth = widthFromHeight;
         finalHeight = availableHeight;
       } else {
-        // Width is the limiting factor
         finalWidth = availableWidth;
         finalHeight = heightFromWidth;
       }
     }
 
-    // Mobile-specific size constraints - make book larger on mobile
     const minWidth = isMobile ? Math.min(320, availableWidth * 0.95) : Math.min(320, availableWidth * 0.8);
     const maxWidth = isMobile ? Math.min(availableWidth * 0.98, availableWidth - 20) : Math.min(1000, availableWidth * 0.95);
     const minHeight = isMobile ? Math.min(220, availableHeight * 0.95) : Math.min(210, availableHeight * 0.8);
@@ -108,14 +91,12 @@ const useResponsiveBookSize = () => {
     finalWidth = Math.max(minWidth, Math.min(maxWidth, finalWidth));
     finalHeight = Math.max(minHeight, Math.min(maxHeight, finalHeight));
 
-    // Ensure aspect ratio is maintained after constraints
     if (finalWidth / finalHeight > finalAspectRatio) {
       finalWidth = finalHeight * finalAspectRatio;
     } else {
       finalHeight = finalWidth / finalAspectRatio;
     }
 
-    // Final safety check to ensure we don't exceed available space
     if (finalHeight > availableHeight) {
       finalHeight = availableHeight;
       finalWidth = finalHeight * finalAspectRatio;
@@ -125,7 +106,6 @@ const useResponsiveBookSize = () => {
       finalHeight = finalWidth / finalAspectRatio;
     }
 
-    // Calculate scale for perspective and other effects
     const baseWidth = 640;
     const scale = finalWidth / baseWidth;
 
@@ -135,7 +115,6 @@ const useResponsiveBookSize = () => {
       scale: Math.max(0.25, Math.min(isMobile ? 2.0 : 1.5, scale))
     });
 
-    // Update CSS custom properties
     document.documentElement.style.setProperty('--book-width', `${finalWidth}px`);
     document.documentElement.style.setProperty('--book-height', `${finalHeight}px`);
     document.documentElement.style.setProperty('--book-scale', scale.toString());
@@ -148,7 +127,6 @@ const useResponsiveBookSize = () => {
     let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
-      // Use longer debounce on mobile to reduce frequency
       const debounceTime = window.innerWidth <= 768 ? 300 : 150;
       resizeTimeout = setTimeout(calculateBookSize, debounceTime);
     };
@@ -172,14 +150,11 @@ const Book3D: React.FC = () => {
   const coverRef = useRef<HTMLDivElement>(null);
   const pagesContainerRef = useRef<HTMLDivElement>(null);
   const [isClientSide, setIsClientSide] = useState(false);
-
-  // Loading state management for pages
-
+  const { isAutoScrolling, isSmartScrolling } = useBookContext();
   
-  // Use responsive book sizing
   const bookDimensions = useResponsiveBookSize();
 
-  // Interior Design Portfolio content for each page
+  // Interior Design Portfolio content
   const interiorTopics = [
     {
       title: "Modern Living Spaces",
@@ -264,8 +239,6 @@ const Book3D: React.FC = () => {
     }
   ];
 
-
-
   // SSR compatibility check
   useEffect(() => {
     setIsClientSide(true);
@@ -280,99 +253,78 @@ const Book3D: React.FC = () => {
     const pagesContainer = pagesContainerRef.current;
     const pages = Array.from(pagesContainer.querySelectorAll('.book-page')) as HTMLElement[];
 
-    // Optimized 3D perspective setup with minimal blur
+    // Optimized 3D perspective setup
     gsap.set(book, { 
-      rotationY: 0, // Remove rotation to eliminate blur
-      rotationX: 0, // Remove rotation to eliminate blur
+      rotationY: 0,
+      rotationX: 0,
       transformOrigin: "center center",
       transformStyle: "preserve-3d",
-      perspective: `${1000 * bookDimensions.scale}px`, // Reduced perspective further
-      // Force hardware acceleration
+      perspective: `${1000 * bookDimensions.scale}px`,
       force3D: true,
       backfaceVisibility: "hidden"
     });
 
-    // Initialize all pages and cover with optimized 3D setup
+    // Initialize all pages and cover
     gsap.set([cover, ...pages], { 
       transformOrigin: "left center",
       transformStyle: "preserve-3d",
       backfaceVisibility: "hidden",
-      // Force hardware acceleration
       force3D: true,
-      // Optimize for crisp rendering
       clearProps: "transform"
     });
 
-    // Set initial page states for ScrollTrigger - keep pages visible
+    // Set initial page states
     pages.forEach((page, index) => {
       gsap.set(page, { 
         rotationY: 0,
-        opacity: 1, // Keep pages visible for ScrollTrigger
+        opacity: 1,
         zIndex: interiorTopics.length - index,
-        visibility: 'visible', // Ensure pages are always visible
-        // Force hardware acceleration
+        visibility: 'visible',
         force3D: true,
-        // Optimize for crisp rendering
         clearProps: "transform"
       });
       
-      // Ensure content elements are properly set up for animations
       const contentElements = page.querySelectorAll('.year-badge, .page-title, .page-subtitle, .page-content, .artist-name, .page-number, img');
       gsap.set(contentElements, {
         opacity: 0,
         y: 20,
-        // Force hardware acceleration for content elements
         force3D: true,
-        // Optimize for crisp rendering
         clearProps: "transform",
-        // Ensure proper animation setup
         willChange: 'transform, opacity'
       });
     });
 
-    // Cover initial state - ensure it's visible
+    // Cover initial state
     gsap.set(cover, { 
       rotationY: 0,
       opacity: 1,
-              zIndex: interiorTopics.length + 1,
+      zIndex: interiorTopics.length + 1,
       visibility: 'visible',
-      // Force hardware acceleration
       force3D: true,
-      // Optimize for crisp rendering
       clearProps: "transform"
     });
 
-    console.log('Book 3D setup initialized for ScrollTrigger animations');
+    console.log('Book 3D setup initialized');
 
-      }, [isClientSide, interiorTopics.length, bookDimensions.scale]);
+  }, [isClientSide, interiorTopics.length, bookDimensions.scale]);
 
   // Mobile-optimized ScrollTrigger setup
   const setupMobileScrollTrigger = useCallback(() => {
     if (!containerRef.current || !bookRef.current) return;
 
-    // Detect mobile device
     const isMobile = window.innerWidth <= 768;
     const isTouchDevice = 'ontouchstart' in window;
 
-    // Mobile-specific ScrollTrigger settings
     const mobileSettings = {
-      // Reduce sensitivity on mobile to prevent jitter
       scrub: isMobile ? 1.5 : 1,
-      // Increase snap distance for better mobile experience
       snap: 1 / (interiorTopics.length - 1),
-      // Optimize for touch scrolling
       anticipatePin: isMobile ? 1 : 0,
-      // Prevent conflicts with mobile browser UI
       preventOverlaps: true,
-      // Optimize performance on mobile
       fastScrollEnd: isMobile,
-      // Reduce refresh frequency on mobile
       ignoreMobileResize: isMobile,
-      // Disable automatic refresh on mobile to prevent excessive calls
       autoRefreshEvents: isMobile ? "none" : "resize,load,orientationchange",
     };
 
-    // Create ScrollTrigger for book opening animation
     const bookOpenTrigger = ScrollTrigger.create({
       trigger: containerRef.current,
       start: "top top",
@@ -383,81 +335,67 @@ const Book3D: React.FC = () => {
       preventOverlaps: mobileSettings.preventOverlaps,
       fastScrollEnd: mobileSettings.fastScrollEnd,
       onUpdate: (self) => {
+        if (isSmartScrolling) {
+          return;
+        }
+
         const progress = self.progress;
         
-        // Book opening animation
         if (coverRef.current) {
           gsap.to(coverRef.current, {
             rotationY: progress * 180,
-            duration: 0.05, // Reduced duration for smoother animation
+            duration: 0.05,
             ease: "none",
-            // Force hardware acceleration
             force3D: true,
-            // Optimize for crisp rendering
             clearProps: "transform"
           });
         }
-
-        
-        
-        
-        
-
       },
       onRefresh: () => {
-        // Only refresh on significant layout changes, not on every mobile event
         if (isMobile) {
-                  // Debounce refresh to prevent excessive calls
-        clearTimeout((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout);
-        (window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout = setTimeout(() => {
-          // Only refresh if there's a significant change
-          const currentWidth = window.innerWidth;
-          const currentHeight = window.innerHeight;
-          
-          if (!(window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions) {
-            (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
-            return;
-          }
-          
-          const last = (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions;
-          if (last) {
-            const widthChange = Math.abs(currentWidth - last.width);
-            const heightChange = Math.abs(currentHeight - last.height);
+          clearTimeout((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout);
+          (window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout = setTimeout(() => {
+            const currentWidth = window.innerWidth;
+            const currentHeight = window.innerHeight;
             
-            // Only refresh if change is significant (more than 50px)
-            if (widthChange > 50 || heightChange > 50) {
+            if (!(window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions) {
               (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
-              ScrollTrigger.refresh();
+              return;
             }
-          }
-        }, 300);
+            
+            const last = (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions;
+            if (last) {
+              const widthChange = Math.abs(currentWidth - last.width);
+              const heightChange = Math.abs(currentHeight - last.height);
+              
+              if (widthChange > 50 || heightChange > 50) {
+                (window as Window & { lastScrollTriggerDimensions?: { width: number; height: number } }).lastScrollTriggerDimensions = { width: currentWidth, height: currentHeight };
+                ScrollTrigger.refresh();
+              }
+            }
+          }, 300);
         }
       }
     });
 
-    // Mobile-specific optimizations
     if (isTouchDevice && containerRef.current) {
-      // Enable smooth scrolling for touch devices
       (containerRef.current.style as CSSStyleDeclaration & { webkitOverflowScrolling?: string }).webkitOverflowScrolling = 'touch';
     }
 
     return () => {
       bookOpenTrigger.kill();
-      // Clean up timeout to prevent memory leaks
       if ((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout) {
         clearTimeout((window as Window & { scrollTriggerRefreshTimeout?: NodeJS.Timeout }).scrollTriggerRefreshTimeout);
       }
     };
-      }, [interiorTopics.length]);
+  }, [interiorTopics.length, isSmartScrolling]);
 
   // Initialize ScrollTrigger when component mounts
   useEffect(() => {
     if (!isClientSide || !containerRef.current || !bookRef.current) return;
 
-    // Clear any existing ScrollTriggers
     ScrollTrigger.getAll().forEach(trigger => trigger.kill());
 
-    // Use mobile-optimized ScrollTrigger setup
     const cleanup = setupMobileScrollTrigger();
 
     return () => {
@@ -484,15 +422,14 @@ const Book3D: React.FC = () => {
           perspectiveOrigin: 'center center',
           overflow: 'visible',
           clipPath: 'none',
-          // Force hardware acceleration
           transform: 'translateZ(0)',
           willChange: 'transform',
           backfaceVisibility: 'hidden'
         }}
       >
-        {/* Book Base with enhanced shadows - always visible */}
+        {/* Book Base */}
         <div 
-          className="book-base relative rounded-r-lg shadow-2xl transition-all duration-300 ease-out"
+          className="book-base relative shadow-2xl transition-all duration-300 ease-out"
           style={{ 
             width: `${bookDimensions.width}px`,
             height: `${bookDimensions.height}px`,
@@ -503,14 +440,13 @@ const Book3D: React.FC = () => {
             zIndex: 1,
             overflow: 'visible',
             clipPath: 'none',
-            // Force hardware acceleration
             transform: 'translateZ(0)',
             willChange: 'transform',
             backfaceVisibility: 'hidden',
             background: 'var(--secondary-background)'
           }}
         >
-          {/* Premium Art Book Cover */}
+          {/* Book Cover */}
           <div 
             ref={coverRef}
             className="book-cover absolute inset-0 z-10"
@@ -521,32 +457,27 @@ const Book3D: React.FC = () => {
               visibility: 'visible',
               overflow: 'visible',
               clipPath: 'none',
-              // Force hardware acceleration
               transform: 'translateZ(0)',
               willChange: 'transform',
-              // Optimize text rendering
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               textRendering: 'optimizeLegibility'
             }}
           >
             {/* Front Face */}
-            <div className="cover-front absolute inset-0 rounded-lg shadow-lg" style={{ 
+            <div className="cover-front absolute inset-0 shadow-lg" style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'rotateY(0deg) translateZ(0)', 
               width: '100%', 
               height: '100%',
-              // Force hardware acceleration
               willChange: 'transform',
-              // Optimize text rendering
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               textRendering: 'optimizeLegibility',
-              // Ensure crisp rendering
               imageRendering: '-webkit-optimize-contrast',
               background: 'var(--background)'
             }}>
-              {/* Left Sidebar - Light green/beige */}
+              {/* Left Sidebar */}
               <div className="absolute left-0 top-0 w-1/5 h-full" style={{
                 backgroundColor: 'var(--accent-1)'
               }}>
@@ -556,7 +487,6 @@ const Book3D: React.FC = () => {
               <div className="absolute right-0 top-0 w-4/5 h-full flex items-center" style={{ 
                 overflow: 'visible', 
                 clipPath: 'none',
-                // Optimize text rendering
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
                 textRendering: 'optimizeLegibility'
@@ -571,7 +501,6 @@ const Book3D: React.FC = () => {
                     imageRendering: '-webkit-optimize-contrast',
                     backgroundColor: 'var(--secondary-background)'
                 }}>
-                    {/* Image placeholder */}
                     <div className="text-sm" style={{ color: 'var(--typography-secondary)' }}>Interior</div>
                   </div>
                 </div>
@@ -581,22 +510,18 @@ const Book3D: React.FC = () => {
                   <div className="space-y-2 sm:space-y-3 md:space-y-4">
                     <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight" style={{
                       color: 'var(--foreground)',
-                      // Optimize text rendering
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
                       textRendering: 'optimizeLegibility',
-                      // Force hardware acceleration
                       transform: 'translateZ(0)',
                       willChange: 'transform'
                     }}>
                       INTERIORS
                     </h1>
                     <p className="font-body text-xs sm:text-sm md:text-base leading-relaxed" style={{
-                      // Optimize text rendering
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
                       textRendering: 'optimizeLegibility',
-                      // Force hardware acceleration
                       transform: 'translateZ(0)',
                       willChange: 'transform',
                       color: 'var(--typography-secondary)'
@@ -607,8 +532,9 @@ const Book3D: React.FC = () => {
                 </div>
               </div>
             </div>
+            
             {/* Inside Face */}
-            <div className="cover-inside absolute inset-0 rounded-lg border flex flex-col items-center justify-center" style={{ 
+            <div className="cover-inside absolute inset-0 border flex flex-col items-center justify-center" style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'rotateY(180deg)', 
               width: '100%', 
@@ -616,14 +542,14 @@ const Book3D: React.FC = () => {
               background: 'var(--secondary-background)',
               borderColor: 'var(--accent-1)'
             }}>
-              <div className="text-center px-4 sm:px-6 md:px-8">
+              {/* <div className="text-center px-4 sm:px-6 md:px-8">
                 <h2 className="font-display text-lg sm:text-xl md:text-2xl font-light mb-1 sm:mb-2 tracking-wider" style={{ color: 'var(--typography-secondary)' }}>Inside Cover</h2>
                 <p className="font-body text-xs sm:text-sm" style={{ color: 'var(--typography-secondary)' }}>Welcome to the curated journey of Art, Design, and Photography.</p>
-              </div>
+              </div> */}
             </div>
           </div>
 
-          {/* Pages Container - ensure it's always visible */}
+          {/* Pages Container */}
           <div 
             ref={pagesContainerRef}
             className="pages-container absolute inset-0"
@@ -634,19 +560,17 @@ const Book3D: React.FC = () => {
               zIndex: 2,
               overflow: 'visible',
               clipPath: 'none',
-              // Force hardware acceleration
               transform: 'translateZ(0)',
               willChange: 'transform',
               backfaceVisibility: 'hidden'
             }}
           >
-                    {interiorTopics.map((topic, index) => (
-                            <BookPage
+            {interiorTopics.map((topic, index) => (
+              <BookPage
                 key={index}
                 story={topic}
                 pageIndex={index}
                 totalPages={interiorTopics.length}
-
               />
             ))}
           </div>

@@ -366,7 +366,7 @@ const ServicesSection: React.FC = () => {
           </div>
 
           {/* Call to Action */}
-          <div className="service-element section-element text-center mt-16">
+          {/* <div className="service-element section-element text-center mt-16">
             <div className="rounded-2xl p-8 shadow-lg max-w-2xl mx-auto"
                  style={{ 
                    background: 'var(--secondary-background)',
@@ -420,7 +420,7 @@ const ServicesSection: React.FC = () => {
                   {isAnimating || isAutoScrolling || isSmartScrolling ? 'Navigating...' : 'Start Your Project'}
                 </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { SectionAnimations } from '../utils/animations';
-import BookAnimation from './BookAnimation';
+import { BookAnimation } from './Book';
 
 const PortfolioSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);

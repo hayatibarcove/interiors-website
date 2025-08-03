@@ -45,7 +45,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const [isSmartScrolling, setIsSmartScrolling] = useState(false);
-  const totalPages = 4; // Based on the current book structure
+  const totalPages = 9; // Based on the current book structure
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
   // Get the ScrollTrigger instance
@@ -55,7 +55,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       scrollTriggerRef.current = trigger || null;
     }
     
-    // If still not found, try to find it by waiting a bit
     if (!scrollTriggerRef.current) {
       console.log('ScrollTrigger not found, waiting for initialization...');
       return null;
@@ -86,7 +85,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       
       console.log(`Scrolling to page ${pageIndex}, target progress: ${targetProgress}`);
       
-      // Animate to the target progress
       gsap.to(window, {
         duration: 1.5,
         scrollTo: {
@@ -152,7 +150,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     document.body.style.pointerEvents = '';
   }, []);
 
-  // Natural page flip with realistic timing and overlapping delays
+  // Natural page flip with realistic timing
   const naturalPageFlip = useCallback(async (targetPage: number): Promise<void> => {
     return new Promise((resolve) => {
       const scrollTrigger = getScrollTrigger();
@@ -168,14 +166,12 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
 
       console.log(`Starting natural page flip to page ${targetPage}`);
       
-      // Calculate the target progress
       const targetProgress = getPageProgress(targetPage);
       
       // If flipping multiple pages, use overlapping delays for realistic effect
       if (Math.abs(targetPage - currentPage) > 1) {
         console.log(`Flipping ${Math.abs(targetPage - currentPage)} pages with overlapping delays`);
         
-        // Create a timeline for multiple page flips
         const tl = gsap.timeline({
           onComplete: () => {
             setCurrentPage(targetPage);
@@ -192,7 +188,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
           }
         });
         
-        // Add overlapping page flip animations
         const pagesToFlip = Math.abs(targetPage - currentPage);
         const delayPerPage = 0.3; // 300ms delay between page flips
         
@@ -201,7 +196,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
           const pageProgress = getPageProgress(pageIndex);
           
           tl.to(window, {
-            duration: 1.2, // Shorter duration for individual page flips
+            duration: 1.2,
             scrollTo: {
               y: scrollTrigger.start + (scrollTrigger.end - scrollTrigger.start) * pageProgress,
               offsetY: 0
@@ -212,12 +207,12 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
       } else {
         // Single page flip with natural easing
         gsap.to(window, {
-          duration: 2.5, // Longer duration for more natural feel
+          duration: 2.5,
           scrollTo: {
             y: scrollTrigger.start + (scrollTrigger.end - scrollTrigger.start) * targetProgress,
             offsetY: 0
           },
-          ease: "power1.inOut", // Natural page turning easing
+          ease: "power1.inOut",
           onComplete: () => {
             setCurrentPage(targetPage);
             setIsAnimating(false);
@@ -226,7 +221,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
             resolve();
           },
           onInterrupt: () => {
-            // Cleanup if animation is interrupted
             setIsAnimating(false);
             setIsAutoScrolling(false);
             enableScrollInput();
@@ -259,7 +253,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
     console.log('Starting unified smart scroll sequence...');
 
     return new Promise((resolve) => {
-      // Create unified timeline for the entire sequence
       const unifiedTimeline = gsap.timeline({
         onComplete: () => {
           console.log('Unified smart scroll sequence completed');
@@ -279,13 +272,11 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
         }
       });
 
-      // Detect if we're flipping to the last page for conditional handling
       const isFlippingToLastPage = currentPage < totalPages - 1;
       const isAlreadyOnLastPage = currentPage === totalPages - 1;
-      const flipDuration = isFlippingToLastPage ? 1.5 : 2.5; // Shorter duration for last page
-      const shouldSkipDelay = isFlippingToLastPage; // Skip delay for last page
+      const flipDuration = isFlippingToLastPage ? 1.5 : 2.5;
+      const shouldSkipDelay = isFlippingToLastPage;
 
-      // If not on the last page, animate to last page first
       if (isFlippingToLastPage) {
         console.log('Adding last page flip animation with optimized timing...');
         const lastPageProgress = getPageProgress(totalPages - 1);
@@ -300,24 +291,19 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
         });
       }
 
-      // Conditional delay handling - skip delay for last page scenarios
       if (!shouldSkipDelay && !isAlreadyOnLastPage) {
-        // Add delay only for non-last page scenarios (when flipping from earlier pages)
         unifiedTimeline.add(() => {
           console.log('Book flip completed, preparing for contact scroll...');
-        }, "+=0.3"); // 300ms delay only for non-last page scenarios
+        }, "+=0.3");
       } else if (isFlippingToLastPage) {
-        // For last page flip: immediately prepare contact scroll without delay
         unifiedTimeline.add(() => {
           console.log('Last page flip completed, immediately preparing contact scroll...');
-        }, "+=0.1"); // Minimal delay for last page (100ms for smooth transition)
+        }, "+=0.1");
       }
-      // Note: isAlreadyOnLastPage case is handled above with no delay
 
-      // Then scroll to contact section with conditional duration
       console.log('Adding contact scroll to timeline...');
       const contactProgress = 0.92;
-      const contactScrollDuration = (isFlippingToLastPage || isAlreadyOnLastPage) ? 1.5 : 2; // Shorter duration for last page scenarios
+      const contactScrollDuration = (isFlippingToLastPage || isAlreadyOnLastPage) ? 1.5 : 2;
       
       unifiedTimeline.to(window, {
         duration: contactScrollDuration,
@@ -327,7 +313,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
         },
         ease: "power2.inOut",
       });
-
     });
   }, [currentPage, totalPages, isAnimating, getScrollTrigger, getPageProgress, disableScrollInput, enableScrollInput]);
 
@@ -350,7 +335,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({ children }) => {
   // Cleanup effect to ensure proper reset
   useEffect(() => {
     return () => {
-      // Cleanup on unmount
       setIsAnimating(false);
       setIsAutoScrolling(false);
       setIsSmartScrolling(false);
