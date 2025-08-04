@@ -790,8 +790,7 @@ img {
   top: 0;
   bottom: 0;
   width: 8px;
-  background: var(--highlight);
-  border-radius: 4px 0 0 4px;
+  background: var(--accent-1);
   z-index: 3;
 }
 

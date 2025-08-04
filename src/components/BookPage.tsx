@@ -30,12 +30,12 @@ const BookPage: React.FC<BookPageProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [contentReady, setContentReady] = useState(false);
 
-  // Simulate content preparation time (in real app, this might be API calls, etc.)
+  // Simulate content preparation time
   useEffect(() => {
     const timer = setTimeout(() => {
       setContentReady(true);
       onContentReady?.();
-    }, 300); // Minimum loading time for smooth UX
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [onContentReady]);
@@ -61,10 +61,8 @@ const BookPage: React.FC<BookPageProps> = ({
         visibility: 'visible',
         overflow: 'visible',
         clipPath: 'none',
-        // Force hardware acceleration
         transform: 'translateZ(0)',
         willChange: 'transform',
-        // Optimize text rendering
         WebkitFontSmoothing: 'antialiased',
         MozOsxFontSmoothing: 'grayscale',
         textRendering: 'optimizeLegibility',
@@ -82,10 +80,8 @@ const BookPage: React.FC<BookPageProps> = ({
           backfaceVisibility: 'hidden',
           overflow: 'visible',
           clipPath: 'none',
-          // Force hardware acceleration
           transform: 'translateZ(0)',
           willChange: 'transform',
-          // Optimize text rendering
           WebkitFontSmoothing: 'antialiased',
           MozOsxFontSmoothing: 'grayscale',
           textRendering: 'optimizeLegibility'
@@ -100,7 +96,6 @@ const BookPage: React.FC<BookPageProps> = ({
               overflow: 'visible', 
               clipPath: 'none',
               backgroundColor: 'var(--accent-1)',
-              // Ensure proper animation setup - let GSAP control these properties
               willChange: 'transform, opacity'
             }}>
               <span className="text-xs sm:text-sm font-medium tracking-wide" style={{ color: 'var(--foreground)' }}>
@@ -113,7 +108,6 @@ const BookPage: React.FC<BookPageProps> = ({
               overflow: 'visible', 
               clipPath: 'none',
               color: 'var(--foreground)',
-              // Ensure proper animation setup - let GSAP control these properties
               willChange: 'transform, opacity'
             }}>
               {story.title}
@@ -122,7 +116,6 @@ const BookPage: React.FC<BookPageProps> = ({
               overflow: 'visible', 
               clipPath: 'none',
               color: 'var(--typography-secondary)',
-              // Ensure proper animation setup - let GSAP control these properties
               willChange: 'transform, opacity'
             }}>
               {story.subtitle}
@@ -162,9 +155,8 @@ const BookPage: React.FC<BookPageProps> = ({
                   objectFit='cover'
                   layout='fill'
                   onLoad={handleImageLoad}
-                  priority={pageIndex < 3} // Prioritize first few pages
+                  priority={pageIndex < 3}
                   style={{
-                    // Ensure proper animation setup - let GSAP control these properties
                     willChange: 'transform, opacity'
                   }}
                 />
@@ -179,7 +171,6 @@ const BookPage: React.FC<BookPageProps> = ({
                   overflow: 'visible', 
                   clipPath: 'none',
                   color: 'var(--typography-secondary)',
-                  // Ensure proper animation setup - let GSAP control these properties
                   willChange: 'transform, opacity'
                 }}>
                   {story.content}
@@ -198,7 +189,6 @@ const BookPage: React.FC<BookPageProps> = ({
                       overflow: 'visible', 
                       clipPath: 'none',
                       color: 'var(--typography-secondary)',
-                      // Ensure proper animation setup - let GSAP control these properties
                       willChange: 'transform, opacity'
                     }}>
                       {story.artist}
@@ -210,7 +200,6 @@ const BookPage: React.FC<BookPageProps> = ({
                     overflow: 'visible', 
                     clipPath: 'none',
                     backgroundColor: 'var(--accent-1)',
-                    // Ensure proper animation setup - let GSAP control these properties
                     willChange: 'transform, opacity'
                   }}>
                     <span className={`text-xs sm:text-sm md:text-sm font-medium transition-colors duration-300`} style={{ 
@@ -242,21 +231,21 @@ const BookPage: React.FC<BookPageProps> = ({
 
       {/* Enhanced Page Back for 3D Realism - Only Visible When Flipped */}
       <div 
-        className="absolute inset-0 rounded-lg"
+        className="absolute inset-0"
         style={{
           transformStyle: 'preserve-3d',
           transform: 'rotateY(180deg)',
-          backfaceVisibility: 'hidden', // Keep hidden until flipped
+          backfaceVisibility: 'hidden',
           zIndex: -1,
-          opacity: 0, // Start hidden
-          visibility: 'hidden', // Start hidden
+          opacity: 0,
+          visibility: 'hidden',
           overflow: 'visible',
           clipPath: 'none',
-          pointerEvents: 'none', // Prevent interaction when hidden
-          background: 'var(--accent-2)'
+          pointerEvents: 'none',
+          background: 'var(--secondary-background)'
         }}
       >
-        <div className="h-full flex items-center justify-center opacity-20" style={{ overflow: 'visible', clipPath: 'none' }}>
+        {/* <div className="h-full flex items-center justify-center opacity-20" style={{ overflow: 'visible', clipPath: 'none' }}>
           <div className="text-2xl sm:text-4xl md:text-6xl font-light" style={{ 
             overflow: 'visible', 
             clipPath: 'none',
@@ -264,7 +253,7 @@ const BookPage: React.FC<BookPageProps> = ({
           }}>
             {pageIndex + 1}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

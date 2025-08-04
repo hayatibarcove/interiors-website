@@ -462,12 +462,7 @@ const Book3D: React.FC = () => {
     <div 
       ref={containerRef}
       className="relative w-full h-full flex items-center justify-center"
-      style={{ 
-        overflow: 'visible', 
-        clipPath: 'none',
-        willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
-        transform: 'translateZ(0)' // Force GPU acceleration
-      }}
+      style={{ overflow: 'visible', clipPath: 'none' }}
     >
       <div 
         ref={bookRef}
@@ -477,14 +472,14 @@ const Book3D: React.FC = () => {
           perspectiveOrigin: 'center center',
           overflow: 'visible',
           clipPath: 'none',
-          transform: 'translateZ(0)', // Force GPU acceleration
-          willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
+          transform: 'translateZ(0)',
+          willChange: 'transform',
           backfaceVisibility: 'hidden'
         }}
       >
-        {/* Book Base with enhanced shadows - always visible with GPU acceleration */}
+        {/* Book Base */}
         <div 
-          className="book-base relative rounded-r-lg shadow-2xl transition-all duration-300 ease-out"
+          className="book-base relative shadow-2xl transition-all duration-300 ease-out"
           style={{ 
             width: `${bookDimensions.width}px`,
             height: `${bookDimensions.height}px`,
@@ -495,13 +490,13 @@ const Book3D: React.FC = () => {
             zIndex: 1,
             overflow: 'visible',
             clipPath: 'none',
-            transform: 'translateZ(0)', // Force GPU acceleration
-            willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
+            transform: 'translateZ(0)',
+            willChange: 'transform',
             backfaceVisibility: 'hidden',
             background: 'var(--secondary-background)'
           }}
         >
-          {/* Premium Art Book Cover with GPU acceleration */}
+          {/* Book Cover */}
           <div 
             ref={coverRef}
             className="book-cover absolute inset-0 z-10"
@@ -512,40 +507,39 @@ const Book3D: React.FC = () => {
               visibility: 'visible',
               overflow: 'visible',
               clipPath: 'none',
-              transform: 'translateZ(0)', // Force GPU acceleration
-              willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
+              transform: 'translateZ(0)',
+              willChange: 'transform',
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               textRendering: 'optimizeLegibility'
             }}
           >
-            {/* Front Face with GPU acceleration */}
-            <div className="cover-front absolute inset-0 rounded-lg shadow-lg" style={{ 
+            {/* Front Face */}
+            <div className="cover-front absolute inset-0 shadow-lg" style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'rotateY(0deg) translateZ(0)', 
               width: '100%', 
               height: '100%',
-              willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
+              willChange: 'transform',
               WebkitFontSmoothing: 'antialiased',
               MozOsxFontSmoothing: 'grayscale',
               textRendering: 'optimizeLegibility',
               imageRendering: '-webkit-optimize-contrast',
               background: 'var(--background)'
             }}>
-              {/* Left Sidebar - Light green/beige */}
+              {/* Left Sidebar */}
               <div className="absolute left-0 top-0 w-1/5 h-full" style={{
                 backgroundColor: 'var(--accent-1)'
               }}>
               </div>
               
-              {/* Main Content Area with GPU acceleration */}
+              {/* Main Content Area */}
               <div className="absolute right-0 top-0 w-4/5 h-full flex items-center" style={{ 
                 overflow: 'visible', 
                 clipPath: 'none',
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
-                textRendering: 'optimizeLegibility',
-                willChange: PERFORMANCE_CONFIG.WILL_CHANGE
+                textRendering: 'optimizeLegibility'
               }}>
                 {/* Interior Image */}
                 <div className="w-1/2 h-full flex items-center justify-center p-4">
@@ -555,15 +549,13 @@ const Book3D: React.FC = () => {
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                     imageRendering: '-webkit-optimize-contrast',
-                    backgroundColor: 'var(--secondary-background)',
-                    willChange: PERFORMANCE_CONFIG.WILL_CHANGE
+                    backgroundColor: 'var(--secondary-background)'
                 }}>
-                    {/* Image placeholder */}
                     <div className="text-sm" style={{ color: 'var(--typography-secondary)' }}>Interior</div>
                   </div>
                 </div>
                 
-                {/* Text Content with GPU acceleration */}
+                {/* Text Content */}
                 <div className="w-1/2 h-full flex flex-col justify-center px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4">
                   <div className="space-y-2 sm:space-y-3 md:space-y-4">
                     <h1 className="font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight" style={{
@@ -571,8 +563,8 @@ const Book3D: React.FC = () => {
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
                       textRendering: 'optimizeLegibility',
-                      transform: 'translateZ(0)', // Force GPU acceleration
-                      willChange: PERFORMANCE_CONFIG.WILL_CHANGE
+                      transform: 'translateZ(0)',
+                      willChange: 'transform'
                     }}>
                       INTERIORS
                     </h1>
@@ -580,8 +572,8 @@ const Book3D: React.FC = () => {
                       WebkitFontSmoothing: 'antialiased',
                       MozOsxFontSmoothing: 'grayscale',
                       textRendering: 'optimizeLegibility',
-                      transform: 'translateZ(0)', // Force GPU acceleration
-                      willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
+                      transform: 'translateZ(0)',
+                      willChange: 'transform',
                       color: 'var(--typography-secondary)'
                     }}>
                       Residential • Commercial • Conceptual
@@ -590,27 +582,27 @@ const Book3D: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* Inside Face with GPU acceleration */}
-            <div className="cover-inside absolute inset-0 rounded-lg border flex flex-col items-center justify-center" style={{ 
+            
+            {/* Inside Face */}
+            <div className="cover-inside absolute inset-0 border flex flex-col items-center justify-center" style={{ 
               backfaceVisibility: 'hidden', 
               transform: 'rotateY(180deg)', 
               width: '100%', 
               height: '100%',
               background: 'var(--secondary-background)',
-              borderColor: 'var(--accent-1)',
-              willChange: PERFORMANCE_CONFIG.WILL_CHANGE
+              borderColor: 'var(--accent-1)'
             }}>
-              <div className="text-center px-4 sm:px-6 md:px-8">
+              {/* <div className="text-center px-4 sm:px-6 md:px-8">
                 <h2 className="font-display text-lg sm:text-xl md:text-2xl font-light mb-1 sm:mb-2 tracking-wider" style={{ color: 'var(--typography-secondary)' }}>Inside Cover</h2>
                 <p className="font-body text-xs sm:text-sm" style={{ color: 'var(--typography-secondary)' }}>Welcome to the curated journey of Art, Design, and Photography.</p>
-              </div>
+              </div> */}
             </div>
           </div>
 
-          {/* Pages Container - ensure it's always visible with GPU acceleration */}
+          {/* Pages Container */}
           <div 
             ref={pagesContainerRef}
-            className="pages-container rounded-lg absolute inset-0"
+            className="pages-container absolute inset-0"
             style={{ 
               transformStyle: 'preserve-3d',
               opacity: 1,
@@ -618,8 +610,8 @@ const Book3D: React.FC = () => {
               zIndex: 2,
               overflow: 'visible',
               clipPath: 'none',
-              transform: 'translateZ(0)', // Force GPU acceleration
-              willChange: PERFORMANCE_CONFIG.WILL_CHANGE,
+              transform: 'translateZ(0)',
+              willChange: 'transform',
               backfaceVisibility: 'hidden'
             }}
           >
