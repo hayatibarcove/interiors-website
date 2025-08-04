@@ -156,16 +156,16 @@ const ContactSection: React.FC<ContactSectionProps> = ({ onContactReady }) => {
 
         {/* Contact Info */}
         <div className="contact-element opacity-0 transform translate-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 text-xs md:text-sm">
-            <div className="flex items-center justify-center space-x-1 md:space-x-2 text-stone-600">
+          <div className="flex flex-col space-y-3 md:space-y-4 text-xs md:text-sm">
+            <div className="flex items-center justify-center space-x-2 md:space-x-3 text-stone-600">
               <Mail className="w-3 h-3 md:w-4 md:h-4" />
               <span>info@luminarestudio.com</span>
             </div>
-            <div className="flex items-center justify-center space-x-1 md:space-x-2 text-stone-600">
+            <div className="flex items-center justify-center space-x-2 md:space-x-3 text-stone-600">
               <Phone className="w-3 h-3 md:w-4 md:h-4" />
               <span>+60 333333333</span>
             </div>
-            <div className="flex items-center justify-center space-x-1 md:space-x-2 text-stone-600">
+            <div className="flex items-center justify-center space-x-2 md:space-x-3 text-stone-600">
               <MapPin className="w-3 h-3 md:w-4 md:h-4" />
               <span>Kuala Lumpur, Malaysia</span>
             </div>
